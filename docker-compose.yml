@@ -1,0 +1,7 @@
+services:
+  app-prod:
+    build: .
+    container_name: tahfidz-fe-kalimasada-prod
+    ports:
+      - "4000:4173" # host:container
+    restart: unless-stopped

@@ -1,0 +1,34 @@
+import { create } from "zustand";
+
+type StatusFilter = "TambahHafalan" | "Murajaah";
+type SortByAyat = "asc" | "desc" | null; 
+
+interface RiwayatTerakhirState {
+  statusFilter: StatusFilter;
+  currentPage: number;
+  searchName: string;
+  searchFilter: string;
+  selectedTahap: string;
+  sortByAyat: SortByAyat;
+  setState: (partial: Partial<RiwayatTerakhirState>) => void;
+  setCurrentPage: (page: number) => void;
+  setStatusFilter: (status: StatusFilter) => void;
+  reset: () => void;
+}
+
+const initialState = {
+  statusFilter: "TambahHafalan" as StatusFilter,
+  currentPage: 1,
+  searchName: "",
+  searchFilter: "",
+  selectedTahap: "Level1",
+  sortByAyat: null,
+};
+
+export const useRiwayatTerakhirStore = create<RiwayatTerakhirState>((set) => ({
+  ...initialState,
+  setStatusFilter: (status) => set({ statusFilter: status }),
+  setState: (partial) => set((state) => ({ ...state, ...partial })),
+  setCurrentPage: (page) => set((state) => ({ ...state, currentPage: page })),
+  reset: () => set(initialState),
+}));
