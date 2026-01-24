@@ -308,7 +308,7 @@ export default function UstadzAddHafalan() {
           <DialogHeader>
             <DialogTitle>Catatan dan Jumlah Ayat</DialogTitle>
             <DialogDescription>
-              Masukkan ayat yang telah dihafal atau muraja'ah, serta catatan (opsional).
+              Masukkan ayat {mode === 'tambah' ? 'yang telah dihafal' : "muraja'ah"}, serta catatan (opsional).
             </DialogDescription>
           </DialogHeader>
           <div className="flex flex-col gap-4 py-4">
