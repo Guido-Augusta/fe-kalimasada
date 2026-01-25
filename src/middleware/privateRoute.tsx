@@ -13,12 +13,10 @@ const PrivateRoute = ({
   allowedRoles, 
   redirectPath = '/login' 
 }: PrivateRouteProps) => {
-  // const { user, clearUser } = useUser();
   const { user } = useUser();
   const token = localStorage.getItem("authToken");
 
   if (!token) {
-    // clearUser();
     return <Navigate to={redirectPath} replace />;
   }
 
