@@ -51,6 +51,9 @@ import RoleRedirect from "@/middleware/RoleRedirect"
 import BacaAlquranAdmin from "@/features/admin/pages/BacaAlquranAdmin"
 import BacaSurahUstadz from "@/features/ustadz/pages/BacaSurahUstadz"
 import BacaAlquranOrtu from "@/features/ortu/pages/BacaAlquranOrtu"
+import BacaJuzAdmin from "@/features/admin/pages/BacaJuzAdmin"
+import BacaJuzUstadz from "@/features/ustadz/pages/BacaJuzUstadz"
+import BacaJuzOrtu from "@/features/ortu/pages/BacaJuzOrtu"
 import ForgotEmail from "@/features/authentication/pages/forgot.email"
 import VerifyToken from "@/features/authentication/pages/verify.token"
 import SetNewPassword from "@/features/authentication/pages/set-new.password"
@@ -94,8 +97,9 @@ export const AppRouter = () => {
             <Route path="/admin/santri-detail/:id" element={<DetailSantri />} />
             <Route path="/admin/santri/edit/:id" element={<EditSantri />} />
             <Route path="/admin/santri/peringkat" element={<AdminPeringkatSantri />} />
-            <Route path="/admin/alquran" element={<AlquranAdmin />} />
-            <Route path="/admin/alquran/:idSurah" element={<BacaAlquranAdmin />} />
+<Route path="/admin/alquran" element={<AlquranAdmin />} />
+            <Route path="/admin/alquran/surah/:idSurah" element={<BacaAlquranAdmin />} />
+            <Route path="/admin/alquran/juz/:idJuz" element={<BacaJuzAdmin />} />
           </Route>
 
           {/* ustadz */}
@@ -110,8 +114,9 @@ export const AppRouter = () => {
             <Route path="/ustadz/peringkat/santri" element={<UstadPeringkatSantri />} />
             <Route path="/ustadz/profile" element={<UstadProfile />} />
             <Route path="/ustadz/edit/profile" element={<UstadEditProfile />} />
-            <Route path="/ustadz/alquran" element={<AlquranUstadz />} />
-            <Route path="/ustadz/alquran/:idSurah" element={<BacaSurahUstadz />} />
+<Route path="/ustadz/alquran" element={<AlquranUstadz />} />
+            <Route path="/ustadz/alquran/surah/:idSurah" element={<BacaSurahUstadz />} />
+            <Route path="/ustadz/alquran/juz/:idJuz" element={<BacaJuzUstadz />} />
             <Route path="/ustadz/change-password" element={<UstadChangePassword />} />
             <Route path="/ustadz/ustadz/detail/:id" element={<UstadLainDetail />} />
             <Route path="/ustadz/kelas/tahapan" element={<UstadKelasTahapan />} />
@@ -128,8 +133,9 @@ export const AppRouter = () => {
             <Route path="/ortu/riwayat/detail/:santriId/surah/:surahId" element={<OrtuDetailHafalan />} />
             <Route path="/ortu/profile" element={<OrtuProfile />} />
             <Route path="/ortu/edit/profile" element={<OrtuEditProfile />} />
-            <Route path="/ortu/alquran" element={<AlquranOrtu />} />
-            <Route path="/ortu/alquran/:idSurah" element={<BacaAlquranOrtu />} />
+<Route path="/ortu/alquran" element={<AlquranOrtu />} />
+            <Route path="/ortu/alquran/surah/:idSurah" element={<BacaAlquranOrtu />} />
+            <Route path="/ortu/alquran/juz/:idJuz" element={<BacaJuzOrtu />} />
             <Route path="/ortu/change-password" element={<OrtuChangePassword />} />
             <Route path="/ortu/ustadz/detail/:id" element={<OrtuDetailUstad />} />
           </Route>

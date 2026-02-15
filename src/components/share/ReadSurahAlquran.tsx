@@ -106,15 +106,15 @@ export default function ReadSurahAlquran() {
         </div>
 
         <div className="flex justify-between items-center my-4">
-          <Link to={`/${user?.role}/alquran/${data.nomor - 1 === 0 ? 114 : data.nomor - 1}`}>
+          <Link to={`/${user?.role}/alquran/surah/${data.nomor - 1 === 0 ? 114 : data.nomor - 1}`}>
             <Button variant="ghost" className="flex items-center text-blue-500 hover:text-blue-700">
               <ChevronLeft size={24} />
-              <span className="ml-2 text-wrap">Surat Sebelumnya</span>
+              <span className="ml-2 text-wrap">Surah Sebelumnya</span>
             </Button>
           </Link>
-          <Link to={`/${user?.role}/alquran/${data.nomor + 1 === 115 ? 1 : data.nomor + 1}`}>
+          <Link to={`/${user?.role}/alquran/surah/${data.nomor + 1 === 115 ? 1 : data.nomor + 1}`}>
             <Button variant="ghost" className="flex items-center text-blue-500 hover:text-blue-700">
-              <span className="mr-2 text-wrap">Surat Selanjutnya</span>
+              <span className="mr-2 text-wrap">Surah Selanjutnya</span>
               <ChevronRight size={24} />
             </Button>
           </Link>
@@ -133,13 +133,13 @@ export default function ReadSurahAlquran() {
         </div>
 
         <div className="flex justify-between items-center my-4">
-          <Link to={`/${user?.role}/alquran/${data.nomor - 1 === 0 ? 114 : data.nomor - 1}`}>
+          <Link to={`/${user?.role}/alquran/surah/${data.nomor - 1 === 0 ? 114 : data.nomor - 1}`}>
             <Button variant="ghost" className="flex items-center text-blue-500 hover:text-blue-700">
               <ChevronLeft size={24} />
               <span className="ml-2 text-wrap">Surat Sebelumnya</span>
             </Button>
           </Link>
-          <Link to={`/${user?.role}/alquran/${data.nomor + 1 === 115 ? 1 : data.nomor + 1}`}>
+          <Link to={`/${user?.role}/alquran/surah/${data.nomor + 1 === 115 ? 1 : data.nomor + 1}`}>
             <Button variant="ghost" className="flex items-center text-blue-500 hover:text-blue-700">
               <span className="mr-2 text-wrap">Surat Selanjutnya</span>
               <ChevronRight size={24} />
