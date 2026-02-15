@@ -7,9 +7,17 @@ export interface SurahProgress {
   progress: string;
 }
 
+export interface JuzProgress {
+  id: number;
+  juz: number;
+  progress: string;
+  totalAyat: number;
+}
+
 export interface HafalanProgressApiData {
   message: string;
   status: number;
+  mode: "surah" | "juz";
   santri: {
     id: number;
     nama: string;
@@ -17,7 +25,7 @@ export interface HafalanProgressApiData {
     tingkatan: string;
     totalPoin: number;
   };
-  data: SurahProgress[];
+  data: SurahProgress[] | JuzProgress[];
 }
 
 export type HafalanMode = "tambah" | "murajaah";

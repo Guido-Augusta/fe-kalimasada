@@ -3,9 +3,9 @@ import type { DeleteRiwayatHafalanResponse, HafalanData, HafalanProgressApiData,
 
 const BASE_URL = import.meta.env.VITE_API_URL ? import.meta.env.VITE_API_URL : "http://localhost:5000";
 
-export const fetchProgressHafalan = async (idSantri: string) => {
+export const fetchProgressHafalan = async (idSantri: string, mode: "surah" | "juz" = "surah") => {
   const headers = getAuthHeaders(false);
-  const response = await fetch(`${BASE_URL}/api/hafalan/${idSantri}/surah`, 
+  const response = await fetch(`${BASE_URL}/api/hafalan/${idSantri}?mode=${mode}`, 
     { headers }
   );
   if (!response.ok) {

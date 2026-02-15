@@ -1,10 +1,10 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { deleteRiwayatHafalan, fetchAddHafalanData, fetchProgressHafalan, fetchRiwayatDetail, fetchRiwayatTerakhir, saveHafalanData } from "../service/hafalan.service";
 
-export const useHafalanProgressData = (idSantri: string) => {
+export const useHafalanProgressData = (idSantri: string, mode: "surah" | "juz" = "surah") => {
   return useQuery({
-    queryKey: ["progress-hafalan-data", idSantri],
-    queryFn: () => fetchProgressHafalan(idSantri),
+    queryKey: ["progress-hafalan-data", idSantri, mode],
+    queryFn: () => fetchProgressHafalan(idSantri, mode),
     enabled: !!idSantri,
   });
 };
