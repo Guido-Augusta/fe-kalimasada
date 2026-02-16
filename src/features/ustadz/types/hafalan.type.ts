@@ -76,6 +76,10 @@ export interface RiwayatHafalan {
   namaSurahLatin: string;
   jumlahAyat: number;
   totalPoin?: number;
+  rangeAyat?: {
+    awal: number;
+    akhir: number;
+  };
 }
 
 export interface SantriData {
