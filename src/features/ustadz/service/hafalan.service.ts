@@ -40,7 +40,7 @@ export const saveHafalanData = async (payload: {
   catatan: string;
 }) => {
   const headers = getAuthHeaders(true);
-  const response = await fetch(`${BASE_URL}/api/hafalan`, {
+  const response = await fetch(`${BASE_URL}/api/hafalan/ayat`, {
     method: "POST",
     headers,
     body: JSON.stringify(payload),
