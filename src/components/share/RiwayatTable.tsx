@@ -117,7 +117,7 @@ export default function RiwayatTable({
               <TableHead className="text-center hidden md:table-cell">
                 Status
               </TableHead>
-              <TableHead className="text-center">Rentang Ayat</TableHead>
+              <TableHead className="text-center">Ayat</TableHead>
               {statusFilter === 'TambahHafalan' && (
                 <TableHead className="text-center hidden md:table-cell">
                   Poin
@@ -142,9 +142,9 @@ export default function RiwayatTable({
                     </Badge>
                   </TableCell>
                   <TableCell className="text-center">
-                    {riwayat.rangeAyat
+                    {riwayat.rangeAyat?.awal && riwayat.rangeAyat?.akhir
                       ? `${riwayat.rangeAyat.awal}-${riwayat.rangeAyat.akhir}`
-                      : `${riwayat.jumlahAyat} ayat`}
+                      : '-'}
                   </TableCell>
                   {statusFilter === 'TambahHafalan' && (
                     <TableCell className="text-center hidden md:table-cell">
