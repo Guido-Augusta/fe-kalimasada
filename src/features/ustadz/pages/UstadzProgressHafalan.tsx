@@ -102,8 +102,8 @@ export default function UstadzProgressHafalan() {
           <Card className="mt-6">
             <CardHeader className="flex md:flex-row flex-col gap-2 justify-between">
               <div> 
-                <CardTitle>{mode === "surah" ? "Daftar Surat" : "Daftar Juz"}</CardTitle>
-                <CardDescription>{mode === "surah" ? "Progres hafalan surat-surat Al-Qur'an." : "Progres hafalan juz-juz Al-Qur'an."}</CardDescription>
+                <CardTitle>{mode === "surah" ? "Daftar Surah" : "Daftar Juz"}</CardTitle>
+                <CardDescription>{mode === "surah" ? "Progres hafalan surah Al-Qur'an." : "Progres hafalan juz Al-Qur'an."}</CardDescription>
               </div>
               <div className="flex items-center gap-2 md:mt-0 mt-2">
                 <Select
@@ -163,7 +163,7 @@ export default function UstadzProgressHafalan() {
                         const [current, total] = surah.progress.split("/").map(Number);
                         const progressValue = total > 0 ? (current / total) * 100 : 0;
                         return (
-                          <TableRow key={surah.id}>
+                          <TableRow key={`surah-${santri?.id}-${surah.id}`}>
                             <TableCell className="font-medium text-center">{surah.namaLatin}</TableCell>
                             <TableCell className="text-center hidden md:table-cell">{surah.totalAyat}</TableCell>
                             <TableCell className="text-center">
@@ -195,7 +195,7 @@ export default function UstadzProgressHafalan() {
                         const [current, total] = juz.progress.split("/").map(Number);
                         const progressValue = total > 0 ? (current / total) * 100 : 0;
                         return (
-                          <TableRow key={juz.id}>
+                          <TableRow key={`juz-${santri?.id}-${juz.juz}`}>
                             <TableCell className="font-medium text-center">Juz {juz.juz}</TableCell>
                             <TableCell className="text-center hidden md:table-cell">{juz.totalAyat}</TableCell>
                             <TableCell className="text-center">

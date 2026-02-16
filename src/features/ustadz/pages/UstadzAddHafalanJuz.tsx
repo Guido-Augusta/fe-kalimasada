@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { useParams, useSearchParams } from 'react-router-dom';
 import UstadzLayout from '../components/UstadzLayout';
 import {
@@ -23,19 +23,21 @@ import {
 import { Textarea } from '@/components/ui/textarea';
 import { toast } from 'react-hot-toast';
 import {
-  useFetchAddHafalanData,
-  useSaveHafalan,
+  useFetchJuzHafalanData,
+  useSaveHafalanByHalaman,
 } from '../hooks/useHafalanData';
 import { Input } from '@/components/ui/input';
 import type { HafalanMode } from '../types/hafalan.type';
 import { toArabicNumber } from '@/utils/formatArabNumber';
 import { useNavigate } from 'react-router-dom';
 
-export default function UstadzAddHafalan() {
+const TOTAL_PAGES_IN_JUZ = 20;
+
+export default function UstadzAddHafalanJuz() {
   const navigate = useNavigate();
-  const { idSantri, idSurah } = useParams<{
+  const { idSantri, idJuz } = useParams<{
     idSantri: string;
-    idSurah: string;
+    idJuz: string;
   }>();
   const [searchParams, setSearchParams] = useSearchParams();
   const [mode, setMode] = useState<HafalanMode>(
@@ -43,8 +45,8 @@ export default function UstadzAddHafalan() {
   );
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [catatan, setCatatan] = useState('');
-  const [startAyat, setStartAyat] = useState(0);
-  const [endAyat, setEndAyat] = useState(0);
+  const [startHalaman, setStartHalaman] = useState(0);
+  const [endHalaman, setEndHalaman] = useState(0);
 
   const ayatRefs = useRef<Record<number, HTMLDivElement | null>>({});
 
@@ -53,17 +55,23 @@ export default function UstadzAddHafalan() {
     isLoading,
     isError,
     error: _error,
-  } = useFetchAddHafalanData(idSantri!, idSurah!, mode);
-  const { mutate: saveHafalan, isPending: isSaving } = useSaveHafalan();
+  } = useFetchJuzHafalanData(idSantri!, idJuz!, mode);
+  const { mutate: saveHafalanByHalaman, isPending: isSaving } =
+    useSaveHafalanByHalaman();
+
+  const allAyat = useMemo(() => {
+    if (!data?.surah) return [];
+    return data.surah.flatMap((item) => item.ayat);
+  }, [data]);
 
   useEffect(() => {
     if (data) {
-      setStartAyat(0);
-      setEndAyat(0);
+      setStartHalaman(0);
+      setEndHalaman(0);
     }
 
-    if (data?.ayat?.length) {
-      const lastCheckedAyat = [...data.ayat]
+    if (allAyat.length > 0) {
+      const lastCheckedAyat = [...allAyat]
         .reverse()
         .find((ayat) => ayat.checked);
 
@@ -75,7 +83,7 @@ export default function UstadzAddHafalan() {
         }
       }
     }
-  }, [data]);
+  }, [data, allAyat]);
 
   const handleTabChange = (newMode: HafalanMode) => {
     setMode(newMode);
@@ -87,63 +95,50 @@ export default function UstadzAddHafalan() {
   };
 
   const handleSubmitHafalan = async () => {
-    if (!data) {
+    if (!data || allAyat.length === 0) {
       toast.error('Data hafalan tidak tersedia. Mohon coba lagi.');
       setIsDialogOpen(false);
       return;
     }
 
-    const totalAyat = data.ayat.length;
-
     if (
-      startAyat <= 0 ||
-      endAyat <= 0 ||
-      startAyat > totalAyat ||
-      endAyat > totalAyat ||
-      startAyat > endAyat
+      startHalaman <= 0 ||
+      endHalaman <= 0 ||
+      startHalaman > TOTAL_PAGES_IN_JUZ ||
+      endHalaman > TOTAL_PAGES_IN_JUZ ||
+      startHalaman > endHalaman
     ) {
       toast.error(
-        'Input ayat tidak valid. Pastikan Ayat Mulai dan Ayat Selesai benar.'
+        'Input halaman tidak valid. Pastikan Halaman Mulai dan Halaman Selesai benar (1-20).'
       );
       setIsDialogOpen(false);
       return;
     }
 
-    const startIndex = startAyat - 1;
-    const endIndex = endAyat;
-
-    const ayatIdsToAdd = data.ayat
-      .slice(startIndex, endIndex)
-      .map((ayat) => ayat.id);
-
-    if (ayatIdsToAdd.length === 0) {
-      toast.error('Tidak ada ayat yang bisa ditambahkan.');
-      setIsDialogOpen(false);
-      return;
-    }
-
     const payload = {
-      santriId: parseInt(idSantri!),
-      ayatIds: ayatIdsToAdd,
+      estudiantilId: parseInt(idSantri!),
+      halamanAwal: startHalaman,
+      halamanAkhir: endHalaman,
       status: (mode === 'tambah' ? 'TambahHafalan' : 'Murajaah') as
         | 'TambahHafalan'
         | 'Murajaah',
       catatan: catatan,
     };
 
-    saveHafalan(payload, {
+    saveHafalanByHalaman(payload, {
       onSuccess: () => {
         toast.success(
           mode === 'tambah'
-            ? 'Ayat berhasil ditambahkan ke hafalan.'
-            : 'Ayat berhasil dimurajaahkan.'
+            ? 'Hafalan halaman berhasil ditambahkan.'
+            : 'Murajaah halaman berhasil ditambahkan.'
         );
         setIsDialogOpen(false);
-        setStartAyat(0);
-        setEndAyat(0);
+        setStartHalaman(0);
+        setEndHalaman(0);
         setCatatan('');
       },
       onError: (_e) => {
+        console.error(_e);
         toast.error('Gagal menyimpan hafalan. Terjadi kesalahan.');
       },
     });
@@ -160,11 +155,8 @@ export default function UstadzAddHafalan() {
   };
 
   const handleScrollToLastChecked = () => {
-    if (!data || !data.ayat) return;
-    const lastCheckedAyat = data.ayat
-      .slice()
-      .reverse()
-      .find((ayat) => ayat.checked);
+    if (allAyat.length === 0) return;
+    const lastCheckedAyat = [...allAyat].reverse().find((ayat) => ayat.checked);
     if (lastCheckedAyat) {
       const element = ayatRefs.current[lastCheckedAyat.id];
       if (element) {
@@ -188,12 +180,12 @@ export default function UstadzAddHafalan() {
               <span className="hidden sm:inline">Kembali</span>
             </Button>
             <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
-              Detail Hafalan
+              Detail Hafalan Juz
             </h1>
           </div>
           <div className="flex justify-center items-center">
             <Loader2 className="h-8 w-8 animate-spin" />
-            <p className="ml-2">Memuat data hafalan...</p>
+            <p className="ml-2">Memuat data hafalan juz...</p>
           </div>
         </div>
       </UstadzLayout>
@@ -215,12 +207,11 @@ export default function UstadzAddHafalan() {
               <span className="hidden sm:inline">Kembali</span>
             </Button>
             <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
-              Detail Hafalan
+              Detail Hafalan Juz
             </h1>
           </div>
           <div className="flex justify-center items-center text-red-500">
-            {/* <p>Error: {(error as Error)?.message}</p> */}
-            <p>Gagal memuat data hafalan.</p>
+            <p>Gagal memuat data hafalan juz.</p>
           </div>
         </div>
       </UstadzLayout>
@@ -241,7 +232,7 @@ export default function UstadzAddHafalan() {
             <span className="hidden sm:inline">Kembali</span>
           </Button>
           <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
-            Detail Hafalan
+            Detail Hafalan Juz
           </h1>
         </div>
 
@@ -275,11 +266,10 @@ export default function UstadzAddHafalan() {
               <div className="flex flex-col md:flex-row justify-between items-start md:items-center">
                 <div className="mb-4 md:mb-0">
                   <CardTitle className="text-xl md:text-2xl font-bold">
-                    Nama Surat : {data?.surah.namaLatin} -{' '}
-                    <span className="font-arabic">{data?.surah.nama}</span>
+                    Juz {data?.juz}
                   </CardTitle>
                   <CardDescription className="text-sm md:text-base">
-                    Tgl : {today} (hari ini)
+                    Total {data?.totalSurah} Surah • Tgl : {today} (hari ini)
                   </CardDescription>
                 </div>
                 <Button
@@ -295,30 +285,49 @@ export default function UstadzAddHafalan() {
 
             <div className="bg-white p-2 rounded-b-lg">
               <div className="space-y-4">
-                {data?.ayat.map((ayat) => (
-                  <div
-                    key={ayat.id}
-                    ref={(el) => {
-                      ayatRefs.current[ayat.id] = el;
-                    }}
-                    className="flex items-center gap-4 p-4 border border-violet-600/90 rounded-lg bg-white"
-                  >
-                    <p
-                      className="flex-1 text-right md:text-3xl text-2xl leading-14 md:leading-20 font-arabic"
-                      style={{ fontFamily: 'Amiri, serif' }}
-                      dir="rtl"
-                    >
-                      {ayat.arab}
-                      <span className="mr-2 text-md font-arabic">
-                        ۝{toArabicNumber(ayat.nomorAyat)}
-                      </span>
-                    </p>
-                    {mode === 'tambah' &&
-                      (ayat.checked ? (
-                        <Check className="h-6 w-6 text-green-500" />
-                      ) : (
-                        <X className="h-6 w-6 text-red-500" />
+                {data?.surah.map((surahData) => (
+                  <div key={surahData.surah.id}>
+                    <div className="sticky top-32 bg-gray-50 p-3 rounded-lg mb-2 border-l-4 border-violet-500">
+                      <h3 className="font-semibold text-lg">
+                        {surahData.surah.namaLatin} ({surahData.surah.nama})
+                      </h3>
+                      <p className="text-sm text-gray-600">
+                        {surahData.ayat.length} Ayat
+                      </p>
+                    </div>
+                    <div className="space-y-2">
+                      {surahData.ayat.map((ayat) => (
+                        <div
+                          key={ayat.id}
+                          ref={(el) => {
+                            ayatRefs.current[ayat.id] = el;
+                          }}
+                          className="flex items-center gap-4 p-4 border border-violet-600/90 rounded-lg bg-white"
+                        >
+                          <div className="flex flex-col items-start gap-1 min-w-[80px]">
+                            <span className="text-sm font-semibold text-violet-600">
+                              Ayat {ayat.nomorAyat}
+                            </span>
+                          </div>
+                          <p
+                            className="flex-1 text-right md:text-3xl text-2xl leading-14 md:leading-20 font-arabic"
+                            style={{ fontFamily: 'Amiri, serif' }}
+                            dir="rtl"
+                          >
+                            {ayat.arab}
+                            <span className="mr-2 text-md font-arabic">
+                              ۝{toArabicNumber(ayat.nomorAyat)}
+                            </span>
+                          </p>
+                          {mode === 'tambah' &&
+                            (ayat.checked ? (
+                              <Check className="h-6 w-6 text-green-500" />
+                            ) : (
+                              <X className="h-6 w-6 text-red-500" />
+                            ))}
+                        </div>
                       ))}
+                    </div>
                   </div>
                 ))}
               </div>
@@ -330,40 +339,43 @@ export default function UstadzAddHafalan() {
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
-            <DialogTitle>Catatan dan Jumlah Ayat</DialogTitle>
+            <DialogTitle>Catatan dan Rentang Halaman</DialogTitle>
             <DialogDescription>
-              Masukkan ayat yang {mode === "tambah" ? "dihafal" : "dimuraja'ah"}, serta catatan
+              Masukkan rentang halaman yang{' '}
+              {mode === 'tambah' ? 'dihafal' : "dimuraja'ah"}, serta catatan
               (opsional).
             </DialogDescription>
           </DialogHeader>
           <div className="flex flex-col gap-4 py-4">
             <>
               <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="startAyat" className="text-right">
-                  Ayat Mulai
+                <Label htmlFor="startHalaman" className="text-right">
+                  Halaman Mulai
                 </Label>
                 <Input
-                  id="startAyat"
+                  id="startHalaman"
                   type="number"
-                  value={startAyat}
-                  onChange={(e) => setStartAyat(parseInt(e.target.value) || 0)}
+                  value={startHalaman}
+                  onChange={(e) =>
+                    setStartHalaman(parseInt(e.target.value) || 0)
+                  }
                   className="col-span-3"
                   min="1"
-                  max={data?.ayat.length}
+                  max={TOTAL_PAGES_IN_JUZ}
                 />
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="endAyat" className="text-right">
-                  Ayat Selesai
+                <Label htmlFor="endHalaman" className="text-right">
+                  Halaman Selesai
                 </Label>
                 <Input
-                  id="endAyat"
+                  id="endHalaman"
                   type="number"
-                  value={endAyat}
-                  onChange={(e) => setEndAyat(parseInt(e.target.value) || 0)}
+                  value={endHalaman}
+                  onChange={(e) => setEndHalaman(parseInt(e.target.value) || 0)}
                   className="col-span-3"
                   min="1"
-                  max={data?.ayat.length}
+                  max={TOTAL_PAGES_IN_JUZ}
                 />
               </div>
             </>
@@ -388,9 +400,9 @@ export default function UstadzAddHafalan() {
               onClick={handleSubmitHafalan}
               disabled={
                 isSaving ||
-                startAyat <= 0 ||
-                endAyat <= 0 ||
-                startAyat > endAyat
+                startHalaman <= 0 ||
+                endHalaman <= 0 ||
+                startHalaman > endHalaman
               }
               className="bg-green-600 text-white hover:bg-green-700"
             >
@@ -414,7 +426,7 @@ export default function UstadzAddHafalan() {
         <Button
           className="p-3 bg-violet-500 text-white rounded-full shadow-lg hover:bg-violet-600"
           onClick={handleScrollToLastChecked}
-          disabled={!data?.ayat.some((ayat) => ayat.checked)}
+          disabled={!allAyat.some((ayat) => ayat.checked)}
           aria-label="Scroll ke ayat terakhir yang dicentang"
         >
           <ChevronDown className="h-6 w-6" />

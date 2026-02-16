@@ -17,7 +17,7 @@ export interface JuzProgress {
 export interface HafalanProgressApiData {
   message: string;
   status: number;
-  mode: "surah" | "juz";
+  mode: 'surah' | 'juz';
   santri: {
     id: number;
     nama: string;
@@ -28,7 +28,7 @@ export interface HafalanProgressApiData {
   data: SurahProgress[] | JuzProgress[];
 }
 
-export type HafalanMode = "tambah" | "murajaah";
+export type HafalanMode = 'tambah' | 'murajaah';
 
 export interface Ayat {
   id: number;
@@ -56,9 +56,20 @@ export interface HafalanData {
   ayat: Ayat[];
 }
 
+export interface JuzHafalanData {
+  juz: number;
+  santriId: number;
+  mode: HafalanMode;
+  totalSurah: number;
+  surah: {
+    surah: Surah;
+    ayat: Ayat[];
+  }[];
+}
+
 export interface RiwayatHafalan {
   tanggal: string;
-  status: "TambahHafalan" | "Murajaah";
+  status: 'TambahHafalan' | 'Murajaah';
   surahId: number;
   namaSurah: string;
   namaSurahLatin: string;
@@ -92,13 +103,13 @@ export interface RiwayatHafalanResponse {
 
 export interface RiwayatDetailData {
   tanggal: string;
-  status: "TambahHafalan" | "Murajaah";
+  status: 'TambahHafalan' | 'Murajaah';
   surah: Surah;
   ustadz: {
     id: number;
     nama: string;
-  },
-  catatan: string,
+  };
+  catatan: string;
   daftarAyat: Ayat[];
   totalPoin?: number;
 }
@@ -123,7 +134,7 @@ export interface RiwayatHafalanTerakhirPagination {
   totalPages: number;
   filter: {
     tahapHafalan?: string;
-    status?: "TambahHafalan" | "Murajaah";
+    status?: 'TambahHafalan' | 'Murajaah';
     name?: string;
   };
 }
@@ -138,7 +149,7 @@ export interface RiwayatHafalanTerakhirSantri {
 
 export interface RiwayatHafalanTerakhir {
   tanggal: string;
-  status: "TambahHafalan" | "Murajaah";
+  status: 'TambahHafalan' | 'Murajaah';
   surah: string;
   surahId: number;
   ayatDetail: string;
@@ -149,4 +160,3 @@ export interface DeleteRiwayatHafalanResponse {
   status: number;
   deletedCount?: number; // hanya ada ketika sukses
 }
-

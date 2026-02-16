@@ -1,9 +1,21 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { deleteRiwayatHafalan, fetchAddHafalanData, fetchProgressHafalan, fetchRiwayatDetail, fetchRiwayatTerakhir, saveHafalanData } from "../service/hafalan.service";
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import {
+  deleteRiwayatHafalan,
+  fetchAddHafalanData,
+  fetchJuzHafalanData,
+  fetchProgressHafalan,
+  fetchRiwayatDetail,
+  fetchRiwayatTerakhir,
+  saveHafalanData,
+  saveHafalanByHalaman,
+} from '../service/hafalan.service';
 
-export const useHafalanProgressData = (idSantri: string, mode: "surah" | "juz" = "surah") => {
+export const useHafalanProgressData = (
+  idSantri: string,
+  mode: 'surah' | 'juz' = 'surah'
+) => {
   return useQuery({
-    queryKey: ["progress-hafalan-data", idSantri, mode],
+    queryKey: ['progress-hafalan-data', idSantri, mode],
     queryFn: () => fetchProgressHafalan(idSantri, mode),
     enabled: !!idSantri,
   });
@@ -12,12 +24,24 @@ export const useHafalanProgressData = (idSantri: string, mode: "surah" | "juz" =
 export const useFetchAddHafalanData = (
   idSantri: string,
   idSurah: string,
-  mode: "tambah" | "murajaah"
+  mode: 'tambah' | 'murajaah'
 ) => {
   return useQuery({
-    queryKey: ["addHafalanData", idSantri, idSurah, mode],
+    queryKey: ['addHafalanData', idSantri, idSurah, mode],
     queryFn: () => fetchAddHafalanData(idSantri, idSurah, mode),
     enabled: !!idSantri && !!idSurah,
+  });
+};
+
+export const useFetchJuzHafalanData = (
+  idSantri: string,
+  idJuz: string,
+  mode: 'tambah' | 'murajaah'
+) => {
+  return useQuery({
+    queryKey: ['juzHafalanData', idSantri, idJuz, mode],
+    queryFn: () => fetchJuzHafalanData(idSantri, idJuz, mode),
+    enabled: !!idSantri && !!idJuz,
   });
 };
 
@@ -26,11 +50,24 @@ export const useSaveHafalan = () => {
   return useMutation({
     mutationFn: saveHafalanData,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["progress-hafalan-data"] });
+      queryClient.invalidateQueries({ queryKey: ['progress-hafalan-data'] });
     },
     onError: (_error) => {
       // console.error("Failed to save hafalan:", error);
-      alert("Gagal menyimpan hafalan")
+      alert('Gagal menyimpan hafalan');
+    },
+  });
+};
+
+export const useSaveHafalanByHalaman = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: saveHafalanByHalaman,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['progress-hafalan-data'] });
+    },
+    onError: (_error) => {
+      alert('Gagal menyimpan hafalan');
     },
   });
 };
@@ -40,7 +77,7 @@ export const useDeleteRiwayatHafalan = () => {
   return useMutation({
     mutationFn: deleteRiwayatHafalan,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["riwayatHafalan"] });
+      queryClient.invalidateQueries({ queryKey: ['riwayatHafalan'] });
     },
     onError: (_error) => {
       // alert(`Gagal menghapus riwayat: ${error.message}`);
@@ -56,7 +93,7 @@ export const useRiwayatDetail = (
   status: string
 ) => {
   return useQuery({
-    queryKey: ["riwayatDetail", santriId, surahId, tanggal, status],
+    queryKey: ['riwayatDetail', santriId, surahId, tanggal, status],
     queryFn: () => fetchRiwayatDetail(santriId, surahId, tanggal, status),
     enabled: !!santriId && !!surahId && !!tanggal && !!status,
   });
@@ -65,11 +102,11 @@ export const useRiwayatDetail = (
 export const useRiwayatTerakhir = (
   page: number,
   limit: number,
-  status: "TambahHafalan" | "Murajaah",
-  filters: { tahapHafalan?: string, name?: string, sortByAyat?: string,  } = {}
+  status: 'TambahHafalan' | 'Murajaah',
+  filters: { tahapHafalan?: string; name?: string; sortByAyat?: string } = {}
 ) => {
   return useQuery({
-    queryKey: ["riwayatTerakhir", { page, limit, status, ...filters }],
+    queryKey: ['riwayatTerakhir', { page, limit, status, ...filters }],
     queryFn: () => fetchRiwayatTerakhir(page, limit, status, filters),
     enabled: !!page && !!limit && !!status,
     placeholderData: (previousData) => previousData,
