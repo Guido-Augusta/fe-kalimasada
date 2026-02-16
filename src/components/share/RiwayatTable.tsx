@@ -43,6 +43,7 @@ interface RiwayatTableProps {
   showDeleteButton?: boolean;
   role?: string;
   statusFilter?: string;
+  modeFilter?: "ayat" | "halaman";
 }
 
 export default function RiwayatTable({
@@ -55,6 +56,7 @@ export default function RiwayatTable({
   showDeleteButton = false,
   role = 'ustadz',
   statusFilter,
+  modeFilter = 'ayat',
 }: RiwayatTableProps) {
   const [isAlertOpen, setIsAlertOpen] = useState(false);
   const [riwayatToDelete, setRiwayatToDelete] = useState<RiwayatHafalan | null>(
@@ -113,11 +115,21 @@ export default function RiwayatTable({
           <TableHeader>
             <TableRow>
               <TableHead className="w-[100px] text-center">Tanggal</TableHead>
-              <TableHead className="text-center">Surah</TableHead>
+              {modeFilter === 'halaman' && (
+                <TableHead className="text-center md:w-[150px]">Juz</TableHead>
+              )}
+              {modeFilter === 'ayat' && (
+                <TableHead className="text-center">Surah</TableHead>
+              )}
               <TableHead className="text-center hidden md:table-cell">
                 Status
               </TableHead>
-              <TableHead className="text-center">Ayat</TableHead>
+              <TableHead className="text-center">
+                {modeFilter === 'halaman' ? 'Halaman' : 'Ayat'}
+              </TableHead>
+              {modeFilter === 'halaman' && (
+                <TableHead className="text-center w-[200px] hidden md:table-cell">Jml.Ayat</TableHead>
+              )}
               {statusFilter === 'TambahHafalan' && (
                 <TableHead className="text-center hidden md:table-cell">
                   Poin
@@ -133,19 +145,41 @@ export default function RiwayatTable({
                   <TableCell className="text-center">
                     {formatTanggalIndo(riwayat.tanggal)}
                   </TableCell>
-                  <TableCell className="text-center font-medium">
-                    {riwayat.namaSurahLatin}
-                  </TableCell>
+                  {modeFilter === 'halaman' && (
+                    <TableCell className="text-center font-medium">
+                      {riwayat.juz ?? '-'}
+                    </TableCell>
+                  )}
+                  {modeFilter === 'ayat' && (
+                    <TableCell className="text-center font-medium">
+                      {riwayat.namaSurahLatin}
+                    </TableCell>
+                  )}
                   <TableCell className="text-center hidden md:table-cell">
                     <Badge className={getBadgeStatus(riwayat.status)}>
                       {riwayat.status}
                     </Badge>
                   </TableCell>
                   <TableCell className="text-center">
-                    {riwayat.rangeAyat?.awal && riwayat.rangeAyat?.akhir
-                      ? `${riwayat.rangeAyat.awal}-${riwayat.rangeAyat.akhir}`
-                      : '-'}
+                    {modeFilter === 'halaman' ? (
+                      riwayat.rangeHalaman?.awal && riwayat.rangeHalaman?.akhir ? (
+                        <span className="font-semibold">
+                          Hal. {riwayat.rangeHalaman.awal} - {riwayat.rangeHalaman.akhir}
+                        </span>
+                      ) : (
+                        `Hal. ${riwayat.totalHalaman ?? '-'}`
+                      )
+                    ) : (
+                      riwayat.rangeAyat?.awal && riwayat.rangeAyat?.akhir
+                        ? `Ayat ${riwayat.rangeAyat.awal} - ${riwayat.rangeAyat.akhir}`
+                        : '-'
+                    )}
                   </TableCell>
+                  {modeFilter === 'halaman' && (
+                    <TableCell className="text-center hidden md:table-cell">
+                      {riwayat.jumlahAyat}
+                    </TableCell>
+                  )}
                   {statusFilter === 'TambahHafalan' && (
                     <TableCell className="text-center hidden md:table-cell">
                       {riwayat.totalPoin}

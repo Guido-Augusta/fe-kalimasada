@@ -124,12 +124,13 @@ export const deleteRiwayatHafalan = async (data: {
 };
 
 export const fetchRiwayatHafalan = async (
-  santriId: string,
+  siswaId: string,
   page: number,
-  status: 'TambahHafalan' | 'Murajaah'
+  status: 'TambahHafalan' | 'Murajaah',
+  mode: 'ayat' | 'halaman' = 'ayat'
 ): Promise<RiwayatHafalanResponse> => {
   const headers = getAuthHeaders(false);
-  let url = `${BASE_URL}/api/hafalan/riwayat/${santriId}?page=${page}&limit=10`;
+  let url = `${BASE_URL}/api/hafalan/riwayat/${siswaId}?page=${page}&limit=10&mode=${mode}`;
   if (status === 'TambahHafalan' || status === 'Murajaah') {
     url += `&status=${status}`;
   }

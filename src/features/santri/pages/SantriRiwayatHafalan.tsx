@@ -15,13 +15,13 @@ import { useSantriRiwayatStore } from "@/store/useSantriRiwayatStore";
 export default function SantriRiwayatHafalan() {
   const { user } = useUser();
   const navigate = useNavigate();
-  const { statusFilter, setStatusFilter, currentPage, setCurrentPage } = useSantriRiwayatStore();
+  const { statusFilter, setStatusFilter, modeFilter, setModeFilter, currentPage, setCurrentPage } = useSantriRiwayatStore();
 
   const mySantriId = user?.roleId;
 
   const { data, isLoading, isError, error: _error, isFetching } = useQuery<RiwayatHafalanResponse>({
-    queryKey: ["riwayatHafalan", mySantriId, currentPage, statusFilter],
-    queryFn: () => fetchRiwayatHafalan(mySantriId as string, currentPage, statusFilter),
+    queryKey: ["riwayatHafalan", mySantriId, currentPage, statusFilter, modeFilter],
+    queryFn: () => fetchRiwayatHafalan(mySantriId as string, currentPage, statusFilter, modeFilter),
     enabled: !!mySantriId,
   });
 
@@ -43,25 +43,39 @@ export default function SantriRiwayatHafalan() {
 
         <Card className="mt-6">
           <CardHeader>
-            <div className="flex md:justify-between justify-start flex-col md:flex-row md:items-center">
+            <div className="flex md:justify-between justify-start flex-col md:flex-row md:items-center gap-2">
               <div className="mb-2 md:mb-0">
                 <CardTitle>Riwayat Hafalan</CardTitle>
                 <CardDescription>
-                  Daftar catatan hafalan dan murajaah santri.
+                  Daftar catatan hafalan dan murajaah santai.
                 </CardDescription>
               </div>
-              <Select onValueChange={(value: "TambahHafalan" | "Murajaah") => {
-                setStatusFilter(value);
-                setCurrentPage(1);
-              }} value={statusFilter}>
-                <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder="Pilih Status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="TambahHafalan">Tambah Hafalan</SelectItem>
-                  <SelectItem value="Murajaah">Murajaah</SelectItem>
-                </SelectContent>
-              </Select>
+              <div className="flex gap-2">
+                <Select onValueChange={(value: "ayat" | "halaman") => {
+                  setModeFilter(value);
+                  setCurrentPage(1);
+                }} value={modeFilter}>
+                  <SelectTrigger className="w-[140px]">
+                    <SelectValue placeholder="Pilih Mode" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="ayat">Ayat</SelectItem>
+                    <SelectItem value="halaman">Halaman</SelectItem>
+                  </SelectContent>
+                </Select>
+                <Select onValueChange={(value: "TambahHafalan" | "Murajaah") => {
+                  setStatusFilter(value);
+                  setCurrentPage(1);
+                }} value={statusFilter}>
+                  <SelectTrigger className="w-[180px]">
+                    <SelectValue placeholder="Pilih Status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="TambahHafalan">Tambah Hafalan</SelectItem>
+                    <SelectItem value="Murajaah">Murajaah</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
           </CardHeader>
           <CardContent className="p-0">
@@ -86,6 +100,7 @@ export default function SantriRiwayatHafalan() {
                 showDeleteButton={false}
                 role="santri"
                 statusFilter={statusFilter}
+                modeFilter={modeFilter}
               />
             )}
           </CardContent>

@@ -80,6 +80,12 @@ export interface RiwayatHafalan {
     awal: number;
     akhir: number;
   };
+  juz?: number;
+  totalHalaman?: number;
+  rangeHalaman?: {
+    awal: number;
+    akhir: number;
+  };
 }
 
 export interface SantriData {
