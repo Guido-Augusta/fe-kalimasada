@@ -66,7 +66,7 @@ export const fetchJuzHafalanData = async (
 };
 
 export const saveHafalanData = async (payload: {
-  estudiantId: number;
+  santriId: number;
   ayatIds: number[];
   status: 'TambahHafalan' | 'Murajaah';
   catatan: string;
@@ -85,7 +85,7 @@ export const saveHafalanData = async (payload: {
 };
 
 export const saveHafalanByHalaman = async (payload: {
-  estudiantilId: number;
+  santriId: number;
   halamanAwal: number;
   halamanAkhir: number;
   status: 'TambahHafalan' | 'Murajaah';

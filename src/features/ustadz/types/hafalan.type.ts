@@ -39,6 +39,7 @@ export interface Ayat {
   checked: boolean;
   isInitialChecked?: boolean;
   surah?: Surah;
+  halaman?: number;
 }
 
 export interface Surah {

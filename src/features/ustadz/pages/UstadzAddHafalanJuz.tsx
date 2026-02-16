@@ -50,6 +50,8 @@ export default function UstadzAddHafalanJuz() {
 
   const ayatRefs = useRef<Record<number, HTMLDivElement | null>>({});
 
+  let lastRenderedPage = 0;
+
   const {
     data,
     isLoading,
@@ -116,7 +118,7 @@ export default function UstadzAddHafalanJuz() {
     }
 
     const payload = {
-      estudiantilId: parseInt(idSantri!),
+      santriId: parseInt(idSantri!),
       halamanAwal: startHalaman,
       halamanAkhir: endHalaman,
       status: (mode === 'tambah' ? 'TambahHafalan' : 'Murajaah') as
@@ -286,47 +288,63 @@ export default function UstadzAddHafalanJuz() {
             <div className="bg-white p-2 rounded-b-lg">
               <div className="space-y-4">
                 {data?.surah.map((surahData) => (
-                  <div key={surahData.surah.id}>
-                    <div className="sticky top-32 bg-gray-50 p-3 rounded-lg mb-2 border-l-4 border-violet-500">
-                      <h3 className="font-semibold text-lg">
-                        {surahData.surah.namaLatin} ({surahData.surah.nama})
-                      </h3>
-                      <p className="text-sm text-gray-600">
-                        {surahData.ayat.length} Ayat
-                      </p>
-                    </div>
+                  <div key={surahData.surah.id}>                    
                     <div className="space-y-2">
-                      {surahData.ayat.map((ayat) => (
-                        <div
-                          key={ayat.id}
-                          ref={(el) => {
-                            ayatRefs.current[ayat.id] = el;
-                          }}
-                          className="flex items-center gap-4 p-4 border border-violet-600/90 rounded-lg bg-white"
-                        >
-                          <div className="flex flex-col items-start gap-1 min-w-[80px]">
-                            <span className="text-sm font-semibold text-violet-600">
-                              Ayat {ayat.nomorAyat}
-                            </span>
+                      {surahData.ayat.map((ayat, _index) => {
+                        const showPageHeader = ayat.halaman !== lastRenderedPage;
+                        if (showPageHeader) {
+                          lastRenderedPage = ayat.halaman as number;
+                        }
+
+                        return (
+                          <div key={ayat.id}>
+                            {showPageHeader && (
+                              <div className="sticky top-32 bg-amber-50 p-3 rounded-lg mb-2 border-l-4 border-violet-500 z-[5]">
+                                <div className="flex items-center justify-between">
+                                  <h3 className="font-semibold text-lg ">
+                                    {surahData.surah.namaLatin} ({surahData.surah.nama})
+                                  </h3>
+                                  <span className="text-sm font-bold text-amber-700 uppercase tracking-wider mr-6">
+                                    Halaman {ayat.halaman}
+                                  </span>
+                                </div>
+                                <div className="flex items-center justify-between">
+                                  <p className="text-sm text-gray-600">
+                                    {surahData.ayat.length} Ayat
+                                  </p>
+                                  <p className="text-sm text-gray-600 mr-6">
+                                    Juz {data.juz}
+                                  </p>
+                                </div>
+                              </div> 
+                            )}
+
+                            <div
+                              ref={(el) => {
+                                ayatRefs.current[ayat.id] = el;
+                              }}
+                              className="flex items-center gap-4 p-4 border border-violet-600/90 rounded-lg bg-white mb-2"
+                            >
+                              <p
+                                className="flex-1 text-right md:text-3xl text-2xl leading-14 md:leading-20 font-arabic"
+                                style={{ fontFamily: 'Amiri, serif' }}
+                                dir="rtl"
+                              >
+                                {ayat.arab}
+                                <span className="mr-2 text-md font-arabic">
+                                  ۝{toArabicNumber(ayat.nomorAyat)}
+                                </span>
+                              </p>
+                              {mode === 'tambah' &&
+                                (ayat.checked ? (
+                                  <Check className="h-6 w-6 text-green-500" />
+                                ) : (
+                                  <X className="h-6 w-6 text-red-500" />
+                                ))}
+                            </div>
                           </div>
-                          <p
-                            className="flex-1 text-right md:text-3xl text-2xl leading-14 md:leading-20 font-arabic"
-                            style={{ fontFamily: 'Amiri, serif' }}
-                            dir="rtl"
-                          >
-                            {ayat.arab}
-                            <span className="mr-2 text-md font-arabic">
-                              ۝{toArabicNumber(ayat.nomorAyat)}
-                            </span>
-                          </p>
-                          {mode === 'tambah' &&
-                            (ayat.checked ? (
-                              <Check className="h-6 w-6 text-green-500" />
-                            ) : (
-                              <X className="h-6 w-6 text-red-500" />
-                            ))}
-                        </div>
-                      ))}
+                        );
+                      })}
                     </div>
                   </div>
                 ))}
