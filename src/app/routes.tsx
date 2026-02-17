@@ -67,6 +67,9 @@ import SantriDetailUstad from '@/features/santri/pages/SantriDetailUstad';
 import OrtuDetailUstad from '@/features/ortu/pages/OrtuDetailUstad';
 import UstadRiwayatTerakhir from '@/features/ustadz/pages/UstadRiwayatTerakhir';
 import DoakKhatamSantri from '@/features/santri/pages/DoakKhatamSantri';
+import UstadzDetailHafalanJuz from '@/features/ustadz/pages/UstadzDetailHafalanJuz';
+import OrtuDetailHafalanJuz from '@/features/ortu/pages/OrtuDetailHafalanJuz';
+import SantriDetailHafalanJuz from '@/features/santri/pages/SantriDetailHafalanJuz';
 
 export const AppRouter = () => {
   return (
@@ -145,6 +148,10 @@ export const AppRouter = () => {
             element={<UstadzDetailHafalan />}
           />
           <Route
+            path="/ustadz/riwayat/detail/:santriId/juz/:juzId"
+            element={<UstadzDetailHafalanJuz />}
+          />
+          <Route
             path="/ustadz/peringkat/santri"
             element={<UstadPeringkatSantri />}
           />
@@ -197,6 +204,10 @@ export const AppRouter = () => {
             path="/ortu/riwayat/detail/:santriId/surah/:surahId"
             element={<OrtuDetailHafalan />}
           />
+          <Route
+            path="/ortu/riwayat/detail/:santriId/juz/:juzId"
+            element={<OrtuDetailHafalanJuz />}
+          />
           <Route path="/ortu/profile" element={<OrtuProfile />} />
           <Route path="/ortu/edit/profile" element={<OrtuEditProfile />} />
           <Route path="/ortu/alquran" element={<AlquranOrtu />} />
@@ -226,6 +237,10 @@ export const AppRouter = () => {
           <Route
             path="/santri/riwayat/detail/:santriId/surah/:surahId"
             element={<SantriDetailHafalan />}
+          />
+          <Route
+            path="/santri/riwayat/detail/:santriId/juz/:juzId"
+            element={<SantriDetailHafalanJuz />}
           />
           <Route
             path="/santri/santri-detail/:id"

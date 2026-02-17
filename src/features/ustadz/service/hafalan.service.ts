@@ -7,6 +7,7 @@ import type {
   RiwayatDetailResponse,
   RiwayatHafalanResponse,
   RiwayatHafalanTerakhirResponse,
+  RiwayatJuzDetailResponse,
 } from '../types/hafalan.type';
 
 const BASE_URL = import.meta.env.VITE_API_URL
@@ -149,7 +150,7 @@ export const fetchRiwayatDetail = async (
   status: string
 ): Promise<RiwayatDetailResponse> => {
   const headers = getAuthHeaders(false);
-  const url = `${BASE_URL}/api/hafalan/riwayat/detail/${santriId}/surah/${surahId}?tanggal=${tanggal}&status=${status}`;
+  const url = `${BASE_URL}/api/hafalan/riwayat/detail/${santriId}/surah/${surahId}?status=${status}&tanggal=${tanggal}`;
   const response = await fetch(url, { headers });
 
   if (!response.ok) {
@@ -182,4 +183,23 @@ export const fetchRiwayatTerakhir = async (
   }
   const result: RiwayatHafalanTerakhirResponse = await response.json();
   return result;
+};
+
+export const fetchRiwayatJuzDetail = async (
+  santriId: string,
+  juzId: string,
+  tanggal: string,
+  status: string
+): Promise<RiwayatJuzDetailResponse> => {
+  const headers = getAuthHeaders(false);
+  const url = `${BASE_URL}/api/hafalan/riwayat/detail/${santriId}/juz/${juzId}?status=${status}&tanggal=${tanggal}`;
+  const response = await fetch(url, { headers });
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(
+      errorData.message || 'Gagal mengambil detail riwayat hafalan juz.'
+    );
+  }
+  return response.json();
 };

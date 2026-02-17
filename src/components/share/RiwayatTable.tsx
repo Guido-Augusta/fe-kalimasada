@@ -187,7 +187,10 @@ export default function RiwayatTable({
                   )}
                   <TableCell className="text-center flex items-center justify-center gap-2">
                     <Link
-                      to={`/${role}/riwayat/detail/${idSantri}/surah/${riwayat.surahId}?tanggal=${riwayat.tanggal}&status=${riwayat.status}`}
+                      to={modeFilter === 'halaman' 
+                        ? `/${role}/riwayat/detail/${idSantri}/juz/${riwayat.juz}?tanggal=${riwayat.tanggal}&status=${riwayat.status}`
+                        : `/${role}/riwayat/detail/${idSantri}/surah/${riwayat.surahId}?tanggal=${riwayat.tanggal}&status=${riwayat.status}`
+                      }
                     >
                       <Button
                         variant="outline"

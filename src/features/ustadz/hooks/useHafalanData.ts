@@ -5,6 +5,7 @@ import {
   fetchJuzHafalanData,
   fetchProgressHafalan,
   fetchRiwayatDetail,
+  fetchRiwayatJuzDetail,
   fetchRiwayatTerakhir,
   saveHafalanData,
   saveHafalanByHalaman,
@@ -110,5 +111,18 @@ export const useRiwayatTerakhir = (
     queryFn: () => fetchRiwayatTerakhir(page, limit, status, filters),
     enabled: !!page && !!limit && !!status,
     placeholderData: (previousData) => previousData,
+  });
+};
+
+export const useRiwayatJuzDetail = (
+  santriId: string,
+  juzId: string,
+  tanggal: string,
+  status: string
+) => {
+  return useQuery({
+    queryKey: ['riwayatJuzDetail', santriId, juzId, tanggal, status],
+    queryFn: () => fetchRiwayatJuzDetail(santriId, juzId, tanggal, status),
+    enabled: !!santriId && !!juzId && !!tanggal && !!status,
   });
 };

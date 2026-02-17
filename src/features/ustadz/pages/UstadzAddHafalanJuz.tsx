@@ -267,7 +267,7 @@ export default function UstadzAddHafalanJuz() {
               <span className="hidden sm:inline">Kembali</span>
             </Button>
             <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
-              Detail Hafalan Juz
+              Detail Hafalan
             </h1>
           </div>
           <div className="flex justify-center items-center">
@@ -294,7 +294,7 @@ export default function UstadzAddHafalanJuz() {
               <span className="hidden sm:inline">Kembali</span>
             </Button>
             <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
-              Detail Hafalan Juz
+              Detail Hafalan
             </h1>
           </div>
           <div className="flex justify-center items-center text-red-500">
@@ -319,7 +319,7 @@ export default function UstadzAddHafalanJuz() {
             <span className="hidden sm:inline">Kembali</span>
           </Button>
           <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
-            Detail Hafalan Juz
+            Detail Hafalan
           </h1>
         </div>
 

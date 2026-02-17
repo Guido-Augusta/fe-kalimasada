@@ -171,3 +171,49 @@ export interface DeleteRiwayatHafalanResponse {
   status: number;
   deletedCount?: number; // hanya ada ketika sukses
 }
+
+export interface Juz {
+  id: number;
+  juz: number;
+  nama: string;
+}
+
+export interface AyatJuz {
+  id: number;
+  nomorAyat: number;
+  arab: string;
+  latin: string;
+  terjemah: string;
+  halaman: number;
+  juz: number;
+  surah: Surah;
+  poinDidapat: number;
+}
+
+export interface RiwayatJuzDetailData {
+  tanggal: string;
+  status: 'TambahHafalan' | 'Murajaah';
+  ustadz: {
+    id: number;
+    nama: string;
+  };
+  catatan: string;
+  totalPoin: number;
+  juz: number;
+  rangeAyat: {
+    awal: number;
+    akhir: number;
+  };
+  rangeHalaman: {
+    awal: number;
+    akhir: number;
+  };
+  surah: Surah[];
+  daftarAyat: AyatJuz[];
+}
+
+export interface RiwayatJuzDetailResponse {
+  message: string;
+  status: number;
+  data: RiwayatJuzDetailData;
+}
