@@ -8,6 +8,7 @@ import {
   ChevronDown,
   Check,
   X,
+  Search,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { CardTitle, CardDescription } from '@/components/ui/card';
@@ -47,6 +48,8 @@ export default function UstadzAddHafalanJuz() {
   const [catatan, setCatatan] = useState('');
   const [startHalaman, setStartHalaman] = useState(0);
   const [endHalaman, setEndHalaman] = useState(0);
+  const [searchHalaman, setSearchHalaman] = useState('');
+  const [debouncedSearchHalaman, setDebouncedSearchHalaman] = useState('');
 
   const ayatRefs = useRef<Record<number, HTMLDivElement | null>>({});
 
@@ -65,6 +68,42 @@ export default function UstadzAddHafalanJuz() {
     if (!data?.surah) return [];
     return data.surah.flatMap((item) => item.ayat);
   }, [data]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearchHalaman(searchHalaman);
+    }, 1000);
+
+    return () => clearTimeout(timer);
+  }, [searchHalaman]);
+
+  useEffect(() => {
+    if (debouncedSearchHalaman && allAyat.length > 0) {
+      const pageNumber = parseInt(debouncedSearchHalaman, 10);
+      if (
+        !isNaN(pageNumber) &&
+        pageNumber >= 1 &&
+        pageNumber <= TOTAL_PAGES_IN_JUZ
+      ) {
+        const targetAyat = allAyat.find((a) => a.halaman === pageNumber);
+        if (targetAyat && ayatRefs.current[targetAyat.id]) {
+          const element = ayatRefs.current[targetAyat.id];
+          if (element) {
+            const headerOffset = 350;
+            const elementPosition =
+              element.getBoundingClientRect().top + window.scrollY;
+
+            const offsetPosition = elementPosition - headerOffset;
+
+            window.scrollTo({
+              top: offsetPosition,
+              behavior: 'smooth',
+            });
+          }
+        }
+      }
+    }
+  }, [debouncedSearchHalaman, allAyat]);
 
   useEffect(() => {
     if (data) {
@@ -265,7 +304,7 @@ export default function UstadzAddHafalanJuz() {
                   Murajaah
                 </Button>
               </div>
-              <div className="flex flex-col md:flex-row justify-between items-start md:items-center">
+              <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4">
                 <div className="mb-4 md:mb-0">
                   <CardTitle className="text-xl md:text-2xl font-bold">
                     Juz {data?.juz}
@@ -282,6 +321,18 @@ export default function UstadzAddHafalanJuz() {
                 >
                   Tambah
                 </Button>
+              </div>
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <Input
+                  type="number"
+                  placeholder={`Cari halaman (1-${TOTAL_PAGES_IN_JUZ})...`}
+                  value={searchHalaman}
+                  onChange={(e) => setSearchHalaman(e.target.value)}
+                  className="pl-10 w-full md:w-64 bg-white"
+                  min="1"
+                  max={TOTAL_PAGES_IN_JUZ}
+                />
               </div>
             </div>
 

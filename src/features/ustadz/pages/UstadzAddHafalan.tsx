@@ -8,6 +8,7 @@ import {
   ChevronDown,
   Check,
   X,
+  Search,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { CardTitle, CardDescription } from '@/components/ui/card';
@@ -45,6 +46,8 @@ export default function UstadzAddHafalan() {
   const [catatan, setCatatan] = useState('');
   const [startAyat, setStartAyat] = useState(0);
   const [endAyat, setEndAyat] = useState(0);
+  const [searchAyat, setSearchAyat] = useState('');
+  const [debouncedSearchAyat, setDebouncedSearchAyat] = useState('');
 
   const ayatRefs = useRef<Record<number, HTMLDivElement | null>>({});
 
@@ -55,6 +58,33 @@ export default function UstadzAddHafalan() {
     error: _error,
   } = useFetchAddHafalanData(idSantri!, idSurah!, mode);
   const { mutate: saveHafalan, isPending: isSaving } = useSaveHafalan();
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearchAyat(searchAyat);
+    }, 1000);
+
+    return () => clearTimeout(timer);
+  }, [searchAyat]);
+
+  useEffect(() => {
+    if (debouncedSearchAyat && data?.ayat) {
+      const ayatNumber = parseInt(debouncedSearchAyat, 10);
+      if (
+        !isNaN(ayatNumber) &&
+        ayatNumber >= 1 &&
+        ayatNumber <= data.ayat.length
+      ) {
+        const targetAyat = data.ayat.find((a) => a.nomorAyat === ayatNumber);
+        if (targetAyat && ayatRefs.current[targetAyat.id]) {
+          ayatRefs.current[targetAyat.id]?.scrollIntoView({
+            behavior: 'smooth',
+            block: 'center',
+          });
+        }
+      }
+    }
+  }, [debouncedSearchAyat, data?.ayat]);
 
   useEffect(() => {
     if (data) {
@@ -272,7 +302,7 @@ export default function UstadzAddHafalan() {
                   Murajaah
                 </Button>
               </div>
-              <div className="flex flex-col md:flex-row justify-between items-start md:items-center">
+              <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4">
                 <div className="mb-4 md:mb-0">
                   <CardTitle className="text-xl md:text-2xl font-bold">
                     Nama Surat : {data?.surah.namaLatin} -{' '}
@@ -290,6 +320,18 @@ export default function UstadzAddHafalan() {
                 >
                   Tambah
                 </Button>
+              </div>
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <Input
+                  type="number"
+                  placeholder={`Cari ayat (1-${data?.ayat.length || 0})...`}
+                  value={searchAyat}
+                  onChange={(e) => setSearchAyat(e.target.value)}
+                  className="pl-10 w-full md:w-64 bg-white"
+                  min="1"
+                  max={data?.ayat.length}
+                />
               </div>
             </div>
 

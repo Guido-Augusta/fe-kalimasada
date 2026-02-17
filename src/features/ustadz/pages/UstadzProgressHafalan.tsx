@@ -46,7 +46,7 @@ export default function UstadzProgressHafalan() {
       return 'bg-red-500';
     } else if (progress < 100) {
       return 'bg-yellow-500'; 
-    } else {  
+    } else {
       return 'bg-green-500'; 
     }
   };
@@ -126,7 +126,7 @@ export default function UstadzProgressHafalan() {
                   <Search className="absolute left-2 top-2.5 h-4 w-4 text-gray-400" />
                   <Input
                     type="text"
-                    placeholder={mode === "surah" ? "Cari nama surah..." : "Cari juz (misal: 1, 2)..."}
+                    placeholder={mode === "surah" ? "Cari surah..." : "Cari juz (misal: 1, 2)..."}
                     className="pl-8"
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
