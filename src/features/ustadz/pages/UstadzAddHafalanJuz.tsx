@@ -69,10 +69,52 @@ export default function UstadzAddHafalanJuz() {
     return data.surah.flatMap((item) => item.ayat);
   }, [data]);
 
+  const { minPage, maxPage } = useMemo(() => {
+    if (allAyat.length === 0) return { minPage: 1, maxPage: TOTAL_PAGES_IN_JUZ };
+    const pages = allAyat.map((a) => a.halaman).filter((p): p is number => p !== undefined && p !== null);
+    if (pages.length === 0) return { minPage: 1, maxPage: TOTAL_PAGES_IN_JUZ };
+    return {
+      minPage: Math.min(...pages),
+      maxPage: Math.max(...pages),
+    };
+  }, [allAyat]);
+
+  const handleSearchHalaman = () => {
+    if (!searchHalaman || allAyat.length === 0) return;
+
+    const pageNumber = parseInt(searchHalaman, 10);
+    if (
+      !isNaN(pageNumber) &&
+      pageNumber >= minPage &&
+      pageNumber <= maxPage
+    ) {
+      const targetAyat = allAyat.find((a) => a.halaman === pageNumber);
+      if (targetAyat && ayatRefs.current[targetAyat.id]) {
+        const element = ayatRefs.current[targetAyat.id];
+        if (element) {
+          const headerOffset = 350;
+          const elementPosition =
+            element.getBoundingClientRect().top + window.scrollY;
+
+          const offsetPosition = elementPosition - headerOffset;
+
+          window.scrollTo({
+            top: offsetPosition,
+            behavior: 'smooth',
+          });
+        }
+      } else {
+        toast.error(`Halaman ${pageNumber} tidak ditemukan`);
+      }
+    } else {
+      toast.error(`Halaman harus antara ${minPage} sampai ${maxPage}`);
+    }
+  };
+
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedSearchHalaman(searchHalaman);
-    }, 1000);
+    }, 500);
 
     return () => clearTimeout(timer);
   }, [searchHalaman]);
@@ -82,8 +124,8 @@ export default function UstadzAddHafalanJuz() {
       const pageNumber = parseInt(debouncedSearchHalaman, 10);
       if (
         !isNaN(pageNumber) &&
-        pageNumber >= 1 &&
-        pageNumber <= TOTAL_PAGES_IN_JUZ
+        pageNumber >= minPage &&
+        pageNumber <= maxPage
       ) {
         const targetAyat = allAyat.find((a) => a.halaman === pageNumber);
         if (targetAyat && ayatRefs.current[targetAyat.id]) {
@@ -100,10 +142,14 @@ export default function UstadzAddHafalanJuz() {
               behavior: 'smooth',
             });
           }
+        } else {
+          toast.error(`Halaman ${pageNumber} tidak ditemukan`);
         }
+      } else if (debouncedSearchHalaman) {
+        toast.error(`Halaman harus antara ${minPage} sampai ${maxPage}`);
       }
     }
-  }, [debouncedSearchHalaman, allAyat]);
+  }, [debouncedSearchHalaman, allAyat, minPage, maxPage]);
 
   useEffect(() => {
     if (data) {
@@ -322,17 +368,30 @@ export default function UstadzAddHafalanJuz() {
                   Tambah
                 </Button>
               </div>
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                <Input
-                  type="number"
-                  placeholder={`Cari halaman (1-${TOTAL_PAGES_IN_JUZ})...`}
-                  value={searchHalaman}
-                  onChange={(e) => setSearchHalaman(e.target.value)}
-                  className="pl-10 w-full md:w-64 bg-white"
-                  min="1"
-                  max={TOTAL_PAGES_IN_JUZ}
-                />
+              <div className="flex gap-2">
+                <div className="relative flex-1 md:flex-none">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                  <Input
+                    type="number"
+                    placeholder={`Cari halaman (${minPage}-${maxPage})...`}
+                    value={searchHalaman}
+                    onChange={(e) => setSearchHalaman(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        handleSearchHalaman();
+                      }
+                    }}
+                    className="pl-10 w-full md:w-64 bg-white"
+                    min={minPage}
+                    max={maxPage}
+                  />
+                </div>
+                <Button
+                  onClick={handleSearchHalaman}
+                  className="bg-violet-600 text-white hover:bg-violet-700"
+                >
+                  Cari
+                </Button>
               </div>
             </div>
 

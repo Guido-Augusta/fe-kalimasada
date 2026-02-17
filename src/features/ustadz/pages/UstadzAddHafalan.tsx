@@ -59,10 +59,33 @@ export default function UstadzAddHafalan() {
   } = useFetchAddHafalanData(idSantri!, idSurah!, mode);
   const { mutate: saveHafalan, isPending: isSaving } = useSaveHafalan();
 
+  const handleSearchAyat = () => {
+    if (!searchAyat || !data?.ayat) return;
+
+    const ayatNumber = parseInt(searchAyat, 10);
+    if (
+      !isNaN(ayatNumber) &&
+      ayatNumber >= 1 &&
+      ayatNumber <= data.ayat.length
+    ) {
+      const targetAyat = data.ayat.find((a) => a.nomorAyat === ayatNumber);
+      if (targetAyat && ayatRefs.current[targetAyat.id]) {
+        ayatRefs.current[targetAyat.id]?.scrollIntoView({
+          behavior: 'smooth',
+          block: 'center',
+        });
+      } else {
+        toast.error(`Ayat ${ayatNumber} tidak ditemukan`);
+      }
+    } else {
+      toast.error(`Ayat harus antara 1 sampai ${data.ayat.length}`);
+    }
+  };
+
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedSearchAyat(searchAyat);
-    }, 1000);
+    }, 500);
 
     return () => clearTimeout(timer);
   }, [searchAyat]);
@@ -81,7 +104,11 @@ export default function UstadzAddHafalan() {
             behavior: 'smooth',
             block: 'center',
           });
+        } else {
+          toast.error(`Ayat ${ayatNumber} tidak ditemukan`);
         }
+      } else if (debouncedSearchAyat) {
+        toast.error(`Ayat harus antara 1 sampai ${data.ayat.length}`);
       }
     }
   }, [debouncedSearchAyat, data?.ayat]);
@@ -321,17 +348,30 @@ export default function UstadzAddHafalan() {
                   Tambah
                 </Button>
               </div>
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                <Input
-                  type="number"
-                  placeholder={`Cari ayat (1-${data?.ayat.length || 0})...`}
-                  value={searchAyat}
-                  onChange={(e) => setSearchAyat(e.target.value)}
-                  className="pl-10 w-full md:w-64 bg-white"
-                  min="1"
-                  max={data?.ayat.length}
-                />
+              <div className="flex gap-2">
+                <div className="relative flex-1 md:flex-none">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                  <Input
+                    type="number"
+                    placeholder={`Cari ayat (1-${data?.ayat.length || 0})...`}
+                    value={searchAyat}
+                    onChange={(e) => setSearchAyat(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        handleSearchAyat();
+                      }
+                    }}
+                    className="pl-10 w-full md:w-64 bg-white"
+                    min="1"
+                    max={data?.ayat.length}
+                  />
+                </div>
+                <Button
+                  onClick={handleSearchAyat}
+                  className="bg-violet-600 text-white hover:bg-violet-700"
+                >
+                  Cari
+                </Button>
               </div>
             </div>
 
