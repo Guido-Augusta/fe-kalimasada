@@ -290,33 +290,43 @@ export default function UstadzAddHafalanJuz() {
                 {data?.surah.map((surahData) => (
                   <div key={surahData.surah.id}>                    
                     <div className="space-y-2">
-                      {surahData.ayat.map((ayat, _index) => {
+                      {surahData.ayat.map((ayat, index) => {
                         const showPageHeader = ayat.halaman !== lastRenderedPage;
+                        const isFirstAyatOfSurah = index === 0;
+
                         if (showPageHeader) {
                           lastRenderedPage = ayat.halaman as number;
                         }
 
                         return (
                           <div key={ayat.id}>
+                            {isFirstAyatOfSurah && (
+                              <div className="bg-gradient-to-r from-violet-100 to-amber-50 p-4 rounded-lg mb-3 border-l-4 border-violet-600">
+                                <div className="flex items-center justify-between">
+                                <h3 className="font-bold text-xl text-violet-800">
+                                  {surahData.surah.namaLatin}
+                                </h3>
+                                <p className="md:text-4xl text-2xl text-violet-600 font-arabic" style={{ fontFamily: 'Amiri, serif' }} dir="rtl">
+                                  {surahData.surah.nama}
+                                </p>
+                                </div>
+                                <p className="text-sm text-gray-500 mt-1">
+                                  {surahData.ayat.length} Ayat
+                                </p>
+                              </div>
+                            )}
+
                             {showPageHeader && (
                               <div className="sticky top-32 bg-amber-50 p-3 rounded-lg mb-2 border-l-4 border-violet-500 z-[5]">
                                 <div className="flex items-center justify-between">
-                                  <h3 className="font-semibold text-lg ">
-                                    {surahData.surah.namaLatin} ({surahData.surah.nama})
-                                  </h3>
-                                  <span className="text-sm font-bold text-amber-700 uppercase tracking-wider mr-6">
+                                  <span className="text-sm font-bold text-amber-700 uppercase tracking-wider">
                                     Halaman {ayat.halaman}
                                   </span>
-                                </div>
-                                <div className="flex items-center justify-between">
-                                  <p className="text-sm text-gray-600">
-                                    {surahData.ayat.length} Ayat
-                                  </p>
-                                  <p className="text-sm text-gray-600 mr-6">
+                                  <span className="text-sm text-gray-600">
                                     Juz {data.juz}
-                                  </p>
+                                  </span>
                                 </div>
-                              </div> 
+                              </div>
                             )}
 
                             <div

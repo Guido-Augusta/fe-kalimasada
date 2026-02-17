@@ -11,6 +11,7 @@ import { useNavigate } from "react-router-dom";
 import { dateToday } from "@/utils/formatDate";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
+import { useProgressModeStore } from "@/store/useProgressModeStore";
 import {
   Select,
   SelectContent,
@@ -22,7 +23,7 @@ import {
 export default function UstadzProgressHafalan() {
   const navigate = useNavigate();
   const { idSantri } = useParams<{ idSantri: string }>();
-  const [mode, setMode] = useState<"surah" | "juz">("surah");
+  const { mode, setMode } = useProgressModeStore();
   const [searchTerm, setSearchTerm] = useState("");
   
   const { data, isLoading, isError } = useHafalanProgressData(idSantri as string, mode);
