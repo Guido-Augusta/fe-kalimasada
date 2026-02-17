@@ -191,12 +191,12 @@ export default function UstadzAddHafalanJuz() {
     if (
       startHalaman <= 0 ||
       endHalaman <= 0 ||
-      startHalaman > TOTAL_PAGES_IN_JUZ ||
-      endHalaman > TOTAL_PAGES_IN_JUZ ||
+      startHalaman < minPage ||
+      endHalaman > maxPage ||
       startHalaman > endHalaman
     ) {
       toast.error(
-        'Input halaman tidak valid. Pastikan Halaman Mulai dan Halaman Selesai benar (1-20).'
+        `Input halaman tidak valid. Pastikan Halaman Mulai dan Halaman Selesai benar (${minPage}-${maxPage}).`
       );
       setIsDialogOpen(false);
       return;
@@ -498,8 +498,8 @@ export default function UstadzAddHafalanJuz() {
                     setStartHalaman(parseInt(e.target.value) || 0)
                   }
                   className="col-span-3"
-                  min="1"
-                  max={TOTAL_PAGES_IN_JUZ}
+                  min={minPage}
+                  max={maxPage}
                 />
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
@@ -512,8 +512,8 @@ export default function UstadzAddHafalanJuz() {
                   value={endHalaman}
                   onChange={(e) => setEndHalaman(parseInt(e.target.value) || 0)}
                   className="col-span-3"
-                  min="1"
-                  max={TOTAL_PAGES_IN_JUZ}
+                  min={minPage}
+                  max={maxPage}
                 />
               </div>
             </>
