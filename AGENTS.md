@@ -1,81 +1,59 @@
 # AGENTS.md - Developer Guidelines for fe-kalimasada
 
-This document provides guidelines for agentic coding agents working on this codebase.
-
-## Project Overview
-
-This is a React + TypeScript + Vite application with shadcn/ui components, Tailwind CSS, TanStack Query, React Router, and Zustand for state management. It features role-based authentication (admin, ustadz, ortu, siswa) with different dashboards for each role.
+This is a React + TypeScript + Vite application with shadcn/ui components, Tailwind CSS v4, TanStack Query, React Router, and Zustand. It features role-based authentication (admin, ustadz, ortu, santri).
 
 ## Build, Lint, and Test Commands
 
-### Development
 ```bash
-npm run dev        # Start development server (Vite)
-npm run preview    # Preview production build
-```
-
-### Build
-```bash
+npm run dev        # Start development server
 npm run build      # TypeScript check + Vite build
+npm run lint       # Run ESLint
+npm run preview    # Preview production build
+npx tsc --noEmit   # Standalone type checking
 ```
 
-### Linting
-```bash
-npm run lint       # Run ESLint on all files
-```
-
-### Type Checking
-TypeScript is checked as part of `npm run build`. For standalone type checking:
-```bash
-npx tsc --noEmit   # Run TypeScript compiler without emitting files
-```
-
-**Note:** This project currently has no test suite. When adding tests:
-- Use Vitest as the test runner (consistent with Vite)
-- Test files should be named `*.test.ts` or `*.spec.ts`
-- Run a single test: `npx vitest run --test-name-pattern="testName"`
+**Testing:** This project has no test suite yet. When adding tests:
+- Use Vitest as the test runner
+- Test files: `*.test.ts` or `*.spec.ts`
+- Run single test: `npx vitest run --test-name-pattern="testName"`
 
 ## Code Style Guidelines
 
 ### General Principles
 - Use functional components with hooks
-- Prefer arrow functions for components and callbacks
-- Use TypeScript for all new code (strict mode enabled)
-- Keep components focused and small (< 200 lines preferred)
+- Prefer arrow functions
+- TypeScript strict mode enabled
+- Keep components focused (< 200 lines)
 
 ### Imports
 
-**Order imports groups (top to bottom):**
-1. External libraries (React, React Router, TanStack Query, etc.)
-2. UI/components from shadcn/ui and Radix primitives
+**Order (top to bottom):**
+1. External libraries (React, React Router, TanStack Query)
+2. shadcn/ui and Radix components
 3. Internal features/modules
 4. Store (Zustand)
 5. Hooks
 6. Utils
 7. Types
-8. Assets/images
+8. Assets
 
-**Use path aliases:**
-- `@/*` resolves to `./src/*`
-- Example: `import { cn } from '@/lib/utils'`
+**Path aliases:** `@/*` resolves to `./src/*`
 
 ```typescript
-// Good import order
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useMutation } from '@tanstack/react-query';
 import { toast } from 'react-hot-toast';
 import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
 import useUser from '@/store/useUser';
 import { useLoginMutation } from '@/features/authentication/hooks/useLoginMutation';
 import { formatDate } from '@/utils/formatDate';
 import type { User } from '@/types/user';
 ```
 
-### Formatting (Prettier)
+### Formatting
 
-The project uses Prettier with these settings:
+Prettier settings (no config file found, use these):
 ```json
 {
   "tabWidth": 2,
@@ -90,29 +68,23 @@ The project uses Prettier with these settings:
 }
 ```
 
-**Format on save is recommended.**
-
 ### TypeScript
 
-- Enable `strict: true` in tsconfig
-- Use explicit types for function parameters and return types
-- Use `type` for unions, interfaces for objects
-- Prefer `zod` for runtime validation (already installed)
-- Unused variables trigger build errors (prefix with `_` if intentional)
+- Explicit types for function params and return types
+- Use `type` for unions, `interface` for objects
+- Use `zod` for runtime validation (already installed)
+- Unused variables trigger build errors (prefix with `_`)
 
 ```typescript
-// Good
 interface User {
   id: string;
   name: string;
   role: 'admin' | 'ustadz' | 'santri' | 'ortu';
 }
 
-const getUserName = (user: User): string => {
-  return user.name;
-};
+const getUserName = (user: User): string => user.name;
 
-// Good - ignore unused params
+// Ignore unused params
 const handleClick = (_event: React.MouseEvent) => {
   console.log('clicked');
 };
@@ -120,26 +92,25 @@ const handleClick = (_event: React.MouseEvent) => {
 
 ### Naming Conventions
 
-- **Components**: PascalCase (e.g., `UserProfile.tsx`, `LoginForm.tsx`)
-- **Files**: kebab-case for utilities, PascalCase for components (e.g., `format-date.ts`, `UserProfile.tsx`)
-- **Hooks**: camelCase with `use` prefix (e.g., `useLoginMutation.ts`, `useFetchData.ts`)
-- **Store**: camelCase (e.g., `useUser.ts`, `useAppStore.ts`)
-- **Types**: PascalCase (e.g., `UserType.ts`, `AuthResponse.ts`)
-- **Constants**: SCREAMING_SNAKE_CASE for values, PascalCase for objects (e.g., `USER_ROLES`, `SortOptions`)
+- **Components**: PascalCase (e.g., `UserProfile.tsx`)
+- **Files**: kebab-case utilities, PascalCase components (e.g., `format-date.ts`, `LoginForm.tsx`)
+- **Hooks**: camelCase with `use` prefix (e.g., `useLoginMutation.ts`)
+- **Store**: camelCase (e.g., `useUser.ts`)
+- **Types**: PascalCase (e.g., `UserType.ts`)
+- **Constants**: SCREAMING_SNAKE_CASE (e.g., `USER_ROLES`)
 
 ### Component Structure
 
-Follow this order within component files:
+Order within files:
 1. Imports
-2. Type definitions (if component-specific)
-3. Zod schemas for validation (if any)
+2. Type definitions
+3. Zod schemas (if any)
 4. Component function
-5. Export default
+5. Export
 
 ```typescript
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { z } from 'zod';
 
 const loginSchema = z.object({
@@ -151,11 +122,6 @@ type LoginFormValues = z.infer<typeof loginSchema>;
 
 export function LoginForm() {
   const [email, setEmail] = useState('');
-  
-  const handleSubmit = (values: LoginFormValues) => {
-    // ...
-  };
-
   return (
     <form>
       <Input value={email} onChange={(e) => setEmail(e.target.value)} />
@@ -168,8 +134,8 @@ export function LoginForm() {
 ### Error Handling
 
 - Use try/catch for async operations
-- Display user-friendly error messages via `react-hot-toast`
-- Prefix unused error variables with `_`
+- Display errors via `react-hot-toast`
+- Prefix unused errors with `_`
 
 ```typescript
 try {
@@ -182,12 +148,11 @@ try {
 
 ### State Management
 
-- **Local state**: `useState` for component-local state
+- **Local state**: `useState`
 - **Global state**: Zustand stores in `src/store/`
-- **Server state**: TanStack Query for API calls
+- **Server state**: TanStack Query
 
 ```typescript
-// Zustand store example
 import { create } from 'zustand';
 
 interface UserState {
@@ -203,22 +168,20 @@ export const useUserStore = create<UserState>((set) => ({
 
 ### UI Components
 
-- Use shadcn/ui components from `@/components/ui/`
-- Use Tailwind CSS for styling with `@tailwindcss/vite`
-- Use `cn()` utility for conditional class merging
+- Use shadcn/ui from `@/components/ui/`
+- Use Tailwind CSS with `@tailwindcss/vite`
+- Use `cn()` for conditional classes
 
 ```typescript
 import { cn } from '@/lib/utils';
-import { Button } from '@/components/ui/button';
-
-<Button className={cn('base-class', isActive && 'active-class')} />
+<Button className={cn('base', isActive && 'active')} />
 ```
 
 ### API Calls
 
-- Use TanStack Query (`useQuery`, `useMutation`) for all API calls
-- Create service files in `features/*/service/` directory
-- Create hooks that wrap the service calls in `features/*/hooks/`
+- Use TanStack Query (`useQuery`, `useMutation`)
+- Create services in `features/*/service/`
+- Create hooks in `features/*/hooks/`
 
 ### Folder Structure
 
@@ -229,56 +192,40 @@ src/
 │   └── ui/          # shadcn/ui components
 ├── features/        # Feature-based modules
 │   ├── authentication/
-│   │   ├── components/
-│   │   ├── hooks/
-│   │   ├── pages/
-│   │   ├── service/
-│   │   ├── validation/
-│   │   └── index.tsx
 │   ├── admin/
 │   ├── ortu/
 │   ├── ustadz/
 │   └── santri/
 ├── hooks/           # Shared custom hooks
-├── lib/             # Utility functions (utils.ts)
-├── middleware/      # Route guards and middleware
+├── lib/             # Utility functions
+├── middleware/      # Route guards
 ├── store/           # Zustand stores
-├── types/           # Global type definitions
+├── types/           # Global types
 └── utils/           # Utility functions
 ```
 
 ### ESLint Rules
 
-Key rules enforced:
-- `@typescript-eslint/no-unused-vars`: warn (prefix unused with `_`)
+Key rules (from `eslint.config.js`):
+- `@typescript-eslint/no-unused-vars`: warn (use `_` prefix)
 - react-hooks rules (recommended-latest)
 - react-refresh rules for Vite HMR
 
 ### Common Patterns
 
-**Conditional class names:**
+**React Router:**
 ```typescript
-import { cn } from '@/lib/utils';
-<div className={cn('base', condition && 'conditional')} />
-```
-
-**React Router navigation:**
-```typescript
-import { useNavigate } from 'react-router-dom';
 const navigate = useNavigate();
-navigate('/path');
+avigate('/path');
 ```
 
-**Form handling with React Hook Form + Zod:**
+**React Hook Form + Zod:**
 ```typescript
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
 const form = useForm<FormValues>({ resolver: zodResolver(schema) });
 ```
 
 ## Additional Notes
 
-- No existing test suite - consider adding Vitest for unit tests
-- Tailwind CSS v4 is used (configured with `@tailwindcss/vite`)
-- Authentication uses JWT stored in localStorage
-- Role-based routing with redirects in `src/middleware/RoleRedirect.tsx`
+- Tailwind CSS v4 with `@tailwindcss/vite`
+- JWT authentication stored in localStorage
+- Role-based routing in `src/middleware/RoleRedirect.tsx`

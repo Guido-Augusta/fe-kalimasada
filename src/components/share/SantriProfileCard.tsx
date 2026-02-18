@@ -21,14 +21,20 @@ interface SantriProfileCardProps {
 
 export default function SantriProfileCard({ santriData, baseUrl, role, onUpdateHafalanClick }: SantriProfileCardProps) {
   const [chartRange, setChartRange] = useState('1w');
+  const [chartMode, setChartMode] = useState('ayat');
 
   const { data: chartData, isLoading: isChartLoading, isError: isChartError } = useChartData(
     String(santriData.id),
-    chartRange
+    chartRange,
+    chartMode
   );
 
   const handleRangeChange = (newRange: string) => {
     setChartRange(newRange);
+  };
+
+  const handleModeChange = (newMode: string) => {
+    setChartMode(newMode);
   };
 
   return (
@@ -229,6 +235,8 @@ export default function SantriProfileCard({ santriData, baseUrl, role, onUpdateH
             namaSantri={santriData.nama}
             range={chartRange}
             onRangeChange={handleRangeChange}
+            mode={chartMode}
+            onModeChange={handleModeChange}
           />
         )}
       </div>

@@ -2,6 +2,7 @@ import { Bar, BarChart, CartesianGrid, XAxis, Tooltip, Legend } from "recharts"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { ChartContainer } from "@/components/ui/chart"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
 interface HafalanChartProps {
   data: {
@@ -12,6 +13,8 @@ interface HafalanChartProps {
   namaSantri: string;
   range: string;
   onRangeChange: (range: string) => void;
+  mode: string;
+  onModeChange: (mode: string) => void;
 }
 
 interface CustomTooltipProps {
@@ -31,17 +34,18 @@ const chartConfig = {
   },
 };
 
-export function HafalanChart({ data, namaSantri, range, onRangeChange }: HafalanChartProps) {
+export function HafalanChart({ data, namaSantri, range, onRangeChange, mode, onModeChange }: HafalanChartProps) {
   const chartData = data;
 
   const CustomTooltip = ({ active, payload, label }: CustomTooltipProps) => {
     if (active && payload && payload.length) {
+      const unitLabel = mode === "ayat" ? "Ayat" : "Halaman";
       return (
         <div className="bg-popover text-popover-foreground border rounded-md p-2 shadow-md">
           <p className="font-semibold">{label}</p>
           {payload.map((item: {name: string; value: number}, index: number) => (
             <p key={index} className="text-sm">
-              {`${item.name}: ${item.value}`}
+              {`${item.name}: ${item.value} ${unitLabel}`}
             </p>
           ))}
         </div>
@@ -58,7 +62,16 @@ export function HafalanChart({ data, namaSantri, range, onRangeChange }: Hafalan
           <p>Jumlah tambah hafalan dan murajaah per hari.</p>
           <p className="text-base text-red-500">Tampilan grafik lebih optimal pada perangkat desktop (Laptop / PC).</p>
         </CardDescription>
-        <div className="flex justify-end">
+        <div className="flex flex-col sm:flex-row justify-end gap-4">
+          <Select value={mode} onValueChange={onModeChange}>
+            <SelectTrigger className="w-[140px]">
+              <SelectValue placeholder="Pilih mode" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="ayat">Ayat</SelectItem>
+              <SelectItem value="halaman">Halaman</SelectItem>
+            </SelectContent>
+          </Select>
           <Tabs value={range} onValueChange={onRangeChange} className="w-[200px] sm:w-[250px]">
             <TabsList>
               <TabsTrigger value="1w">1 Minggu</TabsTrigger>
