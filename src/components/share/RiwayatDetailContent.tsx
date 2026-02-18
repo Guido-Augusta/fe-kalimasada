@@ -154,7 +154,7 @@ export default function RiwayatDetailContent({ santriId, surahId, tanggal, statu
         </div>
       </div>
 
-      <div className="space-y-6">
+      <div className="space-y-3">
         {riwayatDetail.daftarAyat.map((ayat) => (
          <Card key={ayat.id} className="p-4 border border-violet-600/90">
          <p
