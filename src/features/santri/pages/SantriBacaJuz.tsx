@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ChevronLeft, ChevronRight, ChevronUp, ChevronDown, Search, X } from "lucide-react";
+import { ChevronLeft, ChevronRight, ChevronUp, ChevronDown, Search } from "lucide-react";
 import SantriLayout from "../components/SantriLayout";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
@@ -24,9 +24,7 @@ export default function SantriBacaJuz() {
   const { juzData, loading, error } = useFetchJuz();
   const [isSearchDialogOpen, setIsSearchDialogOpen] = useState(false);
   const [searchHalaman, setSearchHalaman] = useState("");
-  const [searchAyat, setSearchAyat] = useState("");
-  const [debouncedSearchHalaman, setDebouncedSearchHalaman] = useState("");
-  const [debouncedSearchAyat, setDebouncedSearchAyat] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   const ayatRefs = useRef<Record<number, HTMLDivElement | null>>({});
 
   const allAyat = useMemo(() => {
@@ -59,23 +57,15 @@ export default function SantriBacaJuz() {
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      setDebouncedSearchHalaman(searchHalaman);
+      setDebouncedSearch(searchHalaman);
     }, 500);
 
     return () => clearTimeout(timer);
   }, [searchHalaman]);
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setDebouncedSearchAyat(searchAyat);
-    }, 500);
-
-    return () => clearTimeout(timer);
-  }, [searchAyat]);
-
-  useEffect(() => {
-    if (debouncedSearchHalaman && allAyat.length > 0) {
-      const pageNumber = parseInt(debouncedSearchHalaman, 10);
+    if (debouncedSearch && allAyat.length > 0) {
+      const pageNumber = parseInt(debouncedSearch, 10);
       if (!isNaN(pageNumber) && pageNumber >= minPage && pageNumber <= maxPage) {
         const targetAyat = allAyat.find((a) => a.halaman === pageNumber);
         if (targetAyat) {
@@ -85,27 +75,11 @@ export default function SantriBacaJuz() {
         } else {
           toast.error(`Halaman ${pageNumber} tidak ditemukan`);
         }
-      } else if (debouncedSearchHalaman) {
+      } else if (debouncedSearch) {
         toast.error(`Halaman harus antara ${minPage} sampai ${maxPage}`);
       }
     }
-  }, [debouncedSearchHalaman, allAyat, minPage, maxPage]);
-
-  useEffect(() => {
-    if (debouncedSearchAyat && allAyat.length > 0) {
-      const ayatNumber = parseInt(debouncedSearchAyat, 10);
-      if (!isNaN(ayatNumber)) {
-        const targetAyat = allAyat.find((a) => a.nomorAyat === ayatNumber);
-        if (targetAyat) {
-          scrollToAyat(targetAyat.id);
-          setIsSearchDialogOpen(false);
-          setSearchAyat("");
-        } else {
-          toast.error(`Ayat ${ayatNumber} tidak ditemukan di juz ini`);
-        }
-      }
-    }
-  }, [debouncedSearchAyat, allAyat]);
+  }, [debouncedSearch, allAyat, minPage, maxPage]);
 
   const scrollToTop = () => {
     window.scrollTo({
@@ -209,18 +183,18 @@ export default function SantriBacaJuz() {
         </div>
 
         <div className="flex justify-between items-center mb-4 flex-wrap gap-2">
-            <Link to={`/santri/baca/juz/${prevJuz}`}>
-              <Button variant="ghost" className="flex items-center text-blue-500 hover:text-blue-700">
-                <ChevronLeft size={20} />
-                <span className="ml-1">Juz Sebelumnya</span>
-              </Button>
-            </Link>
-            <Link to={`/santri/baca/juz/${nextJuz}`}>
-              <Button variant="ghost" className="flex items-center text-blue-500 hover:text-blue-700">
-                <span className="mr-1">Juz Selanjutnya</span>
-                <ChevronRight size={20} />
-              </Button>
-            </Link>
+          <Link to={`/santri/baca/juz/${prevJuz}`}>
+            <Button variant="ghost" className="flex items-center text-blue-500 hover:text-blue-700">
+              <ChevronLeft size={20} />
+              <span className="ml-1">Juz Sebelumnya</span>
+            </Button>
+          </Link>
+          <Link to={`/santri/baca/juz/${nextJuz}`}>
+            <Button variant="ghost" className="flex items-center text-blue-500 hover:text-blue-700">
+              <span className="mr-1">Juz Selanjutnya</span>
+              <ChevronRight size={20} />
+            </Button>
+          </Link>
         </div>
 
         <div className="space-y-4">
@@ -245,9 +219,8 @@ export default function SantriBacaJuz() {
                 </div>
 
                 <div className="space-y-2">
-                  {surahGroup.ayat.map((ayat, index) => {
+                  {surahGroup.ayat.map((ayat) => {
                     const showPageHeader = ayat.halaman !== lastRenderedPage;
-                    const isFirstAyatOfSurah = index === 0;
 
                     if (showPageHeader) {
                       lastRenderedPage = ayat.halaman;
@@ -350,33 +323,20 @@ export default function SantriBacaJuz() {
         <Dialog open={isSearchDialogOpen} onOpenChange={setIsSearchDialogOpen}>
           <DialogContent className="sm:max-w-[400px]">
             <DialogHeader>
-              <DialogTitle>Cari Ayat atau Halaman</DialogTitle>
+              <DialogTitle>Cari Halaman</DialogTitle>
             </DialogHeader>
-            <div className="flex flex-col gap-4 py-4">
-              <div className="flex flex-col gap-2">
-                <label className="text-sm font-medium text-gray-700">
-                  Cari Halaman ({minPage} - {maxPage})
-                </label>
-                <Input
-                  type="number"
-                  placeholder="Masukkan nomor halaman..."
-                  value={searchHalaman}
-                  onChange={(e) => setSearchHalaman(e.target.value)}
-                  min={minPage}
-                  max={maxPage}
-                />
-              </div>
-              <div className="flex flex-col gap-2">
-                <label className="text-sm font-medium text-gray-700">
-                  Cari Ayat
-                </label>
-                <Input
-                  type="number"
-                  placeholder="Masukkan nomor ayat..."
-                  value={searchAyat}
-                  onChange={(e) => setSearchAyat(e.target.value)}
-                />
-              </div>
+            <div className="flex flex-col gap-2 py-4">
+              <label className="text-sm font-medium text-gray-700">
+                Nomor Halaman ({minPage} - {maxPage})
+              </label>
+              <Input
+                type="number"
+                placeholder="Masukkan nomor halaman..."
+                value={searchHalaman}
+                onChange={(e) => setSearchHalaman(e.target.value)}
+                min={minPage}
+                max={maxPage}
+              />
             </div>
           </DialogContent>
         </Dialog>
