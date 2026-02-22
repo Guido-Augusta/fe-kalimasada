@@ -107,7 +107,8 @@ export const saveHafalanByHalaman = async (payload: {
 
 export const deleteRiwayatHafalan = async (data: {
   santriId: number;
-  surahId: number;
+  surahId?: number;
+  juzId?: number;
   tanggal: string;
   status: 'TambahHafalan' | 'Murajaah';
 }): Promise<DeleteRiwayatHafalanResponse> => {

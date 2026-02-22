@@ -64,6 +64,7 @@ export default function RiwayatTable({
   );
   const [tanggal, setTanggal] = useState<string | null>(null);
   const [namaSurah, setNamaSurah] = useState<string | null>(null);
+  const [juzNumber, setJuzNumber] = useState<number | null>(null);
 
   const deleteMutation = useDeleteRiwayatHafalan();
 
@@ -71,24 +72,35 @@ export default function RiwayatTable({
     setRiwayatToDelete(riwayat);
     setTanggal(riwayat.tanggal);
     setNamaSurah(riwayat.namaSurahLatin);
+    setJuzNumber(riwayat.juz ?? null);
     setIsAlertOpen(true);
   };
 
   const handleConfirmDelete = () => {
     if (riwayatToDelete && idSantri) {
-      deleteMutation.mutate(
-        {
-          santriId: parseInt(idSantri),
-          surahId: riwayatToDelete.surahId,
-          tanggal: riwayatToDelete.tanggal,
-          status: riwayatToDelete.status,
+      const payload: {
+        santriId: number;
+        surahId?: number;
+        juzId?: number;
+        tanggal: string;
+        status: 'TambahHafalan' | 'Murajaah';
+      } = {
+        santriId: parseInt(idSantri),
+        tanggal: riwayatToDelete.tanggal,
+        status: riwayatToDelete.status,
+      };
+
+      if (modeFilter === 'halaman' && riwayatToDelete.juz) {
+        payload.juzId = riwayatToDelete.juz;
+      } else {
+        payload.surahId = riwayatToDelete.surahId;
+      }
+
+      deleteMutation.mutate(payload, {
+        onSuccess: () => {
+          setIsAlertOpen(false);
         },
-        {
-          onSuccess: () => {
-            setIsAlertOpen(false);
-          },
-        }
-      );
+      });
     }
   };
 
@@ -315,7 +327,7 @@ export default function RiwayatTable({
               <AlertDialogTitle>Konfirmasi Hapus Riwayat</AlertDialogTitle>
               <AlertDialogDescription>
                 <span className="font-bold text-black">
-                  {tanggal} - {namaSurah}
+                  {tanggal} - {modeFilter === 'halaman' ? `Juz ${juzNumber}` : namaSurah}
                 </span>
                 <br />
                 <span>
