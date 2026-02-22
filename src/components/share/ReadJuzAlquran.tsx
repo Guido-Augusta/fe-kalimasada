@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -33,50 +33,76 @@ export default function ReadJuzAlquran() {
   const { user } = useUser();
   const [isSearchDialogOpen, setIsSearchDialogOpen] = useState(false);
   const [searchHalaman, setSearchHalaman] = useState("");
-
   const ayatRefs = useRef<Record<number, HTMLDivElement | null>>({});
+  const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const handleSearch = () => {
-    if (!searchHalaman || !data?.data) return;
+  const doSearch = useCallback(
+    (value: string) => {
+      if (!value || !data?.data) return;
 
-    const pageNumber = parseInt(searchHalaman, 10);
-    const allAyat = data.data.ayat;
+      const pageNumber = parseInt(value, 10);
+      if (isNaN(pageNumber)) return;
 
-    const targetAyat = allAyat.find((a: JuzAyat) => a.halaman === pageNumber);
+      const allAyat = data.data.ayat;
+      const targetAyat = allAyat.find((a: JuzAyat) => a.halaman === pageNumber);
 
-    if (targetAyat) {
-      const element = ayatRefs.current[targetAyat.id];
+      if (targetAyat) {
+        const element = ayatRefs.current[targetAyat.id];
 
-      if (element) {
-        const headerOffset = 100;
-        const elementPosition = element.getBoundingClientRect().top + window.scrollY;
-        const offsetPosition = elementPosition - headerOffset;
+        if (element) {
+          const headerOffset = 100;
+          const elementPosition = element.getBoundingClientRect().top + window.scrollY;
+          const offsetPosition = elementPosition - headerOffset;
 
-        window.scrollTo({
-          top: offsetPosition,
-          behavior: "smooth",
-        });
+          window.scrollTo({
+            top: offsetPosition,
+            behavior: "smooth",
+          });
 
-        setIsSearchDialogOpen(false);
-        setSearchHalaman("");
+          setIsSearchDialogOpen(false);
+          setSearchHalaman("");
+        } else {
+          toast.error("Gagal menggulir ke halaman. Silakan coba lagi.");
+        }
       } else {
-        toast.error("Gagal menggulir ke halaman. Silakan coba lagi.");
+        const pages = allAyat.map((a: JuzAyat) => a.halaman).filter(Boolean) as number[];
+        const minP = Math.min(...pages);
+        const maxP = Math.max(...pages);
+        toast.error(`Halaman ${pageNumber} tidak ditemukan di Juz ini (${minP} - ${maxP})`);
       }
-    } else {
-      const pages = allAyat.map((a: JuzAyat) => a.halaman).filter(Boolean) as number[];
-      const minP = Math.min(...pages);
-      const maxP = Math.max(...pages);
-      toast.error(`Halaman ${pageNumber} tidak ditemukan di Juz ini (${minP} - ${maxP})`);
+    },
+    [data]
+  );
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setSearchHalaman(value);
+
+    if (debounceTimer.current) {
+      clearTimeout(debounceTimer.current);
     }
+
+    debounceTimer.current = setTimeout(() => {
+      doSearch(value);
+    }, 500);
   };
 
-  const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  };
+  useEffect(() => {
+    return () => {
+      if (debounceTimer.current) clearTimeout(debounceTimer.current);
+    };
+  }, []);
 
-  const scrollToBottom = () => {
+  useEffect(() => {
+    if (!isSearchDialogOpen) {
+      setSearchHalaman("");
+      if (debounceTimer.current) clearTimeout(debounceTimer.current);
+    }
+  }, [isSearchDialogOpen]);
+
+  const scrollToTop = () => window.scrollTo({ top: 0, behavior: "smooth" });
+  const scrollToBottom = () =>
     window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
-  };
 
   const groupAyatBySurah = (ayat: JuzAyat[]): GroupedAyat[] => {
     const grouped: GroupedAyat[] = [];
@@ -84,7 +110,6 @@ export default function ReadJuzAlquran() {
 
     ayat.forEach((ayatItem) => {
       const surahNomor = ayatItem.surah.nomor;
-
       if (!currentSurah || currentSurah.surahNomor !== surahNomor) {
         currentSurah = {
           surahNomor,
@@ -138,7 +163,9 @@ export default function ReadJuzAlquran() {
 
   const juzData = data.data;
   const groupedAyat = groupAyatBySurah(juzData.ayat);
-  const ayatWithPage = juzData.ayat.filter((a: JuzAyat) => a.halaman !== null && a.halaman !== undefined);
+  const ayatWithPage = juzData.ayat.filter(
+    (a: JuzAyat) => a.halaman !== null && a.halaman !== undefined
+  );
   const pages = ayatWithPage.map((a: JuzAyat) => a.halaman as number);
   const minPage = pages.length > 0 ? Math.min(...pages) : 1;
   const maxPage = pages.length > 0 ? Math.max(...pages) : 20;
@@ -166,17 +193,13 @@ export default function ReadJuzAlquran() {
       </div>
 
       <div className="flex justify-between items-center mb-6">
-        <Link
-          to={`/${user?.role}/alquran/juz/${juzData.juz - 1 === 0 ? 30 : juzData.juz - 1}`}
-        >
+        <Link to={`/${user?.role}/alquran/juz/${juzData.juz - 1 === 0 ? 30 : juzData.juz - 1}`}>
           <Button variant="ghost" className="flex items-center text-blue-500 hover:text-blue-700">
             <ChevronLeft size={24} />
             <span className="ml-2">Juz Sebelumnya</span>
           </Button>
         </Link>
-        <Link
-          to={`/${user?.role}/alquran/juz/${juzData.juz + 1 === 31 ? 1 : juzData.juz + 1}`}
-        >
+        <Link to={`/${user?.role}/alquran/juz/${juzData.juz + 1 === 31 ? 1 : juzData.juz + 1}`}>
           <Button variant="ghost" className="flex items-center text-blue-500 hover:text-blue-700">
             <span className="mr-2">Juz Selanjutnya</span>
             <ChevronRight size={24} />
@@ -242,9 +265,7 @@ export default function ReadJuzAlquran() {
                             ۝{toArabicNumber(ayat.nomor_ayat)}
                           </span>
                         </p>
-
                         <p className="text-left text-base text-green-600 italic">{ayat.latin}</p>
-
                         <p className="text-left text-base text-gray-800">{ayat.terjemah}</p>
                       </Card>
                     </div>
@@ -257,17 +278,13 @@ export default function ReadJuzAlquran() {
       </div>
 
       <div className="flex justify-between items-center my-6">
-        <Link
-          to={`/${user?.role}/alquran/juz/${juzData.juz - 1 === 0 ? 30 : juzData.juz - 1}`}
-        >
+        <Link to={`/${user?.role}/alquran/juz/${juzData.juz - 1 === 0 ? 30 : juzData.juz - 1}`}>
           <Button variant="ghost" className="flex items-center text-blue-500 hover:text-blue-700">
             <ChevronLeft size={24} />
             <span className="ml-2">Juz Sebelumnya</span>
           </Button>
         </Link>
-        <Link
-          to={`/${user?.role}/alquran/juz/${juzData.juz + 1 === 31 ? 1 : juzData.juz + 1}`}
-        >
+        <Link to={`/${user?.role}/alquran/juz/${juzData.juz + 1 === 31 ? 1 : juzData.juz + 1}`}>
           <Button variant="ghost" className="flex items-center text-blue-500 hover:text-blue-700">
             <span className="mr-2">Juz Selanjutnya</span>
             <ChevronRight size={24} />
@@ -275,7 +292,6 @@ export default function ReadJuzAlquran() {
         </Link>
       </div>
 
-      {/* Floating Action Buttons */}
       <div className="fixed bottom-8 right-8 flex flex-col space-y-2 z-50">
         <Button
           onClick={() => setIsSearchDialogOpen(true)}
@@ -297,33 +313,24 @@ export default function ReadJuzAlquran() {
         </Button>
       </div>
 
-      {/* Dialog Search Halaman */}
       <Dialog open={isSearchDialogOpen} onOpenChange={setIsSearchDialogOpen}>
         <DialogContent className="sm:max-w-[400px]">
           <DialogHeader>
             <DialogTitle>Cari Halaman</DialogTitle>
           </DialogHeader>
-          <div className="flex flex-col gap-4 py-4">
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-700">
-                Nomor Halaman ({minPage} - {maxPage})
-              </label>
-              <Input
-                type="number"
-                placeholder="Contoh: 150"
-                value={searchHalaman}
-                onChange={(e) => setSearchHalaman(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-                min={minPage}
-                max={maxPage}
-              />
-            </div>
-            <Button
-              onClick={handleSearch}
-              className="w-full bg-violet-600 hover:bg-violet-700"
-            >
-              Cari Halaman
-            </Button>
+          <div className="py-4">
+            <label className="text-sm font-medium text-gray-700 mb-2 block">
+              Nomor Halaman ({minPage} - {maxPage})
+            </label>
+            <Input
+              type="number"
+              placeholder={`Masukkan nomor halaman...`}
+              value={searchHalaman}
+              onChange={handleInputChange}
+              min={minPage}
+              max={maxPage}
+              autoFocus
+            />
           </div>
         </DialogContent>
       </Dialog>
