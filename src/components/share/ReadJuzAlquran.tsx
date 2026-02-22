@@ -1,12 +1,21 @@
+import { useState, useEffect, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ChevronLeft, ChevronUp, ChevronDown, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronUp, ChevronDown, ChevronRight, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { useFetchJuzDetail, type JuzAyat } from "@/hooks/useAlquran";
 import useUser from "@/store/useUser";
 import { toArabicNumber } from "@/utils/formatArabNumber";
+import { Input } from "@/components/ui/input";
+import { toast } from "react-hot-toast";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 const BASMALLAH = "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ";
 
@@ -22,6 +31,55 @@ export default function ReadJuzAlquran() {
   const navigate = useNavigate();
   const { data, isLoading, error } = useFetchJuzDetail(idJuz);
   const { user } = useUser();
+  const [isSearchDialogOpen, setIsSearchDialogOpen] = useState(false);
+  const [searchHalaman, setSearchHalaman] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+  const ayatRefs = useRef<Record<number, HTMLDivElement | null>>({});
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchHalaman);
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [searchHalaman]);
+
+  useEffect(() => {
+    if (debouncedSearch && data?.data) {
+      const allAyat = data.data.ayat;
+      const pages = allAyat.map((a) => a.halaman).filter((p): p is number => p !== undefined && p !== null);
+      if (pages.length === 0) return;
+      
+      const minPage = Math.min(...pages);
+      const maxPage = Math.max(...pages);
+      const pageNumber = parseInt(debouncedSearch, 10);
+      
+      if (!isNaN(pageNumber) && pageNumber >= minPage && pageNumber <= maxPage) {
+        const targetAyat = allAyat.find((a) => a.halaman === pageNumber);
+        if (targetAyat && ayatRefs.current[targetAyat.id]) {
+          const element = ayatRefs.current[targetAyat.id];
+          if (element) {
+            const headerOffset = 200;
+            const elementPosition = element.getBoundingClientRect().top + window.scrollY;
+            const offsetPosition = elementPosition - headerOffset;
+            window.scrollTo({
+              top: offsetPosition,
+              behavior: "smooth",
+            });
+          }
+          setIsSearchDialogOpen(false);
+          setSearchHalaman("");
+        } else {
+          toast.error(`Halaman ${pageNumber} tidak ditemukan`);
+        }
+      } else if (debouncedSearch) {
+        const pages = data.data.ayat.map((a) => a.halaman).filter((p): p is number => p !== undefined && p !== null);
+        if (pages.length > 0) {
+          toast.error(`Halaman harus antara ${Math.min(...pages)} sampai ${Math.max(...pages)}`);
+        }
+      }
+    }
+  }, [debouncedSearch, data]);
 
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -91,6 +149,9 @@ export default function ReadJuzAlquran() {
 
   const juzData = data.data;
   const groupedAyat = groupAyatBySurah(juzData.ayat);
+  const pages = juzData.ayat.map((a) => a.halaman).filter((p): p is number => p !== undefined && p !== null);
+  const minPage = pages.length > 0 ? Math.min(...pages) : 1;
+  const maxPage = pages.length > 0 ? Math.max(...pages) : 20;
 
   return (
     <div className="container mx-auto">
@@ -148,27 +209,31 @@ export default function ReadJuzAlquran() {
             </div>
 
             <div className="space-y-8">
-            {group.ayat.map((ayat) => (
-              <Card key={ayat.id} id={`ayat-${ayat.nomor_ayat}`} className="p-4 border border-violet-600/90">
-                <p
-                  className="text-right md:text-3xl text-2xl leading-14 md:leading-20 my-3 font-arabic"
-                  dir="rtl"
+              {group.ayat.map((ayat) => (
+                <Card 
+                  key={ayat.id} 
+                  ref={(el) => { ayatRefs.current[ayat.id] = el; }}
+                  className="p-4 border border-violet-600/90"
                 >
-                  {ayat.arab} 
-                  <span className="mr-2 text-md font-arabic">
-                    ۝{toArabicNumber(ayat.nomor_ayat)}
-                  </span> 
-                </p>
+                  <p
+                    className="text-right md:text-3xl text-2xl leading-14 md:leading-20 my-3 font-arabic"
+                    dir="rtl"
+                  >
+                    {ayat.arab} 
+                    <span className="mr-2 text-md font-arabic">
+                      ۝{toArabicNumber(ayat.nomor_ayat)}
+                    </span> 
+                  </p>
 
-                <p className="text-left text-base text-green-600 italic">
-                  {ayat.latin}
-                </p>
+                  <p className="text-left text-base text-green-600 italic">
+                    {ayat.latin}
+                  </p>
 
-                <p className="text-left text-base text-gray-800">
-                  {ayat.terjemah}
-                </p>
-              </Card>
-            ))}
+                  <p className="text-left text-base text-gray-800">
+                    {ayat.terjemah}
+                  </p>
+                </Card>
+              ))}
             </div>
           </div>
         ))}
@@ -191,6 +256,12 @@ export default function ReadJuzAlquran() {
 
       <div className="fixed bottom-8 right-8 flex flex-col space-y-2 z-50">
         <Button
+          onClick={() => setIsSearchDialogOpen(true)}
+          className="p-3 bg-amber-500 text-white rounded-full shadow-lg hover:bg-amber-600"
+        >
+          <Search size={24} />
+        </Button>
+        <Button
           onClick={scrollToTop}
           className="p-3 bg-violet-500 text-white rounded-full shadow-lg hover:bg-violet-600"
         >
@@ -203,6 +274,27 @@ export default function ReadJuzAlquran() {
           <ChevronDown size={24} />
         </Button>
       </div>
+
+      <Dialog open={isSearchDialogOpen} onOpenChange={setIsSearchDialogOpen}>
+        <DialogContent className="sm:max-w-[400px]">
+          <DialogHeader>
+            <DialogTitle>Cari Halaman</DialogTitle>
+          </DialogHeader>
+          <div className="flex flex-col gap-2 py-4">
+            <label className="text-sm font-medium text-gray-700">
+              Nomor Halaman ({minPage} - {maxPage})
+            </label>
+            <Input
+              type="number"
+              placeholder="Masukkan nomor halaman..."
+              value={searchHalaman}
+              onChange={(e) => setSearchHalaman(e.target.value)}
+              min={minPage}
+              max={maxPage}
+            />
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
