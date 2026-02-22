@@ -102,10 +102,10 @@ export default function DaftarSurahProgres() {
             value={mode}
             onValueChange={(value: ModeType) => setMode(value)}
           >
-            <SelectTrigger className="w-[140px]">
+            <SelectTrigger className="w-[140px] bg-white">
               <SelectValue placeholder="Pilih Mode" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="">
               <SelectItem value="surah">Surah</SelectItem>
               <SelectItem value="juz">Juz</SelectItem>
             </SelectContent>

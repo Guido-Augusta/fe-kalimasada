@@ -70,6 +70,7 @@ import DoakKhatamSantri from '@/features/santri/pages/DoakKhatamSantri';
 import UstadzDetailHafalanJuz from '@/features/ustadz/pages/UstadzDetailHafalanJuz';
 import OrtuDetailHafalanJuz from '@/features/ortu/pages/OrtuDetailHafalanJuz';
 import SantriDetailHafalanJuz from '@/features/santri/pages/SantriDetailHafalanJuz';
+import SantriBacaJuz from '@/features/santri/pages/SantriBacaJuz';
 
 export const AppRouter = () => {
   return (
@@ -229,6 +230,10 @@ export const AppRouter = () => {
           <Route
             path="/santri/baca/surah/:idSurah"
             element={<SantriBacaSurat />}
+          />
+          <Route
+            path="/santri/baca/juz/:idJuz"
+            element={<SantriBacaJuz />}
           />
           <Route
             path="/santri/riwayat/hafalan"

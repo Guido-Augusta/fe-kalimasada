@@ -153,7 +153,7 @@ export default function SantriBacaSurat() {
           </Link>
         </div>
 
-        <div className="space-y-8">
+        <div className="space-y-2">
           {surahData.ayat.map((ayat) => (
             <AyatCard key={ayat.id} ayat={ayat} surah={surahData.surah} />
           ))}

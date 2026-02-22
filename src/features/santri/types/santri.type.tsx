@@ -88,3 +88,34 @@ export interface ApiResponseProgressJuz {
   };
   data: Juz[];
 }
+
+export interface JuzAyat {
+  id: number;
+  nomorAyat: number;
+  arab: string;
+  latin: string;
+  terjemah: string;
+  checked: boolean;
+  halaman: number;
+}
+
+export interface JuzSurahInfo {
+  id: number;
+  nama: string;
+  namaLatin: string;
+  totalAyat: number;
+  nomor: number;
+}
+
+export interface JuzSurahGroup {
+  surah: JuzSurahInfo;
+  ayat: JuzAyat[];
+}
+
+export interface ApiResponseReadJuz {
+  juz: number;
+  santriId: number;
+  mode: string;
+  totalSurah: number;
+  surah: JuzSurahGroup[];
+}

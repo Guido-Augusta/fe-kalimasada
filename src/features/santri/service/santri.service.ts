@@ -1,5 +1,5 @@
 import { getAuthHeaders } from "@/utils/header";
-import type { ApiResponseProgressJuz, ApiResponseProgressSurah, ApiResponseReadSurah } from "../types/santri.type";
+import type { ApiResponseProgressJuz, ApiResponseProgressSurah, ApiResponseReadJuz, ApiResponseReadSurah } from "../types/santri.type";
 
 const BASE_URL = import.meta.env.VITE_API_URL ? import.meta.env.VITE_API_URL : "http://localhost:5000";
 
@@ -11,6 +11,18 @@ export const fetchSurahAyat = async (santriId: string, idSurah: string): Promise
   );
   if (!response.ok) {
     throw new Error("Failed to fetch surah ayat.");
+  }
+  return response.json();
+};
+
+export const fetchJuzAyat = async (santriId: string, idJuz: string): Promise<ApiResponseReadJuz> => {
+  const headers = getAuthHeaders(false);
+  const response = await fetch(
+    `${BASE_URL}/api/hafalan/${santriId}/juz/${idJuz}?mode=tambah`,
+    { headers }
+  );
+  if (!response.ok) {
+    throw new Error("Failed to fetch juz ayat.");
   }
   return response.json();
 };
