@@ -46,3 +46,45 @@ export interface ApiResponseReadSurah {
   ayat: Ayat[];
   audio: string;
 }
+
+export interface Juz {
+  juz: number;
+  mulai_dari: {
+    surah: {
+      nomor: number;
+      nama: string;
+      nama_latin: string;
+    };
+    ayat: number;
+  } | null;
+  progress: string;
+  totalAyat: number;
+}
+
+export interface ApiResponseProgressSurah {
+  message: string;
+  status: number;
+  santri: {
+    id: number;
+    nama: string;
+    ortuId: number;
+    tahapHafalan: string;
+    tingkatan: string;
+    totalPoin: number;
+  };
+  data: Surah[];
+}
+
+export interface ApiResponseProgressJuz {
+  message: string;
+  status: number;
+  santri: {
+    id: number;
+    nama: string;
+    ortuId: number;
+    tahapHafalan: string;
+    tingkatan: string;
+    totalPoin: number;
+  };
+  data: Juz[];
+}

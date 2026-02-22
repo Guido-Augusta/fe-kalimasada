@@ -1,11 +1,21 @@
 import { useState, useEffect } from "react";
 import useUser from "@/store/useUser";
-import { fetchSurahList } from "../service/santri.service";
-import type { Surah } from "../types/santri.type";
+import { fetchProgressSurah, fetchProgressJuz } from "../service/santri.service";
+import type { Surah, Juz } from "../types/santri.type";
 
-export const useFetchSurahList = () => {
+export type ModeType = "surah" | "juz";
+
+interface UseFetchProgressResult {
+  surahData: Surah[];
+  juzData: Juz[];
+  loading: boolean;
+  error: string | null;
+}
+
+export const useFetchProgress = (mode: ModeType): UseFetchProgressResult => {
   const { user } = useUser();
   const [surahData, setSurahData] = useState<Surah[]>([]);
+  const [juzData, setJuzData] = useState<Juz[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -19,17 +29,23 @@ export const useFetchSurahList = () => {
 
       try {
         setLoading(true);
-        const result = await fetchSurahList(user.roleId);
-        setSurahData(result.data);
+        setError(null);
+        
+        if (mode === "surah") {
+          const result = await fetchProgressSurah(user.roleId);
+          setSurahData(result.data);
+        } else {
+          const result = await fetchProgressJuz(user.roleId);
+          setJuzData(result.data);
+        }
       } catch (_err) {
         setError("An error occurred while fetching data.");
-        // console.error(err.message);
       } finally {
         setLoading(false);
       }
     };
     getData();
-  }, [user?.roleId]);
+  }, [user?.roleId, mode]);
 
-  return { surahData, loading, error };
+  return { surahData, juzData, loading, error };
 };
