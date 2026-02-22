@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -33,53 +33,42 @@ export default function ReadJuzAlquran() {
   const { user } = useUser();
   const [isSearchDialogOpen, setIsSearchDialogOpen] = useState(false);
   const [searchHalaman, setSearchHalaman] = useState("");
-  const [debouncedSearch, setDebouncedSearch] = useState("");
+
   const ayatRefs = useRef<Record<number, HTMLDivElement | null>>({});
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setDebouncedSearch(searchHalaman);
-    }, 500);
+  const handleSearch = () => {
+    if (!searchHalaman || !data?.data) return;
 
-    return () => clearTimeout(timer);
-  }, [searchHalaman]);
+    const pageNumber = parseInt(searchHalaman, 10);
+    const allAyat = data.data.ayat;
 
-  useEffect(() => {
-    if (debouncedSearch && data?.data) {
-      const allAyat = data.data.ayat;
-      const pages = allAyat.map((a) => a.halaman).filter((p): p is number => p !== undefined && p !== null);
-      if (pages.length === 0) return;
-      
-      const minPage = Math.min(...pages);
-      const maxPage = Math.max(...pages);
-      const pageNumber = parseInt(debouncedSearch, 10);
-      
-      if (!isNaN(pageNumber) && pageNumber >= minPage && pageNumber <= maxPage) {
-        const targetAyat = allAyat.find((a) => a.halaman === pageNumber);
-        if (targetAyat && ayatRefs.current[targetAyat.id]) {
-          const element = ayatRefs.current[targetAyat.id];
-          if (element) {
-            const headerOffset = 200;
-            const elementPosition = element.getBoundingClientRect().top + window.scrollY;
-            const offsetPosition = elementPosition - headerOffset;
-            window.scrollTo({
-              top: offsetPosition,
-              behavior: "smooth",
-            });
-          }
-          setIsSearchDialogOpen(false);
-          setSearchHalaman("");
-        } else {
-          toast.error(`Halaman ${pageNumber} tidak ditemukan`);
-        }
-      } else if (debouncedSearch) {
-        const pages = data.data.ayat.map((a) => a.halaman).filter((p): p is number => p !== undefined && p !== null);
-        if (pages.length > 0) {
-          toast.error(`Halaman harus antara ${Math.min(...pages)} sampai ${Math.max(...pages)}`);
-        }
+    const targetAyat = allAyat.find((a: JuzAyat) => a.halaman === pageNumber);
+
+    if (targetAyat) {
+      const element = ayatRefs.current[targetAyat.id];
+
+      if (element) {
+        const headerOffset = 100;
+        const elementPosition = element.getBoundingClientRect().top + window.scrollY;
+        const offsetPosition = elementPosition - headerOffset;
+
+        window.scrollTo({
+          top: offsetPosition,
+          behavior: "smooth",
+        });
+
+        setIsSearchDialogOpen(false);
+        setSearchHalaman("");
+      } else {
+        toast.error("Gagal menggulir ke halaman. Silakan coba lagi.");
       }
+    } else {
+      const pages = allAyat.map((a: JuzAyat) => a.halaman).filter(Boolean) as number[];
+      const minP = Math.min(...pages);
+      const maxP = Math.max(...pages);
+      toast.error(`Halaman ${pageNumber} tidak ditemukan di Juz ini (${minP} - ${maxP})`);
     }
-  }, [debouncedSearch, data]);
+  };
 
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -95,13 +84,13 @@ export default function ReadJuzAlquran() {
 
     ayat.forEach((ayatItem) => {
       const surahNomor = ayatItem.surah.nomor;
-      
+
       if (!currentSurah || currentSurah.surahNomor !== surahNomor) {
         currentSurah = {
           surahNomor,
           surahNama: ayatItem.surah.nama,
           surahNamaLatin: ayatItem.surah.nama_latin,
-          ayat: []
+          ayat: [],
         };
         grouped.push(currentSurah);
       }
@@ -149,16 +138,19 @@ export default function ReadJuzAlquran() {
 
   const juzData = data.data;
   const groupedAyat = groupAyatBySurah(juzData.ayat);
-  const pages = juzData.ayat.map((a) => a.halaman).filter((p): p is number => p !== undefined && p !== null);
+  const ayatWithPage = juzData.ayat.filter((a: JuzAyat) => a.halaman !== null && a.halaman !== undefined);
+  const pages = ayatWithPage.map((a: JuzAyat) => a.halaman as number);
   const minPage = pages.length > 0 ? Math.min(...pages) : 1;
   const maxPage = pages.length > 0 ? Math.max(...pages) : 20;
+
+  let lastRenderedPage = 0;
 
   return (
     <div className="container mx-auto">
       <div className="mb-4">
-        <Button 
-          onClick={() => navigate(-1)} 
-          variant="outline" 
+        <Button
+          onClick={() => navigate(-1)}
+          variant="outline"
           className="flex items-center bg-yellow-500 hover:bg-yellow-600 text-white hover:text-white"
         >
           <ChevronLeft size={20} className="mr-2" /> Kembali
@@ -170,19 +162,21 @@ export default function ReadJuzAlquran() {
         <p className="text-lg text-gray-600">
           Dimulai dari {juzData.mulai_dari.surah.nama_latin} ayat {juzData.mulai_dari.ayat}
         </p>
-        <p className="text-sm text-gray-500">
-          Total {juzData.total_ayat} ayat
-        </p>
+        <p className="text-sm text-gray-500">Total {juzData.total_ayat} ayat</p>
       </div>
 
       <div className="flex justify-between items-center mb-6">
-        <Link to={`/${user?.role}/alquran/juz/${juzData.juz - 1 === 0 ? 30 : juzData.juz - 1}`}>
+        <Link
+          to={`/${user?.role}/alquran/juz/${juzData.juz - 1 === 0 ? 30 : juzData.juz - 1}`}
+        >
           <Button variant="ghost" className="flex items-center text-blue-500 hover:text-blue-700">
             <ChevronLeft size={24} />
             <span className="ml-2">Juz Sebelumnya</span>
           </Button>
         </Link>
-        <Link to={`/${user?.role}/alquran/juz/${juzData.juz + 1 === 31 ? 1 : juzData.juz + 1}`}>
+        <Link
+          to={`/${user?.role}/alquran/juz/${juzData.juz + 1 === 31 ? 1 : juzData.juz + 1}`}
+        >
           <Button variant="ghost" className="flex items-center text-blue-500 hover:text-blue-700">
             <span className="mr-2">Juz Selanjutnya</span>
             <ChevronRight size={24} />
@@ -190,63 +184,90 @@ export default function ReadJuzAlquran() {
         </Link>
       </div>
 
-      <div className="space-y-8">
-        {groupedAyat.map((group, groupIndex) => (
-          <div key={`${group.surahNomor}-${groupIndex}`}>
-            {group.surahNomor !== 1 &&
-              group.ayat[0]?.nomor_ayat === 1 && (
-              <div className="text-center py-4">
-                <p className="font-arabic text-2xl text-green-600 my-4">{BASMALLAH}</p>
+      <div className="space-y-4">
+        {groupedAyat.map((group, groupIndex) => {
+          const isFirstAyat = group.ayat[0]?.nomor_ayat === 1;
+          const surahNomor = group.surahNomor;
+
+          return (
+            <div key={`${group.surahNomor}-${groupIndex}`}>
+              {surahNomor !== 1 && isFirstAyat && (
+                <div className="text-center py-4">
+                  <p className="font-arabic text-2xl text-green-600 my-4">{BASMALLAH}</p>
+                </div>
+              )}
+
+              <div className="bg-violet-100 rounded-lg p-4 mb-4 text-center flex items-center justify-center gap-6">
+                <h2 className="text-xl font-bold text-violet-700">{group.surahNamaLatin}</h2>
+                -
+                <p className="font-arabic text-2xl text-violet-600">{group.surahNama}</p>
               </div>
-            )}
 
-            <div className="bg-violet-100 rounded-lg p-4 mb-4 text-center flex items-center justify-center gap-6">
-              <h2 className="text-xl font-bold text-violet-700">
-                {group.surahNamaLatin}
-              </h2>
-              - 
-              <p className="font-arabic text-2xl text-violet-600">{group.surahNama}</p>
+              <div className="space-y-2">
+                {group.ayat.map((ayat) => {
+                  const showPageHeader =
+                    ayat.halaman !== null &&
+                    ayat.halaman !== undefined &&
+                    ayat.halaman !== lastRenderedPage;
+
+                  if (showPageHeader) {
+                    lastRenderedPage = ayat.halaman as number;
+                  }
+
+                  return (
+                    <div
+                      key={ayat.id}
+                      ref={(el) => {
+                        ayatRefs.current[ayat.id] = el;
+                      }}
+                    >
+                      {showPageHeader && (
+                        <div className="bg-amber-50 p-3 rounded-lg mb-2 border-l-4 border-violet-500 z-10">
+                          <div className="flex items-center justify-between">
+                            <span className="text-sm font-bold text-amber-700 uppercase tracking-wider">
+                              Halaman {ayat.halaman}
+                            </span>
+                            <span className="text-sm text-gray-600">Juz {juzData.juz}</span>
+                          </div>
+                        </div>
+                      )}
+
+                      <Card className="p-4 border border-violet-600/90">
+                        <p
+                          className="text-right md:text-3xl text-2xl leading-14 md:leading-20 my-3 font-arabic"
+                          dir="rtl"
+                        >
+                          {ayat.arab}
+                          <span className="mr-2 text-md font-arabic">
+                            ۝{toArabicNumber(ayat.nomor_ayat)}
+                          </span>
+                        </p>
+
+                        <p className="text-left text-base text-green-600 italic">{ayat.latin}</p>
+
+                        <p className="text-left text-base text-gray-800">{ayat.terjemah}</p>
+                      </Card>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
-
-            <div className="space-y-8">
-              {group.ayat.map((ayat) => (
-                <Card 
-                  key={ayat.id} 
-                  ref={(el) => { ayatRefs.current[ayat.id] = el; }}
-                  className="p-4 border border-violet-600/90"
-                >
-                  <p
-                    className="text-right md:text-3xl text-2xl leading-14 md:leading-20 my-3 font-arabic"
-                    dir="rtl"
-                  >
-                    {ayat.arab} 
-                    <span className="mr-2 text-md font-arabic">
-                      ۝{toArabicNumber(ayat.nomor_ayat)}
-                    </span> 
-                  </p>
-
-                  <p className="text-left text-base text-green-600 italic">
-                    {ayat.latin}
-                  </p>
-
-                  <p className="text-left text-base text-gray-800">
-                    {ayat.terjemah}
-                  </p>
-                </Card>
-              ))}
-            </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       <div className="flex justify-between items-center my-6">
-        <Link to={`/${user?.role}/alquran/juz/${juzData.juz - 1 === 0 ? 30 : juzData.juz - 1}`}>
+        <Link
+          to={`/${user?.role}/alquran/juz/${juzData.juz - 1 === 0 ? 30 : juzData.juz - 1}`}
+        >
           <Button variant="ghost" className="flex items-center text-blue-500 hover:text-blue-700">
             <ChevronLeft size={24} />
             <span className="ml-2">Juz Sebelumnya</span>
           </Button>
         </Link>
-        <Link to={`/${user?.role}/alquran/juz/${juzData.juz + 1 === 31 ? 1 : juzData.juz + 1}`}>
+        <Link
+          to={`/${user?.role}/alquran/juz/${juzData.juz + 1 === 31 ? 1 : juzData.juz + 1}`}
+        >
           <Button variant="ghost" className="flex items-center text-blue-500 hover:text-blue-700">
             <span className="mr-2">Juz Selanjutnya</span>
             <ChevronRight size={24} />
@@ -254,6 +275,7 @@ export default function ReadJuzAlquran() {
         </Link>
       </div>
 
+      {/* Floating Action Buttons */}
       <div className="fixed bottom-8 right-8 flex flex-col space-y-2 z-50">
         <Button
           onClick={() => setIsSearchDialogOpen(true)}
@@ -275,23 +297,33 @@ export default function ReadJuzAlquran() {
         </Button>
       </div>
 
+      {/* Dialog Search Halaman */}
       <Dialog open={isSearchDialogOpen} onOpenChange={setIsSearchDialogOpen}>
         <DialogContent className="sm:max-w-[400px]">
           <DialogHeader>
             <DialogTitle>Cari Halaman</DialogTitle>
           </DialogHeader>
-          <div className="flex flex-col gap-2 py-4">
-            <label className="text-sm font-medium text-gray-700">
-              Nomor Halaman ({minPage} - {maxPage})
-            </label>
-            <Input
-              type="number"
-              placeholder="Masukkan nomor halaman..."
-              value={searchHalaman}
-              onChange={(e) => setSearchHalaman(e.target.value)}
-              min={minPage}
-              max={maxPage}
-            />
+          <div className="flex flex-col gap-4 py-4">
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-gray-700">
+                Nomor Halaman ({minPage} - {maxPage})
+              </label>
+              <Input
+                type="number"
+                placeholder="Contoh: 150"
+                value={searchHalaman}
+                onChange={(e) => setSearchHalaman(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+                min={minPage}
+                max={maxPage}
+              />
+            </div>
+            <Button
+              onClick={handleSearch}
+              className="w-full bg-violet-600 hover:bg-violet-700"
+            >
+              Cari Halaman
+            </Button>
           </div>
         </DialogContent>
       </Dialog>
