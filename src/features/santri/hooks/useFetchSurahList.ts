@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
 import useUser from "@/store/useUser";
 import { fetchProgressSurah, fetchProgressJuz } from "../service/santri.service";
 import type { Surah, Juz } from "../types/santri.type";
@@ -14,38 +14,31 @@ interface UseFetchProgressResult {
 
 export const useFetchProgress = (mode: ModeType): UseFetchProgressResult => {
   const { user } = useUser();
-  const [surahData, setSurahData] = useState<Surah[]>([]);
-  const [juzData, setJuzData] = useState<Juz[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
+  const santriId = user?.roleId;
 
-  useEffect(() => {
-    const getData = async () => {
-      if (!user?.roleId) {
-        setError("Santri ID is not available.");
-        setLoading(false);
-        return;
-      }
+  const surahQuery = useQuery({
+    queryKey: ["progress-surah", santriId],
+    queryFn: () => fetchProgressSurah(santriId!),
+    enabled: !!santriId && mode === "surah",
+    staleTime: 5 * 60 * 1000,
+  });
 
-      try {
-        setLoading(true);
-        setError(null);
-        
-        if (mode === "surah") {
-          const result = await fetchProgressSurah(user.roleId);
-          setSurahData(result.data);
-        } else {
-          const result = await fetchProgressJuz(user.roleId);
-          setJuzData(result.data);
-        }
-      } catch (_err) {
-        setError("An error occurred while fetching data.");
-      } finally {
-        setLoading(false);
-      }
-    };
-    getData();
-  }, [user?.roleId, mode]);
+  const juzQuery = useQuery({
+    queryKey: ["progress-juz", santriId],
+    queryFn: () => fetchProgressJuz(santriId!),
+    enabled: !!santriId && mode === "juz",
+    staleTime: 5 * 60 * 1000,
+  });
 
-  return { surahData, juzData, loading, error };
+  const loading = mode === "surah" ? surahQuery.isLoading : juzQuery.isLoading;
+  const error = mode === "surah" 
+    ? surahQuery.error?.message || null 
+    : juzQuery.error?.message || null;
+
+  return {
+    surahData: surahQuery.data?.data || [],
+    juzData: juzQuery.data?.data || [],
+    loading,
+    error,
+  };
 };
