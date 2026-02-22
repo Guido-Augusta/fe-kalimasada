@@ -11,6 +11,7 @@ import type { RiwayatHafalanTerakhirSantri } from "../types/hafalan.type";
 interface RiwayatTerakhirTableProps {
   dataList: RiwayatHafalanTerakhirSantri[];
   statusFilter: string;
+  mode: 'surah' | 'juz';
   open: boolean;
   setOpen: (open: boolean) => void;
   value: string;
@@ -25,6 +26,7 @@ interface RiwayatTerakhirTableProps {
 export default function RiwayatTerakhirTable({
   dataList,
   statusFilter,
+  mode,
   open,
   setOpen,
   value,
@@ -46,48 +48,58 @@ export default function RiwayatTerakhirTable({
               <TableHead className="w-[100px] text-center">No Induk</TableHead>
               <TableHead className="text-center">Nama Santri</TableHead>
               <TableHead className="text-center">Tanggal</TableHead>
-              <TableHead className="text-center">Surah</TableHead>
-              <TableHead className="text-center">
-                { statusFilter === "TambahHafalan" ? (
-                  <Popover open={open} onOpenChange={setOpen}>
-                    <PopoverTrigger asChild>
-                      <Button variant="outline" role="combobox" aria-expanded={open} className="w-[110px] justify-between">
-                        { sortAyat.find((item) => item.value === value)?.label || "Ayat" } 
-                        <ChevronsUpDown className="opacity-50" />
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-[120px] p-0">
-                      <Command>
-                        <CommandList>
-                          <CommandEmpty>No ayat found.</CommandEmpty>
-                          <CommandGroup>
-                            {sortAyat.map((item) => (
-                              <CommandItem
-                                key={item.value}
-                                value={item.value}
-                                onSelect={(currentValue) => {
-                                  handleSortAyatChange(currentValue);
-                                }}
-                              >
-                                {item.label}
-                              </CommandItem>
-                            ))}
-                          </CommandGroup>
-                        </CommandList>
-                      </Command>
-                    </PopoverContent>
-                  </Popover>
-                ) : (
-                  <span>Ayat</span>
-                )}
-              </TableHead>
+              {mode === 'surah' ? (
+                <>
+                  <TableHead className="text-center">Surah</TableHead>
+                  <TableHead className="text-center">
+                    { statusFilter === "TambahHafalan" ? (
+                      <Popover open={open} onOpenChange={setOpen}>
+                        <PopoverTrigger asChild>
+                          <Button variant="outline" role="combobox" aria-expanded={open} className="w-[110px] justify-between">
+                            { sortAyat.find((item) => item.value === value)?.label || "Ayat" } 
+                            <ChevronsUpDown className="opacity-50" />
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-[120px] p-0">
+                          <Command>
+                            <CommandList>
+                              <CommandEmpty>No ayat found.</CommandEmpty>
+                              <CommandGroup>
+                                {sortAyat.map((item) => (
+                                  <CommandItem
+                                    key={item.value}
+                                    value={item.value}
+                                    onSelect={(currentValue) => {
+                                      handleSortAyatChange(currentValue);
+                                    }}
+                                  >
+                                    {item.label}
+                                  </CommandItem>
+                                ))}
+                              </CommandGroup>
+                            </CommandList>
+                          </Command>
+                        </PopoverContent>
+                      </Popover>
+                    ) : (
+                      <span>Ayat</span>
+                    )}
+                  </TableHead>
+                </>
+              ) : (
+                <>
+                  <TableHead className="text-center">Juz</TableHead>
+                  <TableHead className="text-center">Halaman</TableHead>
+                  <TableHead className="text-center">Surah</TableHead>
+                </>
+              )}
               <TableHead className="text-center">Aksi</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {isLoading ? (
               <TableRow>
-                <TableCell colSpan={5} className="text-center">
+                <TableCell colSpan={mode === 'surah' ? 6 : 7} className="text-center">
                   <div className="flex items-center gap-2">
                     <Loader2 className="h-4 w-4 animate-spin" />
                     <p>Memuat data...</p>
@@ -96,7 +108,7 @@ export default function RiwayatTerakhirTable({
               </TableRow>
             ) : isError ? (
               <TableRow>
-                <TableCell colSpan={5} className="text-center">
+                <TableCell colSpan={mode === 'surah' ? 6 : 7} className="text-center">
                   <p className="text-red-500">Gagal memuat data riwayat terakhir.</p>
                 </TableCell>
               </TableRow>
@@ -104,28 +116,57 @@ export default function RiwayatTerakhirTable({
             dataList.length > 0 ? (
               dataList.map((riwayat, index) => (
                 <TableRow key={index} className={`${isFetching ? 'opacity-50' : ''}`}>
-                {/* <TableRow key={index}> */}
                   <TableCell className="text-center">{riwayat.noInduk ?? '-'}</TableCell>
                   <TableCell className="text-left font-medium text-wrap">
                     {riwayat.nama.length > 15 ? riwayat.nama.substring(0, 10) + "..." : riwayat.nama}
                   </TableCell>
                   <TableCell className="text-center">{formatTanggalIndo(riwayat.terakhirHafalan?.tanggal ?? '-')}</TableCell>
-                  <TableCell className="text-center">{riwayat.terakhirHafalan?.surah ?? '-'}</TableCell>
-                  <TableCell className="text-center">{riwayat.terakhirHafalan?.ayatDetail ?? '-'}</TableCell>
+                  {mode === 'surah' ? (
+                    <>
+                      <TableCell className="text-center">{riwayat.terakhirHafalan?.surah ?? '-'}</TableCell>
+                      <TableCell className="text-center">{riwayat.terakhirHafalan?.ayatDetail ?? '-'}</TableCell>
+                    </>
+                  ) : (
+                    <>
+                      <TableCell className="text-center">{riwayat.terakhirHafalan?.juz ?? '-'}</TableCell>
+                      <TableCell className="text-center">{riwayat.terakhirHafalan?.halamanDetail ?? '-'}</TableCell>
+                      <TableCell className="text-center">
+                        {riwayat.terakhirHafalan?.surahList?.map(s => s.namaLatin).join(', ') || '-'}
+                      </TableCell>
+                    </>
+                  )}
                   { riwayat.terakhirHafalan?.status ? (
                     <TableCell className="text-center">
                       <div className="flex gap-2 justify-start">
-                        <Link to={`/ustadz/hafalan/${riwayat.id}/${riwayat.terakhirHafalan?.surahId}`}>
-                          <Button variant="outline" size="sm" className="flex items-center bg-yellow-500 hover:bg-yellow-600 text-white hover:text-white">
-                            <span className="sm:inline">{riwayat.terakhirHafalan?.surah}</span>
-                          </Button>
-                        </Link>
-                        <Link to={`/ustadz/riwayat/detail/${riwayat.id}/surah/${riwayat.terakhirHafalan?.surahId}?tanggal=${riwayat.terakhirHafalan?.tanggal}&status=${riwayat.terakhirHafalan?.status}`}>
-                          <Button variant="outline" size="sm" className="flex items-center gap-2 bg-blue-500 hover:bg-blue-600 hover:text-white text-white">
-                            <Eye className="h-4 w-4" />
-                            <span className="hidden sm:inline">Lihat</span>
-                          </Button>
-                        </Link>
+                        {mode === 'surah' ? (
+                          <>
+                            <Link to={`/ustadz/hafalan/${riwayat.id}/${riwayat.terakhirHafalan?.surahId}`}>
+                              <Button variant="outline" size="sm" className="flex items-center bg-yellow-500 hover:bg-yellow-600 text-white hover:text-white">
+                                <span className="sm:inline">{riwayat.terakhirHafalan?.surah}</span>
+                              </Button>
+                            </Link>
+                            <Link to={`/ustadz/riwayat/detail/${riwayat.id}/surah/${riwayat.terakhirHafalan?.surahId}?tanggal=${riwayat.terakhirHafalan?.tanggal}&status=${riwayat.terakhirHafalan?.status}`}>
+                              <Button variant="outline" size="sm" className="flex items-center gap-2 bg-blue-500 hover:bg-blue-600 hover:text-white text-white">
+                                <Eye className="h-4 w-4" />
+                                <span className="hidden sm:inline">Lihat</span>
+                              </Button>
+                            </Link>
+                          </>
+                        ) : (
+                          <>
+                            <Link to={`/ustadz/hafalan/${riwayat.id}/juz/${riwayat.terakhirHafalan?.juz}`}>
+                              <Button variant="outline" size="sm" className="flex items-center bg-yellow-500 hover:bg-yellow-600 text-white hover:text-white">
+                                <span className="sm:inline">Juz {riwayat.terakhirHafalan?.juz}</span>
+                              </Button>
+                            </Link>
+                            <Link to={`/ustadz/riwayat/detail/${riwayat.id}/juz/${riwayat.terakhirHafalan?.juz}?tanggal=${riwayat.terakhirHafalan?.tanggal}&status=${riwayat.terakhirHafalan?.status}`}>
+                              <Button variant="outline" size="sm" className="flex items-center gap-2 bg-blue-500 hover:bg-blue-600 hover:text-white text-white">
+                                <Eye className="h-4 w-4" />
+                                <span className="hidden sm:inline">Lihat</span>
+                              </Button>
+                            </Link>
+                          </>
+                        )}
                         <Link to={`/ustadz/progress/hafalan/${riwayat.id}`}>
                           <Button size="sm" variant="outline" className="bg-green-500 text-white hover:bg-green-600 hover:text-white">
                             <Notebook className="h-4 w-4" />
@@ -141,7 +182,7 @@ export default function RiwayatTerakhirTable({
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={5} className="text-center text-muted-foreground">
+                <TableCell colSpan={mode === 'surah' ? 6 : 7} className="text-center text-muted-foreground">
                 {searchName ? (
                   <p className="text-wrap">
                     Tidak ada riwayat hafalan atas nama {searchName} yang ditemukan.

@@ -166,13 +166,14 @@ export const fetchRiwayatTerakhir = async (
   page: number,
   limit: number,
   status: 'TambahHafalan' | 'Murajaah',
-  filters: { tahapHafalan?: string; name?: string; sortByAyat?: string } = {}
+  filters: { tahapHafalan?: string; name?: string; sortByAyat?: string; mode?: 'surah' | 'juz' } = {}
 ): Promise<RiwayatHafalanTerakhirResponse> => {
   const headers = getAuthHeaders(false);
   const params = new URLSearchParams({
     page: String(page),
     limit: String(limit),
     status: status,
+    mode: filters.mode || 'surah',
     ...filters,
   });
   const url = `${BASE_URL}/api/hafalan/all-santri/latest?${params.toString()}`;

@@ -1,7 +1,8 @@
 import { create } from "zustand";
 
 type StatusFilter = "TambahHafalan" | "Murajaah";
-type SortByAyat = "asc" | "desc" | null; 
+type SortByAyat = "asc" | "desc" | null;
+type ModeFilter = "surah" | "juz";
 
 interface RiwayatTerakhirState {
   statusFilter: StatusFilter;
@@ -10,6 +11,7 @@ interface RiwayatTerakhirState {
   searchFilter: string;
   selectedTahap: string;
   sortByAyat: SortByAyat;
+  mode: ModeFilter;
   setState: (partial: Partial<RiwayatTerakhirState>) => void;
   setCurrentPage: (page: number) => void;
   setStatusFilter: (status: StatusFilter) => void;
@@ -23,6 +25,7 @@ const initialState = {
   searchFilter: "",
   selectedTahap: "Level1",
   sortByAyat: null,
+  mode: "surah" as ModeFilter,
 };
 
 export const useRiwayatTerakhirStore = create<RiwayatTerakhirState>((set) => ({

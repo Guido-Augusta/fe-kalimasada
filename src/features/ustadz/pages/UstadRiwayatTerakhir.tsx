@@ -12,7 +12,7 @@ import { Search } from "lucide-react";
 import { sortAyatOptions } from "../constant/sortOptions";
 
 export default function UstadRiwayatTerakhir() {
-  const { currentPage, setCurrentPage, searchName, selectedTahap, statusFilter, sortByAyat, setState } = useRiwayatTerakhirStore();
+  const { currentPage, setCurrentPage, searchName, selectedTahap, statusFilter, sortByAyat, mode, setState } = useRiwayatTerakhirStore();
   const initialSortValue = sortByAyat || "none"; 
   const [open, setOpen] = useState(false)
   const [value, setValue] = useState(initialSortValue)
@@ -22,9 +22,11 @@ export default function UstadRiwayatTerakhir() {
     tahapHafalan: string;
     name: string;
     sortByAyat?: "asc" | "desc";
+    mode?: "surah" | "juz";
   } = {
     tahapHafalan: selectedTahap,
     name: searchName,
+    mode: mode,
   };
 
   if (sortByAyat && (sortByAyat === "asc" || sortByAyat === "desc")) {
@@ -121,6 +123,18 @@ export default function UstadRiwayatTerakhir() {
                 </SelectContent>
               </Select>
 
+              <Select onValueChange={(value: "surah" | "juz") => {
+                  setState({ mode: value, currentPage: 1 });
+              }} value={mode}>
+                <SelectTrigger className="w-[100px]">
+                  <SelectValue placeholder="Mode" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="surah">Ayat</SelectItem>
+                  <SelectItem value="juz">Halaman</SelectItem>
+                </SelectContent>
+              </Select>
+
               <Select onValueChange={handleTahapChange} value={selectedTahap}>
                 <SelectTrigger className="w-[180px]">
                   <SelectValue placeholder="Tahap Hafalan" />
@@ -139,6 +153,7 @@ export default function UstadRiwayatTerakhir() {
           <RiwayatTerakhirTable
             dataList={dataList}
             statusFilter={statusFilter}
+            mode={mode}
             open={open}
             setOpen={setOpen}
             value={value}

@@ -134,6 +134,7 @@ export interface RiwayatDetailResponse {
 export interface RiwayatHafalanTerakhirResponse {
   status: number;
   message: string;
+  mode: 'surah' | 'juz';
   pagination: RiwayatHafalanTerakhirPagination;
   data: RiwayatHafalanTerakhirSantri[];
 }
@@ -161,9 +162,12 @@ export interface RiwayatHafalanTerakhirSantri {
 export interface RiwayatHafalanTerakhir {
   tanggal: string;
   status: 'TambahHafalan' | 'Murajaah';
-  surah: string;
-  surahId: number;
-  ayatDetail: string;
+  surah?: string;
+  surahId?: number;
+  ayatDetail?: string;
+  juz?: number;
+  halamanDetail?: string;
+  surahList?: { id: number; namaLatin: string }[];
 }
 
 export interface DeleteRiwayatHafalanResponse {

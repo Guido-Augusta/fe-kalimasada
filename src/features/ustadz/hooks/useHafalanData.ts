@@ -104,7 +104,7 @@ export const useRiwayatTerakhir = (
   page: number,
   limit: number,
   status: 'TambahHafalan' | 'Murajaah',
-  filters: { tahapHafalan?: string; name?: string; sortByAyat?: string } = {}
+  filters: { tahapHafalan?: string; name?: string; sortByAyat?: string; mode?: 'surah' | 'juz' } = {}
 ) => {
   return useQuery({
     queryKey: ['riwayatTerakhir', { page, limit, status, ...filters }],
