@@ -158,7 +158,7 @@ export default function RiwayatTerakhirTable({
             ) : (
             dataList.length > 0 ? (
               dataList.map((riwayat, index) => (
-                <TableRow key={index} className={`${isFetching ? 'opacity-50' : ''}`}>
+                <TableRow key={index} >
                   <TableCell className="text-center">{riwayat.noInduk ?? '-'}</TableCell>
                   <TableCell className="text-left font-medium text-wrap">
                     {riwayat.nama.length > 15 ? riwayat.nama.substring(0, 10) + "..." : riwayat.nama}

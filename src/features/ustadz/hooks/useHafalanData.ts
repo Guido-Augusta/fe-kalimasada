@@ -110,6 +110,7 @@ export const useRiwayatTerakhir = (
     queryKey: ['riwayatTerakhir', { page, limit, status, ...filters }],
     queryFn: () => fetchRiwayatTerakhir(page, limit, status, filters),
     enabled: !!page && !!limit && !!status,
+    staleTime: 5 * 60 * 1000,
     placeholderData: (previousData) => previousData,
   });
 };
