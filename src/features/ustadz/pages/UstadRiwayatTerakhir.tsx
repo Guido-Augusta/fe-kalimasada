@@ -9,19 +9,22 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useState } from "react";
 import RiwayatTerakhirTable from "../components/RiwayatTerakhirTable";
 import { Search } from "lucide-react";
-import { sortAyatOptions } from "../constant/sortOptions";
+import { sortAyatOptions, sortHalamanOptions } from "../constant/sortOptions";
 
 export default function UstadRiwayatTerakhir() {
-  const { currentPage, setCurrentPage, searchName, selectedTahap, statusFilter, sortByAyat, mode, setState } = useRiwayatTerakhirStore();
+  const { currentPage, setCurrentPage, searchName, selectedTahap, statusFilter, sortByAyat, sortByHalaman, mode, setState } = useRiwayatTerakhirStore();
   const initialSortValue = sortByAyat || "none"; 
   const [open, setOpen] = useState(false)
+  const [openHalaman, setOpenHalaman] = useState(false)
   const [value, setValue] = useState(initialSortValue)
+  const [valueHalaman, setValueHalaman] = useState(sortByHalaman || "none")
   const [localSearchName, setLocalSearchName] = useState(searchName);
 
   const filters: {
     tahapHafalan: string;
     name: string;
     sortByAyat?: "asc" | "desc";
+    sortByHalaman?: "asc" | "desc";
     mode?: "surah" | "juz";
   } = {
     tahapHafalan: selectedTahap,
@@ -31,6 +34,10 @@ export default function UstadRiwayatTerakhir() {
 
   if (sortByAyat && (sortByAyat === "asc" || sortByAyat === "desc")) {
     filters.sortByAyat = sortByAyat;
+  }
+
+  if (sortByHalaman && (sortByHalaman === "asc" || sortByHalaman === "desc")) {
+    filters.sortByHalaman = sortByHalaman;
   }
 
   const { data, isLoading, isError, error: _error, isFetching } = useRiwayatTerakhir(currentPage, 10, statusFilter, filters);
@@ -83,6 +90,18 @@ export default function UstadRiwayatTerakhir() {
     setOpen(false);
   }
 
+  const handleSortHalamanChange = (currentValue: string) => {
+    setValueHalaman(currentValue);
+
+    let newSortByHalaman: "asc" | "desc" | null = null;
+    if (currentValue === "asc" || currentValue === "desc") {
+      newSortByHalaman = currentValue;
+    }
+
+    setState({ sortByHalaman: newSortByHalaman, currentPage: 1 });
+    setOpenHalaman(false);
+  }
+
   return (
     <UstadzLayout>
     <div className="space-y-6">
@@ -112,7 +131,15 @@ export default function UstadRiwayatTerakhir() {
 
             <div className="flex gap-2">
               <Select onValueChange={(value: "TambahHafalan" | "Murajaah") => {
-                  setState({ statusFilter: value, currentPage: 1 });
+                  if (value === "Murajaah" && mode === "juz") {
+                    setValueHalaman("desc");
+                    setState({ statusFilter: value, currentPage: 1, sortByHalaman: "desc" });
+                  } else if (value === "TambahHafalan") {
+                    setValueHalaman("none");
+                    setState({ statusFilter: value, currentPage: 1, sortByHalaman: null });
+                  } else {
+                    setState({ statusFilter: value, currentPage: 1 });
+                  }
               }} value={statusFilter}>
                 <SelectTrigger className="w-[120px]">
                   <SelectValue placeholder="Pilih Status" />
@@ -124,7 +151,16 @@ export default function UstadRiwayatTerakhir() {
               </Select>
 
               <Select onValueChange={(value: "surah" | "juz") => {
-                  setState({ mode: value, currentPage: 1 });
+                  if (value === "juz" && statusFilter === "Murajaah") {
+                    setValueHalaman("desc");
+                    setState({ mode: value, currentPage: 1, sortByHalaman: "desc" });
+                  } else if (value === "surah") {
+                    setValueHalaman("none");
+                    setState({ mode: value, currentPage: 1, sortByHalaman: null });
+                  } else {
+                    setValueHalaman("none");
+                    setState({ mode: value, currentPage: 1, sortByHalaman: null });
+                  }
               }} value={mode}>
                 <SelectTrigger className="w-[100px]">
                   <SelectValue placeholder="Mode" />
@@ -159,6 +195,11 @@ export default function UstadRiwayatTerakhir() {
             value={value}
             sortAyat={sortAyatOptions}
             handleSortAyatChange={handleSortAyatChange}
+            openHalaman={openHalaman}
+            setOpenHalaman={setOpenHalaman}
+            valueHalaman={valueHalaman}
+            sortHalaman={sortHalamanOptions}
+            handleSortHalamanChange={handleSortHalamanChange}
             searchName={searchName}
             isFetching={isFetching}
             isLoading={isLoading}

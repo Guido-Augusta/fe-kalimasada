@@ -167,7 +167,7 @@ export const fetchRiwayatTerakhir = async (
   page: number,
   limit: number,
   status: 'TambahHafalan' | 'Murajaah',
-  filters: { tahapHafalan?: string; name?: string; sortByAyat?: string; mode?: 'surah' | 'juz' } = {}
+  filters: { tahapHafalan?: string; name?: string; sortByAyat?: string; sortByHalaman?: string; mode?: 'surah' | 'juz' } = {}
 ): Promise<RiwayatHafalanTerakhirResponse> => {
   const headers = getAuthHeaders(false);
   const params = new URLSearchParams({
@@ -175,8 +175,13 @@ export const fetchRiwayatTerakhir = async (
     limit: String(limit),
     status: status,
     mode: filters.mode || 'surah',
-    ...filters,
   });
+
+  if (filters.tahapHafalan) params.append('tahapHafalan', filters.tahapHafalan);
+  if (filters.name) params.append('name', filters.name);
+  if (filters.sortByAyat) params.append('sortByAyat', filters.sortByAyat);
+  if (filters.sortByHalaman) params.append('sortByHalaman', filters.sortByHalaman);
+
   const url = `${BASE_URL}/api/hafalan/all-santri/latest?${params.toString()}`;
   const response = await fetch(url, { headers });
 

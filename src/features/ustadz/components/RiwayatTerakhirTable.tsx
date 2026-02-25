@@ -17,6 +17,11 @@ interface RiwayatTerakhirTableProps {
   value: string;
   sortAyat: { value: string; label: string }[];
   handleSortAyatChange: (value: string) => void;
+  openHalaman?: boolean;
+  setOpenHalaman?: (open: boolean) => void;
+  valueHalaman?: string;
+  sortHalaman?: { value: string; label: string }[];
+  handleSortHalamanChange?: (value: string) => void;
   searchName?: string;
   isFetching?: boolean;
   isLoading?: boolean;
@@ -32,6 +37,11 @@ export default function RiwayatTerakhirTable({
   value,
   sortAyat,
   handleSortAyatChange,
+  openHalaman,
+  setOpenHalaman,
+  valueHalaman,
+  sortHalaman,
+  handleSortHalamanChange,
   searchName,
   isFetching,
   isLoading,
@@ -89,7 +99,40 @@ export default function RiwayatTerakhirTable({
               ) : (
                 <>
                   <TableHead className="text-center">Juz</TableHead>
-                  <TableHead className="text-center">Halaman</TableHead>
+                  <TableHead className="text-center">
+                    {statusFilter === "TambahHafalan" && openHalaman !== undefined && setOpenHalaman && valueHalaman !== undefined && sortHalaman && handleSortHalamanChange ? (
+                      <Popover open={openHalaman} onOpenChange={setOpenHalaman}>
+                        <PopoverTrigger asChild>
+                          <Button variant="outline" role="combobox" aria-expanded={openHalaman} className="w-[110px] justify-between">
+                            { sortHalaman.find((item) => item.value === valueHalaman)?.label || "Halaman" } 
+                            <ChevronsUpDown className="opacity-50" />
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-[120px] p-0">
+                          <Command>
+                            <CommandList>
+                              <CommandEmpty>No halaman found.</CommandEmpty>
+                              <CommandGroup>
+                                {sortHalaman.map((item) => (
+                                  <CommandItem
+                                    key={item.value}
+                                    value={item.value}
+                                    onSelect={(currentValue) => {
+                                      handleSortHalamanChange(currentValue);
+                                    }}
+                                  >
+                                    {item.label}
+                                  </CommandItem>
+                                ))}
+                              </CommandGroup>
+                            </CommandList>
+                          </Command>
+                        </PopoverContent>
+                      </Popover>
+                    ) : (
+                      <span>Halaman</span>
+                    )}
+                  </TableHead>
                   <TableHead className="text-center">Surah</TableHead>
                 </>
               )}
