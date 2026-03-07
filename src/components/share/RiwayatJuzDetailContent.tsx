@@ -162,29 +162,29 @@ export default function RiwayatJuzDetailContent({ santriId, juzId, tanggal, stat
                 {ayat.surah.namaLatin} Ayat {ayat.nomorAyat}
               </span>
             </div>
-            {riwayatJuzDetail.keterangan && (
+            {ayat.keterangan && (
               <div className="flex items-center gap-2 flex-wrap mb-3">
-                {riwayatJuzDetail.kualitas && riwayatJuzDetail.status === 'TambahHafalan' && (
+                {ayat.kualitas && riwayatJuzDetail.status === 'TambahHafalan' && (
                   <span className={`inline-block px-3 py-1 rounded-full text-sm font-semibold ${
-                    riwayatJuzDetail.kualitas === 'Kurang'
+                    ayat.kualitas === 'Kurang'
                       ? 'bg-red-100 text-red-700'
-                      : riwayatJuzDetail.kualitas === 'Cukup'
+                      : ayat.kualitas === 'Cukup'
                       ? 'bg-yellow-100 text-yellow-700'
-                      : riwayatJuzDetail.kualitas === 'Baik'
+                      : ayat.kualitas === 'Baik'
                       ? 'bg-lime-100 text-lime-700'
                       : 'bg-emerald-100 text-emerald-700'
                   }`}>
-                    {riwayatJuzDetail.kualitas}
+                    {ayat.kualitas}
                   </span>
                 )}
                 <span className={`inline-block px-3 py-1 rounded-full text-sm font-semibold ${
-                  riwayatJuzDetail.keterangan === 'Lanjut'
+                  ayat.keterangan === 'Lanjut'
                     ? 'bg-green-100 text-green-700'
                     : 'bg-orange-100 text-orange-700'
                 }`}>
-                  {riwayatJuzDetail.keterangan}
+                  {ayat.keterangan}
                 </span>
-                {riwayatJuzDetail.keterangan === 'Lanjut' && riwayatJuzDetail.status === 'TambahHafalan' && (
+                {ayat.keterangan === 'Lanjut' && riwayatJuzDetail.status === 'TambahHafalan' && (
                   <span className="inline-block px-3 py-1 rounded-full text-sm font-semibold bg-blue-100 text-blue-700">
                     Hafal
                   </span>

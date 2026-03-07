@@ -177,7 +177,7 @@ export interface RiwayatHafalanTerakhir {
 export interface DeleteRiwayatHafalanResponse {
   message: string;
   status: number;
-  deletedCount?: number; // hanya ada ketika sukses
+  deletedCount?: number;
 }
 
 export interface Juz {
@@ -196,6 +196,8 @@ export interface AyatJuz {
   juz: number;
   surah: Surah;
   poinDidapat: number;
+  kualitas?: string;
+  keterangan?: string;
 }
 
 export interface RiwayatJuzDetailData {
