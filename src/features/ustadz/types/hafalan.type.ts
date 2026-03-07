@@ -125,6 +125,8 @@ export interface RiwayatDetailData {
   catatan: string;
   daftarAyat: Ayat[];
   totalPoin?: number;
+  kualitas?: string;
+  keterangan?: string;
 }
 
 export interface RiwayatDetailResponse {
@@ -216,6 +218,8 @@ export interface RiwayatJuzDetailData {
   };
   surah: Surah[];
   daftarAyat: AyatJuz[];
+  kualitas?: string;
+  keterangan?: string;
 }
 
 export interface RiwayatJuzDetailResponse {

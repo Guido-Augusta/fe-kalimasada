@@ -161,24 +161,50 @@ export default function RiwayatDetailContent({ santriId, surahId, tanggal, statu
               <span className="text-sm font-semibold text-violet-600">
                 {riwayatDetail.surah.namaLatin} Ayat {ayat.nomorAyat}
               </span>
-              {/* <span className="text-sm font-semibold text-green-600">
-                +{ayat.poinDidapat} poin
-              </span> */}
             </div>
+          {ayat.keterangan && (
+            <div className="flex items-center gap-2 flex-wrap mb-3">
+              {ayat.kualitas && riwayatDetail.status === 'TambahHafalan' && (
+                <span className={`inline-block px-3 py-1 rounded-full text-sm font-semibold ${
+                  ayat.kualitas === 'Kurang'
+                    ? 'bg-red-100 text-red-700'
+                    : ayat.kualitas === 'Cukup'
+                    ? 'bg-yellow-100 text-yellow-700'
+                    : ayat.kualitas === 'Baik'
+                    ? 'bg-lime-100 text-lime-700'
+                    : 'bg-emerald-100 text-emerald-700'
+                }`}>
+                  {ayat.kualitas}
+                </span>
+              )}
+              <span className={`inline-block px-3 py-1 rounded-full text-sm font-semibold ${
+                ayat.keterangan === 'Lanjut'
+                  ? 'bg-green-100 text-green-700'
+                  : 'bg-orange-100 text-orange-700'
+              }`}>
+                {ayat.keterangan}
+              </span>
+              {ayat.keterangan === 'Lanjut' && riwayatDetail.status === 'TambahHafalan' && (
+                <span className="inline-block px-3 py-1 rounded-full text-sm font-semibold bg-blue-100 text-blue-700">
+                  Hafal
+                </span>
+              )}
+            </div>
+          )}
          <p
            className="text-right md:text-3xl text-2xl leading-14 md:leading-20 my-3 font-arabic"
            dir="rtl"
          >
-           {ayat.arab} 
+           {ayat.arab}
            <span className="mr-2 text-md font-arabic">
              ۝{toArabicNumber(ayat.nomorAyat)}
-           </span> 
+           </span>
          </p>
-   
+
          <p className="text-left text-base text-green-600 italic">
            {ayat.latin}
          </p>
-   
+
          <p className="text-left text-base text-gray-800">
            {ayat.terjemah}
          </p>
