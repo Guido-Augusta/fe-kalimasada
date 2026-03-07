@@ -22,6 +22,13 @@ import {
   DialogFooter,
 } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { toast } from 'react-hot-toast';
 import {
   useFetchAddHafalanData,
@@ -44,6 +51,8 @@ export default function UstadzAddHafalan() {
   );
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [catatan, setCatatan] = useState('');
+  const [kualitas, setKualitas] = useState('');
+  const [keterangan, setKeterangan] = useState('');
   const [startAyat, setStartAyat] = useState(0);
   const [endAyat, setEndAyat] = useState(0);
   const [searchAyat, setSearchAyat] = useState('');
@@ -166,6 +175,18 @@ export default function UstadzAddHafalan() {
       return;
     }
 
+    // Validasi kualitas untuk mode TambahHafalan
+    if (mode === 'tambah' && !kualitas) {
+      toast.error('Pilih kualitas hafalan terlebih dahulu.');
+      return;
+    }
+
+    // Validasi keterangan untuk semua mode
+    if (!keterangan) {
+      toast.error('Pilih keterangan terlebih dahulu.');
+      return;
+    }
+
     const startIndex = startAyat - 1;
     const endIndex = endAyat;
 
@@ -185,6 +206,8 @@ export default function UstadzAddHafalan() {
       status: (mode === 'tambah' ? 'TambahHafalan' : 'Murajaah') as
         | 'TambahHafalan'
         | 'Murajaah',
+      ...(mode === 'tambah' && { kualitas }),
+      keterangan,
       catatan: catatan,
     };
 
@@ -199,6 +222,8 @@ export default function UstadzAddHafalan() {
         setStartAyat(0);
         setEndAyat(0);
         setCatatan('');
+        setKualitas('');
+        setKeterangan('');
       },
       onError: (_e) => {
         toast.error('Gagal menyimpan hafalan. Terjadi kesalahan.');
@@ -448,6 +473,38 @@ export default function UstadzAddHafalan() {
                   max={data?.ayat.length}
                 />
               </div>
+              {mode === 'tambah' && (
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="kualitas" className="text-right">
+                    Kualitas
+                  </Label>
+                  <Select value={kualitas} onValueChange={setKualitas}>
+                    <SelectTrigger className="col-span-3">
+                      <SelectValue placeholder="Pilih kualitas..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Kurang">Kurang</SelectItem>
+                      <SelectItem value="Cukup">Cukup</SelectItem>
+                      <SelectItem value="Baik">Baik</SelectItem>
+                      <SelectItem value="SangatBaik">Sangat Baik</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="keterangan" className="text-right">
+                  Keterangan
+                </Label>
+                <Select value={keterangan} onValueChange={setKeterangan}>
+                  <SelectTrigger className="col-span-3">
+                    <SelectValue placeholder="Pilih keterangan..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Mengulang">Mengulang</SelectItem>
+                    <SelectItem value="Lanjut">Lanjut</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </>
             <Textarea
               id="catatan"
@@ -472,7 +529,9 @@ export default function UstadzAddHafalan() {
                 isSaving ||
                 startAyat <= 0 ||
                 endAyat <= 0 ||
-                startAyat > endAyat
+                startAyat > endAyat ||
+                (mode === 'tambah' && !kualitas) ||
+                !keterangan
               }
               className="bg-green-600 text-white hover:bg-green-700"
             >

@@ -4,18 +4,17 @@ This is a React + TypeScript + Vite application with shadcn/ui components, Tailw
 
 ## Build, Lint, and Test Commands
 
+**Package Manager:** pnpm (use `npm` commands as shown, but pnpm is recommended)
+
 ```bash
-npm run dev        # Start development server
-npm run build      # TypeScript check + Vite build
-npm run lint       # Run ESLint
-npm run preview    # Preview production build
+npm run dev        # Start Vite development server
+npm run build      # TypeScript check + Vite build (production-optimized)
+npm run lint       # Run ESLint on all files
+npm run preview    # Preview production build locally
 npx tsc --noEmit   # Standalone type checking
 ```
 
-**Testing:** This project has no test suite yet. When adding tests:
-- Use Vitest as the test runner
-- Test files: `*.test.ts` or `*.spec.ts`
-- Run single test: `npx vitest run --test-name-pattern="testName"`
+**Testing:** This project does not currently have a test suite. To add tests in the future, use Vitest as the test runner with test files named `*.test.ts` or `*.spec.ts`.
 
 ## Code Style Guidelines
 
@@ -216,7 +215,7 @@ Key rules (from `eslint.config.js`):
 **React Router:**
 ```typescript
 const navigate = useNavigate();
-avigate('/path');
+navigate('/path');
 ```
 
 **React Hook Form + Zod:**
@@ -226,6 +225,34 @@ const form = useForm<FormValues>({ resolver: zodResolver(schema) });
 
 ## Additional Notes
 
-- Tailwind CSS v4 with `@tailwindcss/vite`
-- JWT authentication stored in localStorage
-- Role-based routing in `src/middleware/RoleRedirect.tsx`
+- Tailwind CSS 4.1.11 with `@tailwindcss/vite` plugin
+- JWT authentication stored in localStorage with `jwt-decode`
+- Role-based routing implemented in `src/middleware/RoleRedirect.tsx`
+
+## Key Dependencies
+
+**Core Framework:**
+- React 18.2.0, React DOM 18.2.0
+- Vite 7.0.4 (build tool)
+- TypeScript ~5.8.3
+
+**UI & Components:**
+- shadcn/ui (built on Radix UI)
+- Tailwind CSS 4.1.11
+- lucide-react (icons)
+- recharts (data visualization)
+
+**State & Data:**
+- TanStack Query 5.85.5 (server state)
+- Zustand 5.0.7 (local state)
+- React Hook Form 7.62.0 (form management)
+- Zod 4.0.17 (runtime validation)
+
+**Routing & Navigation:**
+- React Router DOM 7.7.1
+- React Helmet Async 2.0.5 (head management)
+
+**Development Tools:**
+- ESLint 9.30.1 with typescript-eslint
+- TypeScript ESLint 8.35.1
+- Globals 16.3.0

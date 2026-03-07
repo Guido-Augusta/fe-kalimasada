@@ -22,6 +22,13 @@ import {
   DialogFooter,
 } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { toast } from 'react-hot-toast';
 import {
   useFetchJuzHafalanData,
@@ -46,6 +53,8 @@ export default function UstadzAddHafalanJuz() {
   );
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [catatan, setCatatan] = useState('');
+  const [kualitas, setKualitas] = useState('');
+  const [keterangan, setKeterangan] = useState('');
   const [startHalaman, setStartHalaman] = useState(0);
   const [endHalaman, setEndHalaman] = useState(0);
   const [searchHalaman, setSearchHalaman] = useState('');
@@ -202,6 +211,18 @@ export default function UstadzAddHafalanJuz() {
       return;
     }
 
+    // Validasi kualitas untuk mode TambahHafalan
+    if (mode === 'tambah' && !kualitas) {
+      toast.error('Pilih kualitas hafalan terlebih dahulu.');
+      return;
+    }
+
+    // Validasi keterangan untuk semua mode
+    if (!keterangan) {
+      toast.error('Pilih keterangan terlebih dahulu.');
+      return;
+    }
+
     const payload = {
       santriId: parseInt(idSantri!),
       halamanAwal: startHalaman,
@@ -209,6 +230,8 @@ export default function UstadzAddHafalanJuz() {
       status: (mode === 'tambah' ? 'TambahHafalan' : 'Murajaah') as
         | 'TambahHafalan'
         | 'Murajaah',
+      ...(mode === 'tambah' && { kualitas }),
+      keterangan,
       catatan: catatan,
     };
 
@@ -223,6 +246,8 @@ export default function UstadzAddHafalanJuz() {
         setStartHalaman(0);
         setEndHalaman(0);
         setCatatan('');
+        setKualitas('');
+        setKeterangan('');
       },
       onError: (_e) => {
         console.error(_e);
@@ -516,6 +541,38 @@ export default function UstadzAddHafalanJuz() {
                   max={maxPage}
                 />
               </div>
+              {mode === 'tambah' && (
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="kualitas" className="text-right">
+                    Kualitas
+                  </Label>
+                  <Select value={kualitas} onValueChange={setKualitas}>
+                    <SelectTrigger className="col-span-3">
+                      <SelectValue placeholder="Pilih kualitas..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Kurang">Kurang</SelectItem>
+                      <SelectItem value="Cukup">Cukup</SelectItem>
+                      <SelectItem value="Baik">Baik</SelectItem>
+                      <SelectItem value="SangatBaik">Sangat Baik</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="keterangan" className="text-right">
+                  Keterangan
+                </Label>
+                <Select value={keterangan} onValueChange={setKeterangan}>
+                  <SelectTrigger className="col-span-3">
+                    <SelectValue placeholder="Pilih keterangan..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Mengulang">Mengulang</SelectItem>
+                    <SelectItem value="Lanjut">Lanjut</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </>
             <Textarea
               id="catatan"
@@ -540,7 +597,9 @@ export default function UstadzAddHafalanJuz() {
                 isSaving ||
                 startHalaman <= 0 ||
                 endHalaman <= 0 ||
-                startHalaman > endHalaman
+                startHalaman > endHalaman ||
+                (mode === 'tambah' && !kualitas) ||
+                !keterangan
               }
               className="bg-green-600 text-white hover:bg-green-700"
             >
