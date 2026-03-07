@@ -8,6 +8,7 @@ import type {
   RiwayatHafalanResponse,
   RiwayatHafalanTerakhirResponse,
   RiwayatJuzDetailResponse,
+  SaveHafalanResponse,
 } from '../types/hafalan.type';
 
 const BASE_URL = import.meta.env.VITE_API_URL
@@ -71,7 +72,9 @@ export const saveHafalanData = async (payload: {
   ayatIds: number[];
   status: 'TambahHafalan' | 'Murajaah';
   catatan: string;
-}) => {
+  kualitas?: string;
+  keterangan?: string;
+}): Promise<SaveHafalanResponse> => {
   const headers = getAuthHeaders(true);
   const response = await fetch(`${BASE_URL}/api/hafalan/ayat`, {
     method: 'POST',
@@ -83,6 +86,8 @@ export const saveHafalanData = async (payload: {
     const errorData = await response.json();
     throw new Error(errorData.message || 'Gagal menyimpan hafalan.');
   }
+
+  return response.json();
 };
 
 export const saveHafalanByHalaman = async (payload: {
@@ -91,7 +96,9 @@ export const saveHafalanByHalaman = async (payload: {
   halamanAkhir: number;
   status: 'TambahHafalan' | 'Murajaah';
   catatan: string;
-}) => {
+  kualitas?: string;
+  keterangan?: string;
+}): Promise<SaveHafalanResponse> => {
   const headers = getAuthHeaders(true);
   const response = await fetch(`${BASE_URL}/api/hafalan/halaman`, {
     method: 'POST',
@@ -103,6 +110,8 @@ export const saveHafalanByHalaman = async (payload: {
     const errorData = await response.json();
     throw new Error(errorData.message || 'Gagal menyimpan hafalan.');
   }
+
+  return response.json();
 };
 
 export const deleteRiwayatHafalan = async (data: {

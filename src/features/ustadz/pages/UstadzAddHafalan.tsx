@@ -6,8 +6,6 @@ import {
   Loader2,
   ChevronUp,
   ChevronDown,
-  Check,
-  X,
   Search,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -35,7 +33,7 @@ import {
   useSaveHafalan,
 } from '../hooks/useHafalanData';
 import { Input } from '@/components/ui/input';
-import type { HafalanMode } from '../types/hafalan.type';
+import type { HafalanMode, SaveHafalanResponse } from '../types/hafalan.type';
 import { toArabicNumber } from '@/utils/formatArabNumber';
 import { useNavigate } from 'react-router-dom';
 
@@ -212,7 +210,7 @@ export default function UstadzAddHafalan() {
     };
 
     saveHafalan(payload, {
-      onSuccess: () => {
+      onSuccess: (_data: SaveHafalanResponse) => {
         toast.success(
           mode === 'tambah'
             ? 'Ayat berhasil ditambahkan ke hafalan.'
@@ -402,32 +400,61 @@ export default function UstadzAddHafalan() {
 
             <div className="bg-white p-2 rounded-b-lg">
               <div className="space-y-4">
-                {data?.ayat.map((ayat) => (
-                  <div
-                    key={ayat.id}
-                    ref={(el) => {
-                      ayatRefs.current[ayat.id] = el;
-                    }}
-                    className="flex items-center gap-4 p-4 border border-violet-600/90 rounded-lg bg-white"
-                  >
-                    <p
-                      className="flex-1 text-right md:text-3xl text-2xl leading-14 md:leading-20 font-arabic"
-                      style={{ fontFamily: 'Amiri, serif' }}
-                      dir="rtl"
+                {data?.ayat.map((ayat) => {
+                  // Only display labels from API response, ignore submitted state
+                  const displayKualitas = ayat.kualitas || '';
+                  const displayKeterangan = ayat.keterangan || '';
+
+                  return (
+                    <div
+                      key={ayat.id}
+                      ref={(el) => {
+                        ayatRefs.current[ayat.id] = el;
+                      }}
+                      className="flex flex-col gap-2 p-4 border border-violet-600/90 rounded-lg bg-white"
                     >
-                      {ayat.arab}
-                      <span className="mr-2 text-md font-arabic">
-                        ۝{toArabicNumber(ayat.nomorAyat)}
-                      </span>
-                    </p>
-                    {mode === 'tambah' &&
-                      (ayat.checked ? (
-                        <Check className="h-6 w-6 text-green-500" />
-                      ) : (
-                        <X className="h-6 w-6 text-red-500" />
-                      ))}
-                  </div>
-                ))}
+                      {displayKeterangan && (
+                        <div className="flex items-center gap-2 flex-wrap">
+                          {displayKualitas && mode === 'tambah' && (
+                            <span className={`inline-block px-3 py-1 rounded-full text-sm font-semibold ${
+                              displayKualitas === 'Kurang'
+                                ? 'bg-red-100 text-red-700'
+                                : displayKualitas === 'Cukup'
+                                ? 'bg-yellow-100 text-yellow-700'
+                                : displayKualitas === 'Baik'
+                                ? 'bg-lime-100 text-lime-700'
+                                : 'bg-emerald-100 text-emerald-700'
+                            }`}>
+                              {displayKualitas}
+                            </span>
+                          )}
+                          <span className={`inline-block px-3 py-1 rounded-full text-sm font-semibold ${
+                            displayKeterangan === 'Lanjut'
+                              ? 'bg-green-100 text-green-700'
+                              : 'bg-orange-100 text-orange-700'
+                          }`}>
+                            {displayKeterangan}
+                          </span>
+                          {displayKeterangan === 'Lanjut' && mode === 'tambah' && (
+                            <span className="inline-block px-3 py-1 rounded-full text-sm font-semibold bg-blue-100 text-blue-700">
+                              Hafal
+                            </span>
+                          )}
+                        </div>
+                      )}
+                      <p
+                        className="flex-1 text-right md:text-3xl text-2xl leading-14 md:leading-20 font-arabic"
+                        style={{ fontFamily: 'Amiri, serif' }}
+                        dir="rtl"
+                      >
+                        {ayat.arab}
+                        <span className="mr-2 text-md font-arabic">
+                          ۝{toArabicNumber(ayat.nomorAyat)}
+                        </span>
+                      </p>
+                    </div>
+                  );
+                })}
               </div>
             </div>
           </div>

@@ -6,8 +6,6 @@ import {
   Loader2,
   ChevronUp,
   ChevronDown,
-  Check,
-  X,
   Search,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -35,7 +33,7 @@ import {
   useSaveHafalanByHalaman,
 } from '../hooks/useHafalanData';
 import { Input } from '@/components/ui/input';
-import type { HafalanMode } from '../types/hafalan.type';
+import type { HafalanMode, SaveHafalanResponse } from '../types/hafalan.type';
 import { toArabicNumber } from '@/utils/formatArabNumber';
 import { useNavigate } from 'react-router-dom';
 
@@ -236,7 +234,7 @@ export default function UstadzAddHafalanJuz() {
     };
 
     saveHafalanByHalaman(payload, {
-      onSuccess: () => {
+      onSuccess: (_data: SaveHafalanResponse) => {
         toast.success(
           mode === 'tambah'
             ? 'Hafalan halaman berhasil ditambahkan.'
@@ -468,8 +466,43 @@ export default function UstadzAddHafalanJuz() {
                               ref={(el) => {
                                 ayatRefs.current[ayat.id] = el;
                               }}
-                              className="flex items-center gap-4 p-4 border border-violet-600/90 rounded-lg bg-white mb-2"
+                              className="flex flex-col gap-2 p-4 border border-violet-600/90 rounded-lg bg-white mb-2"
                             >
+                              {(() => {
+                                // Only display labels from API response, ignore submitted state
+                                const displayKualitas = ayat.kualitas || '';
+                                const displayKeterangan = ayat.keterangan || '';
+
+                                return displayKeterangan ? (
+                                  <div className="flex items-center gap-2 flex-wrap">
+                                    {displayKualitas && mode === 'tambah' && (
+                                      <span className={`inline-block px-3 py-1 rounded-full text-sm font-semibold ${
+                                        displayKualitas === 'Kurang'
+                                          ? 'bg-red-100 text-red-700'
+                                          : displayKualitas === 'Cukup'
+                                          ? 'bg-yellow-100 text-yellow-700'
+                                          : displayKualitas === 'Baik'
+                                          ? 'bg-lime-100 text-lime-700'
+                                          : 'bg-emerald-100 text-emerald-700'
+                                      }`}>
+                                        {displayKualitas}
+                                      </span>
+                                    )}
+                                    <span className={`inline-block px-3 py-1 rounded-full text-sm font-semibold ${
+                                      displayKeterangan === 'Lanjut'
+                                        ? 'bg-green-100 text-green-700'
+                                        : 'bg-orange-100 text-orange-700'
+                                    }`}>
+                                      {displayKeterangan}
+                                    </span>
+                                    {displayKeterangan === 'Lanjut' && mode === 'tambah' && (
+                                      <span className="inline-block px-3 py-1 rounded-full text-sm font-semibold bg-blue-100 text-blue-700">
+                                        Hafal
+                                      </span>
+                                    )}
+                                  </div>
+                                ) : null;
+                              })()}
                               <p
                                 className="flex-1 text-right md:text-3xl text-2xl leading-14 md:leading-20 font-arabic"
                                 style={{ fontFamily: 'Amiri, serif' }}
@@ -480,12 +513,6 @@ export default function UstadzAddHafalanJuz() {
                                   ۝{toArabicNumber(ayat.nomorAyat)}
                                 </span>
                               </p>
-                              {mode === 'tambah' &&
-                                (ayat.checked ? (
-                                  <Check className="h-6 w-6 text-green-500" />
-                                ) : (
-                                  <X className="h-6 w-6 text-red-500" />
-                                ))}
                             </div>
                           </div>
                         );

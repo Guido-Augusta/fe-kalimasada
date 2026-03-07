@@ -40,6 +40,8 @@ export interface Ayat {
   isInitialChecked?: boolean;
   surah?: Surah;
   halaman?: number;
+  kualitas?: string;
+  keterangan?: string;
 }
 
 export interface Surah {
@@ -220,4 +222,11 @@ export interface RiwayatJuzDetailResponse {
   message: string;
   status: number;
   data: RiwayatJuzDetailData;
+}
+
+export interface SaveHafalanResponse {
+  message: string;
+  status: number;
+  kualitas?: string;
+  keterangan?: string;
 }
