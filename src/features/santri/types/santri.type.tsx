@@ -28,6 +28,8 @@ export interface Ayat {
   latin: string;
   terjemah: string;
   checked: boolean;
+  kualitas?: string;
+  keterangan?: string;
 }
 
 export interface SurahInfo {
@@ -97,6 +99,8 @@ export interface JuzAyat {
   terjemah: string;
   checked: boolean;
   halaman: number;
+  kualitas?: string;
+  keterangan?: string;
 }
 
 export interface JuzSurahInfo {

@@ -36,6 +36,7 @@ import { Input } from '@/components/ui/input';
 import type { HafalanMode, HafalanStatus, SaveHafalanResponse } from '../types/hafalan.type';
 import { toArabicNumber } from '@/utils/formatArabNumber';
 import { useNavigate } from 'react-router-dom';
+import { HafalanLabels } from '@/components/share/HafalanLabels';
 
 const TOTAL_PAGES_IN_JUZ = 20;
 
@@ -491,33 +492,12 @@ export default function UstadzAddHafalanJuz() {
                                 const displayKeterangan = ayat.keterangan || '';
 
                                 return displayKeterangan ? (
-                                  <div className="flex items-center gap-2 flex-wrap">
-                                    {displayKualitas && mode === 'tambah' && (
-                                      <span className={`inline-block px-3 py-1 rounded-full text-sm font-semibold ${
-                                        displayKualitas === 'Kurang'
-                                          ? 'bg-red-100 text-red-700'
-                                          : displayKualitas === 'Cukup'
-                                          ? 'bg-yellow-100 text-yellow-700'
-                                          : displayKualitas === 'Baik'
-                                          ? 'bg-lime-100 text-lime-700'
-                                          : 'bg-emerald-100 text-emerald-700'
-                                      }`}>
-                                        {displayKualitas}
-                                      </span>
-                                    )}
-                                    <span className={`inline-block px-3 py-1 rounded-full text-sm font-semibold ${
-                                      displayKeterangan === 'Lanjut'
-                                        ? 'bg-green-100 text-green-700'
-                                        : 'bg-orange-100 text-orange-700'
-                                    }`}>
-                                      {displayKeterangan}
-                                    </span>
-                                    {displayKeterangan === 'Lanjut' && mode === 'tambah' && (
-                                      <span className="inline-block px-3 py-1 rounded-full text-sm font-semibold bg-blue-100 text-blue-700">
-                                        Hafal
-                                      </span>
-                                    )}
-                                  </div>
+                                  <HafalanLabels
+                                    kualitas={displayKualitas}
+                                    keterangan={displayKeterangan}
+                                    showKualitas={mode === 'tambah'}
+                                    showHafalLabel={mode === 'tambah'}
+                                  />
                                 ) : null;
                               })()}
                               <p

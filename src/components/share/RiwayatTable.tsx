@@ -27,7 +27,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { Badge } from '@/components/ui/badge';
+import { StatusBadge } from '@/components/share/HafalanLabels';
 import { useState } from 'react';
 import type { RiwayatHafalan, HafalanStatus } from '@/features/ustadz/types/hafalan.type';
 import { useDeleteRiwayatHafalan } from '@/features/ustadz/hooks/useHafalanData';
@@ -104,18 +104,6 @@ export default function RiwayatTable({
     }
   };
 
-  function getBadgeStatus(status: string) {
-    switch (status) {
-      case 'TambahHafalan':
-        return 'bg-green-500 text-white';
-      case 'Murajaah':
-        return 'bg-yellow-500 text-white';
-      case 'Tahsin':
-        return 'bg-blue-500 text-white';
-      default:
-        return 'default';
-    }
-  }
 
   const isPreviousButtonDisabled =
     currentPage === 1 || isFetching || deleteMutation.isPending;
@@ -170,9 +158,7 @@ export default function RiwayatTable({
                     </TableCell>
                   )}
                   <TableCell className="text-center hidden md:table-cell">
-                    <Badge className={getBadgeStatus(riwayat.status)}>
-                      {riwayat.status}
-                    </Badge>
+                    <StatusBadge status={riwayat.status} />
                   </TableCell>
                   <TableCell className="text-center">
                     {modeFilter === 'halaman' ? (

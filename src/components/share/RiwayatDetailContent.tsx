@@ -6,11 +6,11 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { useRiwayatDetail } from '@/features/ustadz/hooks/useHafalanData';
 import { toArabicNumber } from '@/utils/formatArabNumber';
 import { formatTanggalIndo } from '@/utils/formatDate';
+import { HafalanLabels, StatusBadge } from '@/components/share/HafalanLabels';
 
 interface RiwayatDetailContentProps {
   santriId: string;
@@ -20,16 +20,6 @@ interface RiwayatDetailContentProps {
   backLink?: string;
 }
 
-function getBadgeStatus(status: string) {
-  switch (status) {
-    case 'TambahHafalan':
-      return 'bg-green-500 text-white';
-    case 'Murajaah':
-      return 'bg-yellow-500 text-white';
-    default:
-      return 'default';
-  }
-}
 
 export default function RiwayatDetailContent({
   santriId,
@@ -156,7 +146,7 @@ export default function RiwayatDetailContent({
         </h1>
       </div>
 
-      <Card className="bg-violet-600 text-white">
+      <Card className="bg-violet-600 text-white py-2">
         <CardHeader>
           <CardTitle className="text-2xl font-bold text-center">
             <p>
@@ -169,24 +159,21 @@ export default function RiwayatDetailContent({
               <p className="text-base text-white order-2 md:order-1">
                 {formatTanggalIndo(riwayatDetail.tanggal)}
               </p>
-              <Badge
-                className={
-                  getBadgeStatus(riwayatDetail.status) + 'order-1 md:order-2'
-                }
-              >
-                {riwayatDetail.status}
-              </Badge>
+              <StatusBadge
+                status={riwayatDetail.status}
+                className="order-1 md:order-2"
+              />
             </div>
           </CardTitle>
         </CardHeader>
       </Card>
 
       <div className="grid grid-cols-2 gap-2 md:gap-4 text-center sm:grid-cols-4 my-3">
-        <div className="border bg-amber-100 border-violet-600/90 py-4 px-2 rounded-xl">
+        <div className="border bg-amber-100 border-violet-600/90 py-2 px-2 rounded-xl">
           <p className="font-semibold text-sm">Ustadz</p>
           <p className="text-wrap">{riwayatDetail.ustadz.nama}</p>
         </div>
-        <div className="border bg-amber-100 border-violet-600/90 py-4 px-2 rounded-xl">
+        <div className="border bg-amber-100 border-violet-600/90 py-2 px-2 rounded-xl">
           <p className="font-semibold text-sm">Jumlah Ayat</p>
           <p className="text-wrap ">
             {riwayatDetail.daftarAyat.length} Ayat (
@@ -198,11 +185,11 @@ export default function RiwayatDetailContent({
             )
           </p>
         </div>
-        <div className="border bg-amber-100 border-violet-600/90 py-4 px-2 rounded-xl">
+        <div className="border bg-amber-100 border-violet-600/90 py-2 px-2 rounded-xl">
           <p className="font-semibold text-sm">Total Poin</p>
           <p className="text-wrap ">{riwayatDetail.totalPoin}</p>
         </div>
-        <div className="border bg-amber-100 border-violet-600/90 py-4 px-2 rounded-xl">
+        <div className="border bg-amber-100 border-violet-600/90 py-2 px-2 rounded-xl">
           <p className="font-semibold text-sm">Catatan</p>
           <p className="text-wrap">{riwayatDetail.catatan || '-'}</p>
         </div>
@@ -212,43 +199,16 @@ export default function RiwayatDetailContent({
         {riwayatDetail.daftarAyat.map((ayat) => (
           <Card key={ayat.id} className="p-4 border border-violet-600/90">
             <div className="flex flex-col md:flex-row md:justify-between items-start">
-              <span className="text-sm font-semibold text-violet-600">
+              <span className="text-sm font-semibold text-violet-600 mb-2">
                 {riwayatDetail.surah.namaLatin} Ayat {ayat.nomorAyat}
               </span>
               {ayat.keterangan && (
-                <div className="flex items-center gap-2 flex-wrap mt-2 md:mt-0">
-                  {ayat.kualitas &&
-                    riwayatDetail.status === 'TambahHafalan' && (
-                      <span
-                        className={`inline-block px-3 py-1 rounded-full text-sm font-semibold ${
-                          ayat.kualitas === 'Kurang'
-                            ? 'bg-red-100 text-red-700'
-                            : ayat.kualitas === 'Cukup'
-                              ? 'bg-yellow-100 text-yellow-700'
-                              : ayat.kualitas === 'Baik'
-                                ? 'bg-lime-100 text-lime-700'
-                                : 'bg-emerald-100 text-emerald-700'
-                        }`}
-                      >
-                        {ayat.kualitas}
-                      </span>
-                    )}
-                  <span
-                    className={`inline-block px-3 py-1 rounded-full text-sm font-semibold ${
-                      ayat.keterangan === 'Lanjut'
-                        ? 'bg-green-100 text-green-700'
-                        : 'bg-orange-100 text-orange-700'
-                    }`}
-                  >
-                    {ayat.keterangan}
-                  </span>
-                  {ayat.keterangan === 'Lanjut' &&
-                    riwayatDetail.status === 'TambahHafalan' && (
-                      <span className="inline-block px-3 py-1 rounded-full text-sm font-semibold bg-blue-100 text-blue-700">
-                        Hafal
-                      </span>
-                    )}
-                </div>
+                <HafalanLabels
+                  kualitas={ayat.kualitas}
+                  keterangan={ayat.keterangan}
+                  showKualitas={riwayatDetail.status === 'TambahHafalan'}
+                  showHafalLabel={riwayatDetail.status === 'TambahHafalan'}
+                />
               )}
             </div>
             <p

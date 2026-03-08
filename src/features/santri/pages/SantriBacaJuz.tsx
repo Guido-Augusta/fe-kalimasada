@@ -1,30 +1,37 @@
-import { useState, useEffect, useRef, useMemo } from "react";
-import { useNavigate } from "react-router-dom";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
-import { ChevronLeft, ChevronRight, ChevronUp, ChevronDown, Search } from "lucide-react";
-import SantriLayout from "../components/SantriLayout";
-import { Button } from "@/components/ui/button";
-import { Link } from "react-router-dom";
-import { useFetchJuz } from "../hooks/useFetchJuz";
-import { Input } from "@/components/ui/input";
-import { toast } from "react-hot-toast";
-import { toArabicNumber } from "@/utils/formatArabNumber";
+import { useState, useEffect, useRef, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { Skeleton } from '@/components/ui/skeleton';
+import {
+  ChevronLeft,
+  ChevronRight,
+  ChevronUp,
+  ChevronDown,
+  Search,
+} from 'lucide-react';
+import SantriLayout from '../components/SantriLayout';
+import { Button } from '@/components/ui/button';
+import { Link } from 'react-router-dom';
+import { useFetchJuz } from '../hooks/useFetchJuz';
+import { Input } from '@/components/ui/input';
+import { toast } from 'react-hot-toast';
+import { toArabicNumber } from '@/utils/formatArabNumber';
+import { HafalanLabels } from '@/components/share/HafalanLabels';
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
+} from '@/components/ui/dialog';
 
-const BASMALLAH = "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ";
+const BASMALLAH = 'بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ';
 
 export default function SantriBacaJuz() {
   const navigate = useNavigate();
   const { juzData, loading, error } = useFetchJuz();
   const [isSearchDialogOpen, setIsSearchDialogOpen] = useState(false);
-  const [searchHalaman, setSearchHalaman] = useState("");
-  const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [searchHalaman, setSearchHalaman] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
   const ayatRefs = useRef<Record<number, HTMLDivElement | null>>({});
 
   const allAyat = useMemo(() => {
@@ -34,7 +41,9 @@ export default function SantriBacaJuz() {
 
   const { minPage, maxPage } = useMemo(() => {
     if (allAyat.length === 0) return { minPage: 1, maxPage: 20 };
-    const pages = allAyat.map((a) => a.halaman).filter((p): p is number => p !== undefined && p !== null);
+    const pages = allAyat
+      .map((a) => a.halaman)
+      .filter((p): p is number => p !== undefined && p !== null);
     if (pages.length === 0) return { minPage: 1, maxPage: 20 };
     return {
       minPage: Math.min(...pages),
@@ -46,11 +55,12 @@ export default function SantriBacaJuz() {
     const element = ayatRefs.current[ayatId];
     if (element) {
       const headerOffset = 200;
-      const elementPosition = element.getBoundingClientRect().top + window.scrollY;
+      const elementPosition =
+        element.getBoundingClientRect().top + window.scrollY;
       const offsetPosition = elementPosition - headerOffset;
       window.scrollTo({
         top: offsetPosition,
-        behavior: "smooth",
+        behavior: 'smooth',
       });
     }
   };
@@ -58,7 +68,7 @@ export default function SantriBacaJuz() {
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedSearch(searchHalaman);
-    }, 500);
+    }, 1500);
 
     return () => clearTimeout(timer);
   }, [searchHalaman]);
@@ -66,12 +76,16 @@ export default function SantriBacaJuz() {
   useEffect(() => {
     if (debouncedSearch && allAyat.length > 0) {
       const pageNumber = parseInt(debouncedSearch, 10);
-      if (!isNaN(pageNumber) && pageNumber >= minPage && pageNumber <= maxPage) {
+      if (
+        !isNaN(pageNumber) &&
+        pageNumber >= minPage &&
+        pageNumber <= maxPage
+      ) {
         const targetAyat = allAyat.find((a) => a.halaman === pageNumber);
         if (targetAyat) {
           scrollToAyat(targetAyat.id);
           setIsSearchDialogOpen(false);
-          setSearchHalaman("");
+          setSearchHalaman('');
         } else {
           toast.error(`Halaman ${pageNumber} tidak ditemukan`);
         }
@@ -84,14 +98,16 @@ export default function SantriBacaJuz() {
   const scrollToTop = () => {
     window.scrollTo({
       top: 0,
-      behavior: "smooth"
+      behavior: 'smooth',
     });
   };
 
   const scrollToLastChecked = () => {
     if (juzData?.surah) {
       for (const surahGroup of [...juzData.surah].reverse()) {
-        const lastCheckedAyat = [...surahGroup.ayat].reverse().find((ayat) => ayat.checked);
+        const lastCheckedAyat = [...surahGroup.ayat]
+          .reverse()
+          .find((ayat) => ayat.checked);
         if (lastCheckedAyat) {
           scrollToAyat(lastCheckedAyat.id);
           return;
@@ -131,7 +147,11 @@ export default function SantriBacaJuz() {
       <SantriLayout>
         <div className="container mx-auto p-4">
           <div className="mb-4">
-            <Button onClick={() => navigate(-1)} variant="outline" className="flex items-center bg-yellow-500 text-white hover:bg-yellow-600 hover:text-white">
+            <Button
+              onClick={() => navigate(-1)}
+              variant="outline"
+              className="flex items-center bg-yellow-500 text-white hover:bg-yellow-600 hover:text-white"
+            >
               <ChevronLeft size={20} className="mr-2" /> Kembali
             </Button>
           </div>
@@ -148,7 +168,11 @@ export default function SantriBacaJuz() {
       <SantriLayout>
         <div className="container mx-auto p-4">
           <div className="mb-4">
-            <Button onClick={() => navigate(-1)} variant="outline" className="flex items-center bg-yellow-500 text-white hover:bg-yellow-600 hover:text-white">
+            <Button
+              onClick={() => navigate(-1)}
+              variant="outline"
+              className="flex items-center bg-yellow-500 text-white hover:bg-yellow-600 hover:text-white"
+            >
               <ChevronLeft size={20} className="mr-2" /> Kembali
             </Button>
           </div>
@@ -168,15 +192,21 @@ export default function SantriBacaJuz() {
 
   return (
     <SantriLayout>
-      <div className="container mx-auto p-4">
+      <div className="container mx-auto p-2">
         <div className="mb-4">
-          <Button onClick={() => navigate(-1)} variant="outline" className="flex items-center bg-yellow-500 text-white hover:bg-yellow-600 hover:text-white">
+          <Button
+            onClick={() => navigate(-1)}
+            variant="outline"
+            className="flex items-center bg-yellow-500 text-white hover:bg-yellow-600 hover:text-white"
+          >
             <ChevronLeft size={20} className="mr-2" /> Kembali
           </Button>
         </div>
 
         <div className="text-center mb-4">
-          <h1 className="text-3xl font-bold mb-2 text-violet-600">Juz {juzData.juz}</h1>
+          <h1 className="text-3xl font-bold mb-2 text-violet-600">
+            Juz {juzData.juz}
+          </h1>
           <p className="text-sm text-gray-500">
             Total {juzData.totalSurah} Surah
           </p>
@@ -184,20 +214,26 @@ export default function SantriBacaJuz() {
 
         <div className="flex justify-between items-center mb-4 flex-wrap gap-2">
           <Link to={`/santri/baca/juz/${prevJuz}`}>
-            <Button variant="ghost" className="flex items-center text-blue-500 hover:text-blue-700">
+            <Button
+              variant="ghost"
+              className="flex items-center text-blue-500 hover:text-blue-700"
+            >
               <ChevronLeft size={20} />
               <span className="ml-1">Juz Sebelumnya</span>
             </Button>
           </Link>
           <Link to={`/santri/baca/juz/${nextJuz}`}>
-            <Button variant="ghost" className="flex items-center text-blue-500 hover:text-blue-700">
+            <Button
+              variant="ghost"
+              className="flex items-center text-blue-500 hover:text-blue-700"
+            >
               <span className="mr-1">Juz Selanjutnya</span>
               <ChevronRight size={20} />
             </Button>
           </Link>
         </div>
 
-        <div className="space-y-4">
+        <div className="space-y-2">
           {juzData.surah.map((surahGroup, groupIndex) => {
             const isFirstAyat = surahGroup.ayat[0]?.nomorAyat === 1;
             const surahNomor = surahGroup.surah.nomor;
@@ -206,7 +242,9 @@ export default function SantriBacaJuz() {
               <div key={`${surahGroup.surah.id}-${groupIndex}`}>
                 {surahNomor !== 1 && isFirstAyat && (
                   <div className="text-center py-4">
-                    <p className="font-arabic text-2xl text-green-600 my-4">{BASMALLAH}</p>
+                    <p className="font-arabic text-2xl text-green-600 my-4">
+                      {BASMALLAH}
+                    </p>
                   </div>
                 )}
 
@@ -214,8 +252,10 @@ export default function SantriBacaJuz() {
                   <h2 className="text-xl font-bold text-violet-700">
                     {surahGroup.surah.namaLatin}
                   </h2>
-                  - 
-                  <p className="font-arabic text-2xl text-violet-600">{surahGroup.surah.nama}</p>
+                  -
+                  <p className="font-arabic text-2xl text-violet-600">
+                    {surahGroup.surah.nama}
+                  </p>
                 </div>
 
                 <div className="space-y-2">
@@ -248,17 +288,17 @@ export default function SantriBacaJuz() {
                           id={`ayat-${ayat.id}`}
                           className="p-4 border border-violet-600/90 rounded-lg bg-white"
                         >
-                          <div className="flex justify-between items-center mb-2">
-                            {ayat.checked ? (
-                              <span className="px-2 py-1 text-xs font-semibold rounded-full bg-green-500 text-white">
-                                Hafal
-                              </span>
-                            ) : (
-                              <span className="px-2 py-1 text-xs font-semibold rounded-full bg-red-500 text-white">
-                                Belum Hafal
-                              </span>
-                            )}
-                          </div>
+                          {(() => {
+                            return (
+                              <div className="mb-2">
+                                <HafalanLabels
+                                  kualitas={ayat.kualitas}
+                                  keterangan={ayat.keterangan}
+                                  checked={ayat.checked}
+                                />
+                              </div>
+                            );
+                          })()}
                           <p
                             className="text-right md:text-3xl text-2xl leading-14 md:leading-20 font-arabic"
                             dir="rtl"
@@ -286,13 +326,19 @@ export default function SantriBacaJuz() {
 
         <div className="flex justify-between items-center my-6">
           <Link to={`/santri/baca/juz/${prevJuz}`}>
-            <Button variant="ghost" className="flex items-center text-blue-500 hover:text-blue-700">
+            <Button
+              variant="ghost"
+              className="flex items-center text-blue-500 hover:text-blue-700"
+            >
               <ChevronLeft size={24} />
               <span className="ml-2">Juz Sebelumnya</span>
             </Button>
           </Link>
           <Link to={`/santri/baca/juz/${nextJuz}`}>
-            <Button variant="ghost" className="flex items-center text-blue-500 hover:text-blue-700">
+            <Button
+              variant="ghost"
+              className="flex items-center text-blue-500 hover:text-blue-700"
+            >
               <span className="mr-2">Juz Selanjutnya</span>
               <ChevronRight size={24} />
             </Button>
