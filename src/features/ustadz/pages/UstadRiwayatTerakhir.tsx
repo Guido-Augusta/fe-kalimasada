@@ -2,6 +2,7 @@ import { Pagination, PaginationContent, PaginationItem, PaginationLink, Paginati
 import UstadzLayout from "../components/UstadzLayout";
 import { useRiwayatTerakhir } from "../hooks/useHafalanData";
 import { useRiwayatTerakhirStore } from "@/store/useRiwayatTerakhirStore";
+import type { HafalanStatus } from "../types/hafalan.type";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -130,15 +131,15 @@ export default function UstadRiwayatTerakhir() {
             </div>
 
             <div className="flex gap-2">
-              <Select onValueChange={(value: "TambahHafalan" | "Murajaah") => {
-                  if (value === "Murajaah" && mode === "juz") {
+              <Select onValueChange={(value: string) => {
+                  if ((value === "Murajaah" || value === "Tahsin") && mode === "juz") {
                     setValueHalaman("desc");
-                    setState({ statusFilter: value, currentPage: 1, sortByHalaman: "desc" });
+                    setState({ statusFilter: value as HafalanStatus, currentPage: 1, sortByHalaman: "desc" });
                   } else if (value === "TambahHafalan") {
                     setValueHalaman("none");
-                    setState({ statusFilter: value, currentPage: 1, sortByHalaman: null });
+                    setState({ statusFilter: value as HafalanStatus, currentPage: 1, sortByHalaman: null });
                   } else {
-                    setState({ statusFilter: value, currentPage: 1 });
+                    setState({ statusFilter: value as HafalanStatus, currentPage: 1 });
                   }
               }} value={statusFilter}>
                 <SelectTrigger className="w-[120px]">
@@ -147,11 +148,12 @@ export default function UstadRiwayatTerakhir() {
                 <SelectContent>
                   <SelectItem value="TambahHafalan">Hafalan</SelectItem>
                   <SelectItem value="Murajaah">Murajaah</SelectItem>
+                  <SelectItem value="Tahsin">Tahsin</SelectItem>
                 </SelectContent>
               </Select>
 
               <Select onValueChange={(value: "surah" | "juz") => {
-                  if (value === "juz" && statusFilter === "Murajaah") {
+                  if (value === "juz" && (statusFilter === "Murajaah" || statusFilter === "Tahsin")) {
                     setValueHalaman("desc");
                     setState({ mode: value, currentPage: 1, sortByHalaman: "desc" });
                   } else if (value === "surah") {

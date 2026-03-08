@@ -28,7 +28,8 @@ export interface HafalanProgressApiData {
   data: SurahProgress[] | JuzProgress[];
 }
 
-export type HafalanMode = 'tambah' | 'murajaah';
+export type HafalanMode = 'tambah' | 'murajaah' | 'tahsin';
+export type HafalanStatus = 'TambahHafalan' | 'Murajaah' | 'Tahsin';
 
 export interface Ayat {
   id: number;
@@ -72,7 +73,7 @@ export interface JuzHafalanData {
 
 export interface RiwayatHafalan {
   tanggal: string;
-  status: 'TambahHafalan' | 'Murajaah';
+  status: HafalanStatus;
   surahId: number;
   namaSurah: string;
   namaSurahLatin: string;
@@ -116,7 +117,7 @@ export interface RiwayatHafalanResponse {
 
 export interface RiwayatDetailData {
   tanggal: string;
-  status: 'TambahHafalan' | 'Murajaah';
+  status: HafalanStatus;
   surah: Surah;
   ustadz: {
     id: number;
@@ -150,7 +151,7 @@ export interface RiwayatHafalanTerakhirPagination {
   totalPages: number;
   filter: {
     tahapHafalan?: string;
-    status?: 'TambahHafalan' | 'Murajaah';
+    status?: HafalanStatus;
     name?: string;
   };
 }
@@ -165,7 +166,7 @@ export interface RiwayatHafalanTerakhirSantri {
 
 export interface RiwayatHafalanTerakhir {
   tanggal: string;
-  status: 'TambahHafalan' | 'Murajaah';
+  status: HafalanStatus;
   surah?: string;
   surahId?: number;
   ayatDetail?: string;
@@ -202,7 +203,7 @@ export interface AyatJuz {
 
 export interface RiwayatJuzDetailData {
   tanggal: string;
-  status: 'TambahHafalan' | 'Murajaah';
+  status: HafalanStatus;
   ustadz: {
     id: number;
     nama: string;

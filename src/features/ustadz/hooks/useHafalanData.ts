@@ -10,6 +10,7 @@ import {
   saveHafalanData,
   saveHafalanByHalaman,
 } from '../service/hafalan.service';
+import type { HafalanMode, HafalanStatus } from '../types/hafalan.type';
 
 export const useHafalanProgressData = (
   idSantri: string,
@@ -25,7 +26,7 @@ export const useHafalanProgressData = (
 export const useFetchAddHafalanData = (
   idSantri: string,
   idSurah: string,
-  mode: 'tambah' | 'murajaah'
+  mode: HafalanMode
 ) => {
   return useQuery({
     queryKey: ['addHafalanData', idSantri, idSurah, mode],
@@ -37,7 +38,7 @@ export const useFetchAddHafalanData = (
 export const useFetchJuzHafalanData = (
   idSantri: string,
   idJuz: string,
-  mode: 'tambah' | 'murajaah'
+  mode: HafalanMode
 ) => {
   return useQuery({
     queryKey: ['juzHafalanData', idSantri, idJuz, mode],
@@ -103,7 +104,7 @@ export const useRiwayatDetail = (
 export const useRiwayatTerakhir = (
   page: number,
   limit: number,
-  status: 'TambahHafalan' | 'Murajaah',
+  status: HafalanStatus,
   filters: { tahapHafalan?: string; name?: string; sortByAyat?: string; sortByHalaman?: string; mode?: 'surah' | 'juz' } = {}
 ) => {
   return useQuery({

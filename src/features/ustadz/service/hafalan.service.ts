@@ -2,7 +2,9 @@ import { getAuthHeaders } from '@/utils/header';
 import type {
   DeleteRiwayatHafalanResponse,
   HafalanData,
+  HafalanMode,
   HafalanProgressApiData,
+  HafalanStatus,
   JuzHafalanData,
   RiwayatDetailResponse,
   RiwayatHafalanResponse,
@@ -34,7 +36,7 @@ export const fetchProgressHafalan = async (
 export const fetchAddHafalanData = async (
   idSantri: string,
   idSurah: string,
-  mode: 'tambah' | 'murajaah'
+  mode: HafalanMode
 ) => {
   const headers = getAuthHeaders(true);
   const response = await fetch(
@@ -52,7 +54,7 @@ export const fetchAddHafalanData = async (
 export const fetchJuzHafalanData = async (
   idSantri: string,
   idJuz: string,
-  mode: 'tambah' | 'murajaah'
+  mode: HafalanMode
 ) => {
   const headers = getAuthHeaders(true);
   const response = await fetch(
@@ -70,7 +72,7 @@ export const fetchJuzHafalanData = async (
 export const saveHafalanData = async (payload: {
   santriId: number;
   ayatIds: number[];
-  status: 'TambahHafalan' | 'Murajaah';
+  status: HafalanStatus;
   catatan: string;
   kualitas?: string;
   keterangan?: string;
@@ -94,7 +96,7 @@ export const saveHafalanByHalaman = async (payload: {
   santriId: number;
   halamanAwal: number;
   halamanAkhir: number;
-  status: 'TambahHafalan' | 'Murajaah';
+  status: HafalanStatus;
   catatan: string;
   kualitas?: string;
   keterangan?: string;
@@ -119,7 +121,7 @@ export const deleteRiwayatHafalan = async (data: {
   surahId?: number;
   juzId?: number;
   tanggal: string;
-  status: 'TambahHafalan' | 'Murajaah';
+  status: HafalanStatus;
 }): Promise<DeleteRiwayatHafalanResponse> => {
   const headers = getAuthHeaders(true);
   const response = await fetch(`${BASE_URL}/api/hafalan/riwayat`, {
@@ -137,12 +139,12 @@ export const deleteRiwayatHafalan = async (data: {
 export const fetchRiwayatHafalan = async (
   siswaId: string,
   page: number,
-  status: 'TambahHafalan' | 'Murajaah',
+  status: HafalanStatus,
   mode: 'ayat' | 'halaman' = 'ayat'
 ): Promise<RiwayatHafalanResponse> => {
   const headers = getAuthHeaders(false);
   let url = `${BASE_URL}/api/hafalan/riwayat/${siswaId}?page=${page}&limit=10&mode=${mode}`;
-  if (status === 'TambahHafalan' || status === 'Murajaah') {
+  if (status === 'TambahHafalan' || status === 'Murajaah' || status === 'Tahsin') {
     url += `&status=${status}`;
   }
   const response = await fetch(url, { headers });
@@ -175,7 +177,7 @@ export const fetchRiwayatDetail = async (
 export const fetchRiwayatTerakhir = async (
   page: number,
   limit: number,
-  status: 'TambahHafalan' | 'Murajaah',
+  status: HafalanStatus,
   filters: { tahapHafalan?: string; name?: string; sortByAyat?: string; sortByHalaman?: string; mode?: 'surah' | 'juz' } = {}
 ): Promise<RiwayatHafalanTerakhirResponse> => {
   const headers = getAuthHeaders(false);

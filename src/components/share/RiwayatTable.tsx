@@ -29,7 +29,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Badge } from '@/components/ui/badge';
 import { useState } from 'react';
-import type { RiwayatHafalan } from '@/features/ustadz/types/hafalan.type';
+import type { RiwayatHafalan, HafalanStatus } from '@/features/ustadz/types/hafalan.type';
 import { useDeleteRiwayatHafalan } from '@/features/ustadz/hooks/useHafalanData';
 import { formatTanggalIndo } from '@/utils/formatDate';
 
@@ -83,7 +83,7 @@ export default function RiwayatTable({
         surahId?: number;
         juzId?: number;
         tanggal: string;
-        status: 'TambahHafalan' | 'Murajaah';
+        status: HafalanStatus;
       } = {
         santriId: parseInt(idSantri),
         tanggal: riwayatToDelete.tanggal,
@@ -110,6 +110,8 @@ export default function RiwayatTable({
         return 'bg-green-500 text-white';
       case 'Murajaah':
         return 'bg-yellow-500 text-white';
+      case 'Tahsin':
+        return 'bg-blue-500 text-white';
       default:
         return 'default';
     }
@@ -332,7 +334,7 @@ export default function RiwayatTable({
                 <br />
                 <span>
                   Apakah Anda yakin ingin menghapus riwayat{' '}
-                  {statusFilter === 'Murajaah' ? 'Murajaah' : 'Hafalan'} ini?
+                  {statusFilter === 'Murajaah' ? 'Murajaah' : statusFilter === 'Tahsin' ? 'Tahsin' : 'Hafalan'} ini?
                   Tindakan ini tidak dapat dibatalkan.
                 </span>
               </AlertDialogDescription>

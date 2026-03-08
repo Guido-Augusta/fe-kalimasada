@@ -33,7 +33,7 @@ import {
   useSaveHafalan,
 } from '../hooks/useHafalanData';
 import { Input } from '@/components/ui/input';
-import type { HafalanMode, SaveHafalanResponse } from '../types/hafalan.type';
+import type { HafalanMode, HafalanStatus, SaveHafalanResponse } from '../types/hafalan.type';
 import { toArabicNumber } from '@/utils/formatArabNumber';
 import { useNavigate } from 'react-router-dom';
 
@@ -198,12 +198,16 @@ export default function UstadzAddHafalan() {
       return;
     }
 
+    const MODE_TO_STATUS: Record<HafalanMode, HafalanStatus> = {
+      tambah: 'TambahHafalan',
+      murajaah: 'Murajaah',
+      tahsin: 'Tahsin',
+    };
+
     const payload = {
       santriId: parseInt(idSantri!),
       ayatIds: ayatIdsToAdd,
-      status: (mode === 'tambah' ? 'TambahHafalan' : 'Murajaah') as
-        | 'TambahHafalan'
-        | 'Murajaah',
+      status: MODE_TO_STATUS[mode],
       ...(mode === 'tambah' && { kualitas }),
       keterangan,
       catatan: catatan,
@@ -214,7 +218,9 @@ export default function UstadzAddHafalan() {
         toast.success(
           mode === 'tambah'
             ? 'Ayat berhasil ditambahkan ke hafalan.'
-            : 'Ayat berhasil dimurajaahkan.'
+            : mode === 'murajaah'
+              ? 'Ayat berhasil dimurajaahkan.'
+              : 'Ayat berhasil di-tahsin-kan.'
         );
         setIsDialogOpen(false);
         setStartAyat(0);
@@ -351,6 +357,17 @@ export default function UstadzAddHafalan() {
                 >
                   Murajaah
                 </Button>
+                <Button
+                  variant={mode === 'tahsin' ? 'default' : 'outline'}
+                  onClick={() => handleTabChange('tahsin')}
+                  className={
+                    mode === 'tahsin'
+                      ? 'bg-violet-600 text-white hover:bg-violet-700 font-semibold'
+                      : 'text-violet-600 border-violet-600 hover:bg-violet-600 hover:text-white'
+                  }
+                >
+                  Tahsin
+                </Button>
               </div>
               <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4">
                 <div className="mb-4 md:mb-0">
@@ -466,7 +483,7 @@ export default function UstadzAddHafalan() {
           <DialogHeader>
             <DialogTitle>Catatan dan Jumlah Ayat</DialogTitle>
             <DialogDescription>
-              Masukkan ayat yang {mode === "tambah" ? "dihafal" : "dimuraja'ah"}, serta catatan
+              Masukkan ayat yang {mode === "tambah" ? "dihafal" : mode === "murajaah" ? "dimuraja'ah" : "di-tahsin-kan"}, serta catatan
               (opsional).
             </DialogDescription>
           </DialogHeader>

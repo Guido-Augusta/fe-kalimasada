@@ -1,6 +1,7 @@
 import { create } from "zustand";
+import type { HafalanStatus } from "@/features/ustadz/types/hafalan.type";
 
-type StatusFilter = "TambahHafalan" | "Murajaah";
+type StatusFilter = HafalanStatus;
 type ModeFilter = "ayat" | "halaman";
 
 interface SantriRiwayatState {

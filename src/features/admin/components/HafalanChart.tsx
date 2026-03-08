@@ -9,6 +9,7 @@ interface HafalanChartProps {
     tanggal: string;
     tambahHafalan: number;
     murajaah: number;
+    tahsin: number;
   }[];
   namaSantri: string;
   range: string;
@@ -31,6 +32,10 @@ const chartConfig = {
   murajaah: {
     label: "Murajaah",
     color: "#FF8C42", // oranye
+  },
+  tahsin: {
+    label: "Tahsin",
+    color: "#3B82F6", // biru
   },
 };
 
@@ -59,7 +64,7 @@ export function HafalanChart({ data, namaSantri, range, onRangeChange, mode, onM
       <CardHeader>
         <CardTitle>Grafik Hafalan {namaSantri}</CardTitle>
         <CardDescription className="my-2">
-          <p>Jumlah tambah hafalan dan murajaah per hari.</p>
+          <p>Jumlah tambah hafalan, murajaah, dan tahsin per hari.</p>
           <p className="text-base text-red-500">Tampilan grafik lebih optimal pada perangkat desktop (Laptop / PC).</p>
         </CardDescription>
         <div className="flex flex-col sm:flex-row justify-end gap-4">
@@ -99,6 +104,7 @@ export function HafalanChart({ data, namaSantri, range, onRangeChange, mode, onM
             <Legend />
             <Bar dataKey="tambahHafalan" name="Tambah Hafalan" fill="#8957CC" radius={8} />
             <Bar dataKey="murajaah" name="Murajaah" fill="#FF8C42" radius={8} />
+            <Bar dataKey="tahsin" name="Tahsin" fill="#3B82F6" radius={8} />
           </BarChart>
         </ChartContainer>
       </CardContent>

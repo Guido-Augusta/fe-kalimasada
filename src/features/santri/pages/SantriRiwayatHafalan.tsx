@@ -2,7 +2,7 @@ import SantriLayout from "../components/SantriLayout";
 import { Loader2 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { useQuery } from "@tanstack/react-query";
-import type { RiwayatHafalanResponse } from "@/features/ustadz/types/hafalan.type";
+import type { RiwayatHafalanResponse, HafalanStatus } from "@/features/ustadz/types/hafalan.type";
 import RiwayatTable from "@/components/share/RiwayatTable";
 import useUser from "@/store/useUser";
 import { fetchRiwayatHafalan } from "@/features/ustadz/service/hafalan.service";
@@ -47,7 +47,7 @@ export default function SantriRiwayatHafalan() {
               <div className="mb-2 md:mb-0">
                 <CardTitle>Riwayat Hafalan</CardTitle>
                 <CardDescription>
-                  Daftar catatan hafalan dan murajaah santai.
+                  Daftar catatan hafalan, murajaah, dan tahsin santri.
                 </CardDescription>
               </div>
               <div className="flex gap-2">
@@ -63,8 +63,8 @@ export default function SantriRiwayatHafalan() {
                     <SelectItem value="halaman">Halaman</SelectItem>
                   </SelectContent>
                 </Select>
-                <Select onValueChange={(value: "TambahHafalan" | "Murajaah") => {
-                  setStatusFilter(value);
+                <Select onValueChange={(value: string) => {
+                  setStatusFilter(value as HafalanStatus);
                   setCurrentPage(1);
                 }} value={statusFilter}>
                   <SelectTrigger className="w-[180px]">
@@ -73,6 +73,7 @@ export default function SantriRiwayatHafalan() {
                   <SelectContent>
                     <SelectItem value="TambahHafalan">Tambah Hafalan</SelectItem>
                     <SelectItem value="Murajaah">Murajaah</SelectItem>
+                    <SelectItem value="Tahsin">Tahsin</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
