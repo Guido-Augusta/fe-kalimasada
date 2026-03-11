@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { useParams, useSearchParams } from 'react-router-dom';
 import UstadzLayout from '../components/UstadzLayout';
 import {
@@ -29,8 +29,8 @@ import {
 } from '@/components/ui/select';
 import { toast } from 'react-hot-toast';
 import {
-  useFetchAddHafalanData,
-  useSaveHafalan,
+  useFetchJuzHafalanData,
+  useSaveHafalanByHalaman,
 } from '../hooks/useHafalanData';
 import { Input } from '@/components/ui/input';
 import type { HafalanMode, HafalanStatus, SaveHafalanResponse } from '../types/hafalan.type';
@@ -38,11 +38,13 @@ import { toArabicNumber } from '@/utils/formatArabNumber';
 import { useNavigate } from 'react-router-dom';
 import { HafalanLabels } from '@/components/share/HafalanLabels';
 
-export default function UstadzAddHafalan() {
+const TOTAL_PAGES_IN_JUZ = 20;
+
+export default function UstadzAddHafalanJuz() {
   const navigate = useNavigate();
-  const { idSantri, idSurah } = useParams<{
+  const { idSantri, idJuz } = useParams<{
     idSantri: string;
-    idSurah: string;
+    idJuz: string;
   }>();
   const [searchParams, setSearchParams] = useSearchParams();
   const [mode, setMode] = useState<HafalanMode>(
@@ -52,83 +54,119 @@ export default function UstadzAddHafalan() {
   const [catatan, setCatatan] = useState('');
   const [kualitas, setKualitas] = useState('');
   const [keterangan, setKeterangan] = useState('');
-  const [startAyat, setStartAyat] = useState(0);
-  const [endAyat, setEndAyat] = useState(0);
-  const [searchAyat, setSearchAyat] = useState('');
-  const [debouncedSearchAyat, setDebouncedSearchAyat] = useState('');
+  const [startHalaman, setStartHalaman] = useState(0);
+  const [endHalaman, setEndHalaman] = useState(0);
+  const [searchHalaman, setSearchHalaman] = useState('');
+  const [debouncedSearchHalaman, setDebouncedSearchHalaman] = useState('');
 
   const ayatRefs = useRef<Record<number, HTMLDivElement | null>>({});
+
+  let lastRenderedPage = 0;
 
   const {
     data,
     isLoading,
     isError,
     error: _error,
-  } = useFetchAddHafalanData(idSantri!, idSurah!, mode);
-  const { mutate: saveHafalan, isPending: isSaving } = useSaveHafalan();
+  } = useFetchJuzHafalanData(idSantri!, idJuz!, mode);
+  const { mutate: saveHafalanByHalaman, isPending: isSaving } =
+    useSaveHafalanByHalaman();
 
-  const handleSearchAyat = () => {
-    if (!searchAyat || !data?.ayat) return;
+  const allAyat = useMemo(() => {
+    if (!data?.surah) return [];
+    return data.surah.flatMap((item) => item.ayat);
+  }, [data]);
 
-    const ayatNumber = parseInt(searchAyat, 10);
+  const { minPage, maxPage } = useMemo(() => {
+    if (allAyat.length === 0) return { minPage: 1, maxPage: TOTAL_PAGES_IN_JUZ };
+    const pages = allAyat.map((a) => a.halaman).filter((p): p is number => p !== undefined && p !== null);
+    if (pages.length === 0) return { minPage: 1, maxPage: TOTAL_PAGES_IN_JUZ };
+    return {
+      minPage: Math.min(...pages),
+      maxPage: Math.max(...pages),
+    };
+  }, [allAyat]);
+
+  const handleSearchHalaman = () => {
+    if (!searchHalaman || allAyat.length === 0) return;
+
+    const pageNumber = parseInt(searchHalaman, 10);
     if (
-      !isNaN(ayatNumber) &&
-      ayatNumber >= 1 &&
-      ayatNumber <= data.ayat.length
+      !isNaN(pageNumber) &&
+      pageNumber >= minPage &&
+      pageNumber <= maxPage
     ) {
-      const targetAyat = data.ayat.find((a) => a.nomorAyat === ayatNumber);
+      const targetAyat = allAyat.find((a) => a.halaman === pageNumber);
       if (targetAyat && ayatRefs.current[targetAyat.id]) {
-        ayatRefs.current[targetAyat.id]?.scrollIntoView({
-          behavior: 'smooth',
-          block: 'center',
-        });
+        const element = ayatRefs.current[targetAyat.id];
+        if (element) {
+          const headerOffset = 350;
+          const elementPosition =
+            element.getBoundingClientRect().top + window.scrollY;
+
+          const offsetPosition = elementPosition - headerOffset;
+
+          window.scrollTo({
+            top: offsetPosition,
+            behavior: 'smooth',
+          });
+        }
       } else {
-        toast.error(`Ayat ${ayatNumber} tidak ditemukan`);
+        toast.error(`Halaman ${pageNumber} tidak ditemukan`);
       }
     } else {
-      toast.error(`Ayat harus antara 1 sampai ${data.ayat.length}`);
+      toast.error(`Halaman harus antara ${minPage} sampai ${maxPage}`);
     }
   };
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      setDebouncedSearchAyat(searchAyat);
+      setDebouncedSearchHalaman(searchHalaman);
     }, 500);
 
     return () => clearTimeout(timer);
-  }, [searchAyat]);
+  }, [searchHalaman]);
 
   useEffect(() => {
-    if (debouncedSearchAyat && data?.ayat) {
-      const ayatNumber = parseInt(debouncedSearchAyat, 10);
+    if (debouncedSearchHalaman && allAyat.length > 0) {
+      const pageNumber = parseInt(debouncedSearchHalaman, 10);
       if (
-        !isNaN(ayatNumber) &&
-        ayatNumber >= 1 &&
-        ayatNumber <= data.ayat.length
+        !isNaN(pageNumber) &&
+        pageNumber >= minPage &&
+        pageNumber <= maxPage
       ) {
-        const targetAyat = data.ayat.find((a) => a.nomorAyat === ayatNumber);
+        const targetAyat = allAyat.find((a) => a.halaman === pageNumber);
         if (targetAyat && ayatRefs.current[targetAyat.id]) {
-          ayatRefs.current[targetAyat.id]?.scrollIntoView({
-            behavior: 'smooth',
-            block: 'center',
-          });
+          const element = ayatRefs.current[targetAyat.id];
+          if (element) {
+            const headerOffset = 350;
+            const elementPosition =
+              element.getBoundingClientRect().top + window.scrollY;
+
+            const offsetPosition = elementPosition - headerOffset;
+
+            window.scrollTo({
+              top: offsetPosition,
+              behavior: 'smooth',
+            });
+          }
         } else {
-          toast.error(`Ayat ${ayatNumber} tidak ditemukan`);
+          toast.error(`Halaman ${pageNumber} tidak ditemukan`);
         }
-      } else if (debouncedSearchAyat) {
-        toast.error(`Ayat harus antara 1 sampai ${data.ayat.length}`);
+      } else if (debouncedSearchHalaman) {
+        toast.error(`Halaman harus antara ${minPage} sampai ${maxPage}`);
       }
     }
-  }, [debouncedSearchAyat, data?.ayat]);
+  }, [debouncedSearchHalaman, allAyat, minPage, maxPage]);
 
   useEffect(() => {
     if (data) {
-      setStartAyat(0);
-      setEndAyat(0);
+      setStartHalaman(0);
+      setEndHalaman(0);
     }
 
-    if (data?.ayat?.length) {
-      const lastCheckedAyat = [...data.ayat]
+    if (allAyat.length > 0) {
+      const lastCheckedAyat = [...allAyat]
         .reverse()
         .find((ayat) => ayat.checked);
 
@@ -140,7 +178,7 @@ export default function UstadzAddHafalan() {
         }
       }
     }
-  }, [data]);
+  }, [data, allAyat]);
 
   const handleTabChange = (newMode: HafalanMode) => {
     setMode(newMode);
@@ -152,23 +190,21 @@ export default function UstadzAddHafalan() {
   };
 
   const handleSubmitHafalan = async () => {
-    if (!data) {
+    if (!data || allAyat.length === 0) {
       toast.error('Data hafalan tidak tersedia. Mohon coba lagi.');
       setIsDialogOpen(false);
       return;
     }
 
-    const totalAyat = data.ayat.length;
-
     if (
-      startAyat <= 0 ||
-      endAyat <= 0 ||
-      startAyat > totalAyat ||
-      endAyat > totalAyat ||
-      startAyat > endAyat
+      startHalaman <= 0 ||
+      endHalaman <= 0 ||
+      startHalaman < minPage ||
+      endHalaman > maxPage ||
+      startHalaman > endHalaman
     ) {
       toast.error(
-        'Input ayat tidak valid. Pastikan Ayat Mulai dan Ayat Selesai benar.'
+        `Input halaman tidak valid. Pastikan Halaman Mulai dan Halaman Selesai benar (${minPage}-${maxPage}).`
       );
       setIsDialogOpen(false);
       return;
@@ -186,19 +222,6 @@ export default function UstadzAddHafalan() {
       return;
     }
 
-    const startIndex = startAyat - 1;
-    const endIndex = endAyat;
-
-    const ayatIdsToAdd = data.ayat
-      .slice(startIndex, endIndex)
-      .map((ayat) => ayat.id);
-
-    if (ayatIdsToAdd.length === 0) {
-      toast.error('Tidak ada ayat yang bisa ditambahkan.');
-      setIsDialogOpen(false);
-      return;
-    }
-
     const MODE_TO_STATUS: Record<HafalanMode, HafalanStatus> = {
       tambah: 'TambahHafalan',
       murajaah: 'Murajaah',
@@ -207,30 +230,32 @@ export default function UstadzAddHafalan() {
 
     const payload = {
       santriId: parseInt(idSantri!),
-      ayatIds: ayatIdsToAdd,
+      halamanAwal: startHalaman,
+      halamanAkhir: endHalaman,
       status: MODE_TO_STATUS[mode],
       ...(mode === 'tambah' && { kualitas }),
       keterangan,
       catatan: catatan,
     };
 
-    saveHafalan(payload, {
+    saveHafalanByHalaman(payload, {
       onSuccess: (_data: SaveHafalanResponse) => {
         toast.success(
           mode === 'tambah'
-            ? 'Ayat berhasil ditambahkan ke hafalan.'
+            ? 'Hafalan halaman berhasil ditambahkan.'
             : mode === 'murajaah'
-              ? 'Ayat berhasil dimurajaahkan.'
-              : 'Ayat berhasil di-tahsin-kan.'
+              ? 'Murajaah halaman berhasil ditambahkan.'
+              : 'Tahsin halaman berhasil ditambahkan.'
         );
         setIsDialogOpen(false);
-        setStartAyat(0);
-        setEndAyat(0);
+        setStartHalaman(0);
+        setEndHalaman(0);
         setCatatan('');
         setKualitas('');
         setKeterangan('');
       },
       onError: (_e) => {
+        console.error(_e);
         toast.error('Gagal menyimpan hafalan. Terjadi kesalahan.');
       },
     });
@@ -247,11 +272,8 @@ export default function UstadzAddHafalan() {
   };
 
   const handleScrollToLastChecked = () => {
-    if (!data || !data.ayat) return;
-    const lastCheckedAyat = data.ayat
-      .slice()
-      .reverse()
-      .find((ayat) => ayat.checked);
+    if (allAyat.length === 0) return;
+    const lastCheckedAyat = [...allAyat].reverse().find((ayat) => ayat.checked);
     if (lastCheckedAyat) {
       const element = ayatRefs.current[lastCheckedAyat.id];
       if (element) {
@@ -280,7 +302,7 @@ export default function UstadzAddHafalan() {
           </div>
           <div className="flex justify-center items-center">
             <Loader2 className="h-8 w-8 animate-spin" />
-            <p className="ml-2">Memuat data hafalan...</p>
+            <p className="ml-2">Memuat data hafalan juz...</p>
           </div>
         </div>
       </UstadzLayout>
@@ -306,8 +328,7 @@ export default function UstadzAddHafalan() {
             </h1>
           </div>
           <div className="flex justify-center items-center text-red-500">
-            {/* <p>Error: {(error as Error)?.message}</p> */}
-            <p>Gagal memuat data hafalan.</p>
+            <p>Gagal memuat data hafalan juz.</p>
           </div>
         </div>
       </UstadzLayout>
@@ -373,11 +394,10 @@ export default function UstadzAddHafalan() {
               <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4">
                 <div className="mb-4 md:mb-0">
                   <CardTitle className="text-xl md:text-2xl font-bold">
-                    Nama Surat : {data?.surah.namaLatin} -{' '}
-                    <span className="font-arabic">{data?.surah.nama}</span>
+                    Juz {data?.juz}
                   </CardTitle>
                   <CardDescription className="text-sm md:text-base">
-                    Tgl : {today} (hari ini)
+                    Total {data?.totalSurah} Surah • Tgl : {today} (hari ini)
                   </CardDescription>
                 </div>
                 <Button
@@ -394,21 +414,21 @@ export default function UstadzAddHafalan() {
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                   <Input
                     type="number"
-                    placeholder={`Cari ayat (1-${data?.ayat.length || 0})...`}
-                    value={searchAyat}
-                    onChange={(e) => setSearchAyat(e.target.value)}
+                    placeholder={`Cari halaman (${minPage}-${maxPage})...`}
+                    value={searchHalaman}
+                    onChange={(e) => setSearchHalaman(e.target.value)}
                     onKeyDown={(e) => {
                       if (e.key === 'Enter') {
-                        handleSearchAyat();
+                        handleSearchHalaman();
                       }
                     }}
                     className="pl-10 w-full md:w-64 bg-white"
-                    min="1"
-                    max={data?.ayat.length}
+                    min={minPage}
+                    max={maxPage}
                   />
                 </div>
                 <Button
-                  onClick={handleSearchAyat}
+                  onClick={handleSearchHalaman}
                   className="bg-violet-600 text-white hover:bg-violet-700"
                 >
                   Cari
@@ -418,40 +438,85 @@ export default function UstadzAddHafalan() {
 
             <div className="bg-white p-2 rounded-b-lg">
               <div className="space-y-4">
-                {data?.ayat.map((ayat) => {
-                  // Only display labels from API response, ignore submitted state
-                  const displayKualitas = ayat.kualitas || '';
-                  const displayKeterangan = ayat.keterangan || '';
+                {data?.surah.map((surahData) => (
+                  <div key={surahData.surah.id}>                    
+                    <div className="space-y-2">
+                      {surahData.ayat.map((ayat, index) => {
+                        const showPageHeader = ayat.halaman !== lastRenderedPage;
+                        const isFirstAyatOfSurah = index === 0;
 
-                  return (
-                    <div
-                      key={ayat.id}
-                      ref={(el) => {
-                        ayatRefs.current[ayat.id] = el;
-                      }}
-                      className="flex flex-col gap-2 p-4 border border-violet-600/90 rounded-lg bg-white"
-                    >
-                      {displayKeterangan && (
-                        <HafalanLabels
-                          kualitas={displayKualitas}
-                          keterangan={displayKeterangan}
-                          showKualitas={mode === 'tambah'}
-                          showHafalLabel={mode === 'tambah'}
-                        />
-                      )}
-                      <p
-                        className="flex-1 text-right md:text-3xl text-2xl leading-14 md:leading-20 font-arabic"
-                        style={{ fontFamily: 'Amiri, serif' }}
-                        dir="rtl"
-                      >
-                        {ayat.arab}
-                        <span className="mr-2 text-md font-arabic">
-                          ۝{toArabicNumber(ayat.nomorAyat)}
-                        </span>
-                      </p>
+                        if (showPageHeader) {
+                          lastRenderedPage = ayat.halaman as number;
+                        }
+
+                        return (
+                          <div key={ayat.id}>
+                            {isFirstAyatOfSurah && (
+                              <div className="bg-gradient-to-r from-violet-100 to-amber-50 p-4 rounded-lg mb-3 border-l-4 border-violet-600">
+                                <div className="flex items-center justify-between">
+                                <h3 className="font-bold text-xl text-violet-800">
+                                  {surahData.surah.namaLatin}
+                                </h3>
+                                <p className="md:text-4xl text-2xl text-violet-600 font-arabic" style={{ fontFamily: 'Amiri, serif' }} dir="rtl">
+                                  {surahData.surah.nama}
+                                </p>
+                                </div>
+                                <p className="text-sm text-gray-500 mt-1">
+                                  {surahData.ayat.length} Ayat
+                                </p>
+                              </div>
+                            )}
+
+                            {showPageHeader && (
+                              <div className="sticky top-32 bg-amber-50 p-3 rounded-lg mb-2 border-l-4 border-violet-500 z-[5]">
+                                <div className="flex items-center justify-between">
+                                  <span className="text-sm font-bold text-amber-700 uppercase tracking-wider">
+                                    Halaman {ayat.halaman}
+                                  </span>
+                                  <span className="text-sm text-gray-600">
+                                    Juz {data.juz}
+                                  </span>
+                                </div>
+                              </div>
+                            )}
+
+                            <div
+                              ref={(el) => {
+                                ayatRefs.current[ayat.id] = el;
+                              }}
+                              className="flex flex-col gap-2 p-4 border border-violet-600/90 rounded-lg bg-white mb-2"
+                            >
+                              {(() => {
+                                // Only display labels from API response, ignore submitted state
+                                const displayKualitas = ayat.kualitas || '';
+                                const displayKeterangan = ayat.keterangan || '';
+
+                                return displayKeterangan ? (
+                                  <HafalanLabels
+                                    kualitas={displayKualitas}
+                                    keterangan={displayKeterangan}
+                                    showKualitas={mode === 'tambah'}
+                                    showHafalLabel={mode === 'tambah'}
+                                  />
+                                ) : null;
+                              })()}
+                              <p
+                                className="flex-1 text-right md:text-3xl text-2xl leading-14 md:leading-20 font-arabic"
+                                style={{ fontFamily: 'Amiri, serif' }}
+                                dir="rtl"
+                              >
+                                {ayat.arab}
+                                <span className="mr-2 text-md font-arabic">
+                                  ۝{toArabicNumber(ayat.nomorAyat)}
+                                </span>
+                              </p>
+                            </div>
+                          </div>
+                        );
+                      })}
                     </div>
-                  );
-                })}
+                  </div>
+                ))}
               </div>
             </div>
           </div>
@@ -461,40 +526,43 @@ export default function UstadzAddHafalan() {
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
-            <DialogTitle>Catatan dan Jumlah Ayat</DialogTitle>
+            <DialogTitle>Catatan dan Rentang Halaman</DialogTitle>
             <DialogDescription>
-              Masukkan ayat yang {mode === "tambah" ? "dihafal" : mode === "murajaah" ? "dimuraja'ah" : "di-tahsin-kan"}, serta catatan
+              Masukkan rentang halaman yang{' '}
+               {mode === 'tambah' ? 'dihafal' : mode === 'murajaah' ? "dimuraja'ah" : 'di-tahsin-kan'}, serta catatan
               (opsional).
             </DialogDescription>
           </DialogHeader>
           <div className="flex flex-col gap-4 py-4">
             <>
               <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="startAyat" className="text-right">
-                  Ayat Mulai
+                <Label htmlFor="startHalaman" className="text-right">
+                  Halaman Mulai
                 </Label>
                 <Input
-                  id="startAyat"
+                  id="startHalaman"
                   type="number"
-                  value={startAyat}
-                  onChange={(e) => setStartAyat(parseInt(e.target.value) || 0)}
+                  value={startHalaman}
+                  onChange={(e) =>
+                    setStartHalaman(parseInt(e.target.value) || 0)
+                  }
                   className="col-span-3"
-                  min="1"
-                  max={data?.ayat.length}
+                  min={minPage}
+                  max={maxPage}
                 />
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="endAyat" className="text-right">
-                  Ayat Selesai
+                <Label htmlFor="endHalaman" className="text-right">
+                  Halaman Selesai
                 </Label>
                 <Input
-                  id="endAyat"
+                  id="endHalaman"
                   type="number"
-                  value={endAyat}
-                  onChange={(e) => setEndAyat(parseInt(e.target.value) || 0)}
+                  value={endHalaman}
+                  onChange={(e) => setEndHalaman(parseInt(e.target.value) || 0)}
                   className="col-span-3"
-                  min="1"
-                  max={data?.ayat.length}
+                  min={minPage}
+                  max={maxPage}
                 />
               </div>
               {mode === 'tambah' && (
@@ -551,9 +619,9 @@ export default function UstadzAddHafalan() {
               onClick={handleSubmitHafalan}
               disabled={
                 isSaving ||
-                startAyat <= 0 ||
-                endAyat <= 0 ||
-                startAyat > endAyat ||
+                startHalaman <= 0 ||
+                endHalaman <= 0 ||
+                startHalaman > endHalaman ||
                 (mode === 'tambah' && !kualitas) ||
                 !keterangan
               }
@@ -579,7 +647,7 @@ export default function UstadzAddHafalan() {
         <Button
           className="p-3 bg-violet-500 text-white rounded-full shadow-lg hover:bg-violet-600"
           onClick={handleScrollToLastChecked}
-          disabled={!data?.ayat.some((ayat) => ayat.checked)}
+          disabled={!allAyat.some((ayat) => ayat.checked)}
           aria-label="Scroll ke ayat terakhir yang dicentang"
         >
           <ChevronDown className="h-6 w-6" />

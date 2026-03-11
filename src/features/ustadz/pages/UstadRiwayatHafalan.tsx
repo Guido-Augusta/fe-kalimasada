@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Button } from "@/components/ui/button";
 import { useQuery } from "@tanstack/react-query";
 import { fetchRiwayatHafalan } from "../service/hafalan.service";
-import type { RiwayatHafalanResponse } from "../types/hafalan.type";
+import type { RiwayatHafalanResponse, HafalanStatus } from "../types/hafalan.type";
 import RiwayatTable from "@/components/share/RiwayatTable";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useSantriRiwayatStore } from "@/store/useSantriRiwayatStore";
@@ -13,11 +13,11 @@ import { useSantriRiwayatStore } from "@/store/useSantriRiwayatStore";
 export default function UstadRiwayatHafalan() {
   const { idSantri } = useParams<{ idSantri: string }>();
   const navigate = useNavigate();
-  const { statusFilter, setStatusFilter, currentPage, setCurrentPage } = useSantriRiwayatStore();
+  const { statusFilter, setStatusFilter, modeFilter, setModeFilter, currentPage, setCurrentPage } = useSantriRiwayatStore();
 
   const { data, isLoading, isError, error: _error, isFetching } = useQuery<RiwayatHafalanResponse>({
-    queryKey: ["riwayatHafalan", idSantri, currentPage, statusFilter],
-    queryFn: () => fetchRiwayatHafalan(idSantri as string, currentPage, statusFilter),
+    queryKey: ["riwayatHafalan", idSantri, currentPage, statusFilter, modeFilter],
+    queryFn: () => fetchRiwayatHafalan(idSantri as string, currentPage, statusFilter, modeFilter),
     enabled: !!idSantri,
   });
 
@@ -40,25 +40,40 @@ export default function UstadRiwayatHafalan() {
 
         <Card className="mt-6">
           <CardHeader>
-            <div className="flex md:justify-between justify-start flex-col md:flex-row md:items-center">
+            <div className="flex md:justify-between justify-start flex-col md:flex-row md:items-center gap-2">
               <div className="mb-2 md:mb-0">
                 <CardTitle>Riwayat Hafalan</CardTitle>
                 <CardDescription>
-                  Daftar catatan hafalan dan murajaah santri.
+                  Daftar catatan hafalan, murajaah, dan tahsin santri.
                 </CardDescription>
               </div>
-              <Select onValueChange={(value: "TambahHafalan" | "Murajaah") => {
-                setStatusFilter(value);
-                setCurrentPage(1);
-              }} value={statusFilter}>
-                <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder="Pilih Status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="TambahHafalan">Tambah Hafalan</SelectItem>
-                  <SelectItem value="Murajaah">Murajaah</SelectItem>
-                </SelectContent>
-              </Select>
+              <div className="flex gap-2">
+                <Select onValueChange={(value: "ayat" | "halaman") => {
+                  setModeFilter(value);
+                  setCurrentPage(1);
+                }} value={modeFilter}>
+                  <SelectTrigger className="w-[140px]">
+                    <SelectValue placeholder="Pilih Mode" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="ayat">Ayat</SelectItem>
+                    <SelectItem value="halaman">Halaman</SelectItem>
+                  </SelectContent>
+                </Select>
+                <Select onValueChange={(value: string) => {
+                  setStatusFilter(value as HafalanStatus);
+                  setCurrentPage(1);
+                }} value={statusFilter}>
+                  <SelectTrigger className="w-[180px]">
+                    <SelectValue placeholder="Pilih Status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="TambahHafalan">Tambah Hafalan</SelectItem>
+                    <SelectItem value="Murajaah">Murajaah</SelectItem>
+                    <SelectItem value="Tahsin">Tahsin</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
           </CardHeader>
           <CardContent className="p-0">
@@ -86,6 +101,7 @@ export default function UstadRiwayatHafalan() {
                 idSantri={idSantri as string}
                 showDeleteButton={true}
                 statusFilter={statusFilter}
+                modeFilter={modeFilter}
               />
             )}
           </CardContent>

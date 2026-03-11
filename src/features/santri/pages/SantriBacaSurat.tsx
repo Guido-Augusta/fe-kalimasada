@@ -1,25 +1,86 @@
-import { useEffect, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
-import { ChevronLeft, ChevronRight, Play, Pause, ChevronUp, ChevronDown } from "lucide-react";
-import SantriLayout from "../components/SantriLayout";
-import { Button } from "@/components/ui/button";
-import { Link } from "react-router-dom";
-import { useFetchSurah } from "../hooks/useFetchSurah";
-import { AyatCard } from "../components/AyatCard";
+import { useEffect, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { Skeleton } from '@/components/ui/skeleton';
+import {
+  ChevronLeft,
+  ChevronRight,
+  Play,
+  Pause,
+  ChevronUp,
+  ChevronDown,
+  Search,
+} from 'lucide-react';
+import SantriLayout from '../components/SantriLayout';
+import { Button } from '@/components/ui/button';
+import { Link } from 'react-router-dom';
+import { useFetchSurah } from '../hooks/useFetchSurah';
+import { AyatCard } from '../components/AyatCard';
+import { Input } from '@/components/ui/input';
+import { toast } from 'react-hot-toast';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 
 export default function SantriBacaSurat() {
   const navigate = useNavigate();
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const { surahData, loading, error } = useFetchSurah();
+  const [isSearchDialogOpen, setIsSearchDialogOpen] = useState(false);
+  const [searchAyat, setSearchAyat] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
 
   useEffect(() => {
     if (surahData && audioRef.current) {
       audioRef.current.src = surahData.surah.audio;
     }
   }, [surahData]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchAyat);
+    }, 1500);
+
+    return () => clearTimeout(timer);
+  }, [searchAyat]);
+
+  useEffect(() => {
+    if (debouncedSearch && surahData?.ayat) {
+      const ayatNumber = parseInt(debouncedSearch, 10);
+      if (
+        !isNaN(ayatNumber) &&
+        ayatNumber >= 1 &&
+        ayatNumber <= surahData.surah.totalAyat
+      ) {
+        const targetAyat = surahData.ayat.find(
+          (a) => a.nomorAyat === ayatNumber
+        );
+        if (targetAyat) {
+          const element = document.getElementById(`ayat-${targetAyat.id}`);
+          if (element) {
+            const headerOffset = 200;
+            const elementPosition =
+              element.getBoundingClientRect().top + window.scrollY;
+            const offsetPosition = elementPosition - headerOffset;
+            window.scrollTo({
+              top: offsetPosition,
+              behavior: 'smooth',
+            });
+          }
+          setIsSearchDialogOpen(false);
+          setSearchAyat('');
+        } else {
+          toast.error(`Ayat ${ayatNumber} tidak ditemukan`);
+        }
+      } else if (debouncedSearch) {
+        toast.error(`Ayat harus antara 1 sampai ${surahData.surah.totalAyat}`);
+      }
+    }
+  }, [debouncedSearch, surahData]);
 
   const togglePlay = () => {
     if (audioRef.current) {
@@ -35,7 +96,7 @@ export default function SantriBacaSurat() {
   const scrollToTop = () => {
     window.scrollTo({
       top: 0,
-      behavior: "smooth"
+      behavior: 'smooth',
     });
   };
 
@@ -43,13 +104,13 @@ export default function SantriBacaSurat() {
     if (surahData?.ayat) {
       const reversedAyat = [...surahData.ayat].reverse();
       const lastCheckedAyat = reversedAyat.find((ayat) => ayat.checked);
-      
+
       if (lastCheckedAyat) {
         const element = document.getElementById(`ayat-${lastCheckedAyat.id}`);
         if (element) {
           element.scrollIntoView({
-            behavior: "smooth",
-            block: "start"
+            behavior: 'smooth',
+            block: 'start',
           });
         }
       }
@@ -87,7 +148,11 @@ export default function SantriBacaSurat() {
       <SantriLayout>
         <div className="container mx-auto p-4">
           <div className="mb-4">
-            <Button onClick={() => navigate(-1)} variant="outline" className="flex items-center bg-yellow-500 text-white hover:bg-yellow-600 hover:text-white">
+            <Button
+              onClick={() => navigate(-1)}
+              variant="outline"
+              className="flex items-center bg-yellow-500 text-white hover:bg-yellow-600 hover:text-white"
+            >
               <ChevronLeft size={20} className="mr-2" /> Kembali
             </Button>
           </div>
@@ -102,64 +167,96 @@ export default function SantriBacaSurat() {
   if (!surahData) {
     return (
       <SantriLayout>
-      <div className="container mx-auto p-4">
-        <div className="mb-4">
-          <Button onClick={() => navigate(-1)} variant="outline" className="flex items-center bg-yellow-500 text-white hover:bg-yellow-600 hover:text-white">
-            <ChevronLeft size={20} className="mr-2" /> Kembali
-          </Button>
+        <div className="container mx-auto p-2">
+          <div className="mb-4">
+            <Button
+              onClick={() => navigate(-1)}
+              variant="outline"
+              className="flex items-center bg-yellow-500 text-white hover:bg-yellow-600 hover:text-white"
+            >
+              <ChevronLeft size={20} className="mr-2" /> Kembali
+            </Button>
+          </div>
+          <div className="flex justify-center items-center h-full">
+            <p className="text-gray-500">Data surah tidak ditemukan.</p>
+          </div>
         </div>
-        <div className="flex justify-center items-center h-full">
-          <p className="text-gray-500">Data surah tidak ditemukan.</p>
-        </div>
-      </div>
       </SantriLayout>
     );
   }
 
   return (
     <SantriLayout>
-      <div className="container mx-auto p-4">
+      <div className="container mx-auto p-2">
         <div className="mb-4">
-          <Button onClick={() => navigate(-1)} variant="outline" className="flex items-center bg-yellow-500 text-white hover:bg-yellow-600 hover:text-white">
+          <Button
+            onClick={() => navigate(-1)}
+            variant="outline"
+            className="flex items-center bg-yellow-500 text-white hover:bg-yellow-600 hover:text-white"
+          >
             <ChevronLeft size={20} className="mr-2" /> Kembali
           </Button>
         </div>
 
         <div className="flex flex-row space-y-2 justify-between items-center mb-4">
-          <Button onClick={togglePlay} variant="outline" className="bg-blue-500 hover:bg-blue-600 text-white hover:text-white">
+          <Button
+            onClick={togglePlay}
+            variant="outline"
+            className="bg-blue-500 hover:bg-blue-600 text-white hover:text-white"
+          >
             {isPlaying ? <Pause size={24} /> : <Play size={24} />}
-            <p className="ml-2">{isPlaying ? "Stop" : "Murottal"}</p>
+            <p className="ml-2">{isPlaying ? 'Stop' : 'Murottal'}</p>
           </Button>
           <div className="text-center">
-            <h1 className="text-4xl font-bold mb-2 font-arabic">{surahData.surah.nama}</h1>
-            <h2 className="text-xl font-medium font-arabic">{surahData.surah.namaLatin}</h2>
+            <h1 className="text-4xl font-bold mb-2 font-arabic">
+              {surahData.surah.nama}
+            </h1>
+            <h2 className="text-xl font-medium font-arabic">
+              {surahData.surah.namaLatin}
+            </h2>
           </div>
         </div>
-        
+
         <audio ref={audioRef} onEnded={() => setIsPlaying(false)} />
 
         <div className="flex justify-between items-center my-3">
-          <Link to={`/santri/baca/surah/${surahData.surah.nomor - 1 === 0 ? 114 : surahData.surah.nomor - 1}`}>
-            <Button variant="ghost" className="flex items-center text-blue-500 hover:text-blue-700">
+          <Link
+            to={`/santri/baca/surah/${surahData.surah.nomor - 1 === 0 ? 114 : surahData.surah.nomor - 1}`}
+          >
+            <Button
+              variant="ghost"
+              className="flex items-center text-blue-500 hover:text-blue-700"
+            >
               <ChevronLeft size={24} />
               <span className="ml-2 text-wrap">Surat Sebelumnya</span>
             </Button>
           </Link>
-          <Link to={`/santri/baca/surah/${surahData.surah.nomor + 1 === 115 ? 1 : surahData.surah.nomor + 1}`}>
-            <Button variant="ghost" className="flex items-center text-blue-500 hover:text-blue-700">
+          <Link
+            to={`/santri/baca/surah/${surahData.surah.nomor + 1 === 115 ? 1 : surahData.surah.nomor + 1}`}
+          >
+            <Button
+              variant="ghost"
+              className="flex items-center text-blue-500 hover:text-blue-700"
+            >
               <span className="mr-2 text-wrap">Surat Selanjutnya</span>
               <ChevronRight size={24} />
             </Button>
           </Link>
         </div>
 
-        <div className="space-y-8">
+        <div className="space-y-2">
           {surahData.ayat.map((ayat) => (
             <AyatCard key={ayat.id} ayat={ayat} surah={surahData.surah} />
           ))}
         </div>
 
         <div className="fixed bottom-8 right-8 flex flex-col space-y-2 z-50">
+          <Button
+            onClick={() => setIsSearchDialogOpen(true)}
+            className="p-3 bg-amber-500 text-white rounded-full shadow-lg hover:bg-amber-600"
+          >
+            <Search size={24} />
+          </Button>
           <Button
             onClick={scrollToTop}
             className="p-3 bg-violet-500 text-white rounded-full shadow-lg hover:bg-violet-600"
@@ -173,6 +270,27 @@ export default function SantriBacaSurat() {
             <ChevronDown size={24} />
           </Button>
         </div>
+
+        <Dialog open={isSearchDialogOpen} onOpenChange={setIsSearchDialogOpen}>
+          <DialogContent className="sm:max-w-[400px]">
+            <DialogHeader>
+              <DialogTitle>Cari Ayat</DialogTitle>
+            </DialogHeader>
+            <div className="flex flex-col gap-2 py-4">
+              <label className="text-sm font-medium text-gray-700">
+                Nomor Ayat (1 - {surahData.surah.totalAyat})
+              </label>
+              <Input
+                type="number"
+                placeholder="Masukkan nomor ayat..."
+                value={searchAyat}
+                onChange={(e) => setSearchAyat(e.target.value)}
+                min={1}
+                max={surahData.surah.totalAyat}
+              />
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
     </SantriLayout>
   );

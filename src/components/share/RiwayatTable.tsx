@@ -1,14 +1,37 @@
-import { Link } from "react-router-dom";
-import { Loader2, Notebook, Trash } from "lucide-react";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
-import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
-import { Badge } from "@/components/ui/badge";
-import { useState } from "react";
-import type { RiwayatHafalan } from "@/features/ustadz/types/hafalan.type";
-import { useDeleteRiwayatHafalan } from "@/features/ustadz/hooks/useHafalanData";
-import { formatTanggalIndo } from "@/utils/formatDate";
+import { Link } from 'react-router-dom';
+import { Loader2, Notebook, Trash } from 'lucide-react';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import { Button } from '@/components/ui/button';
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from '@/components/ui/pagination';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+import { StatusBadge } from '@/components/share/HafalanLabels';
+import { useState } from 'react';
+import type { RiwayatHafalan, HafalanStatus } from '@/features/ustadz/types/hafalan.type';
+import { useDeleteRiwayatHafalan } from '@/features/ustadz/hooks/useHafalanData';
+import { formatTanggalIndo } from '@/utils/formatDate';
 
 interface RiwayatTableProps {
   riwayatList: RiwayatHafalan[];
@@ -20,6 +43,7 @@ interface RiwayatTableProps {
   showDeleteButton?: boolean;
   role?: string;
   statusFilter?: string;
+  modeFilter?: "ayat" | "halaman";
 }
 
 export default function RiwayatTable({
@@ -30,13 +54,17 @@ export default function RiwayatTable({
   onPageChange,
   idSantri,
   showDeleteButton = false,
-  role = "ustadz",
-  statusFilter
+  role = 'ustadz',
+  statusFilter,
+  modeFilter = 'ayat',
 }: RiwayatTableProps) {
   const [isAlertOpen, setIsAlertOpen] = useState(false);
-  const [riwayatToDelete, setRiwayatToDelete] = useState<RiwayatHafalan | null>(null);
+  const [riwayatToDelete, setRiwayatToDelete] = useState<RiwayatHafalan | null>(
+    null
+  );
   const [tanggal, setTanggal] = useState<string | null>(null);
   const [namaSurah, setNamaSurah] = useState<string | null>(null);
+  const [juzNumber, setJuzNumber] = useState<number | null>(null);
 
   const deleteMutation = useDeleteRiwayatHafalan();
 
@@ -44,40 +72,43 @@ export default function RiwayatTable({
     setRiwayatToDelete(riwayat);
     setTanggal(riwayat.tanggal);
     setNamaSurah(riwayat.namaSurahLatin);
+    setJuzNumber(riwayat.juz ?? null);
     setIsAlertOpen(true);
   };
 
   const handleConfirmDelete = () => {
     if (riwayatToDelete && idSantri) {
-      deleteMutation.mutate(
-        {
-          santriId: parseInt(idSantri),
-          surahId: riwayatToDelete.surahId,
-          tanggal: riwayatToDelete.tanggal,
-          status: riwayatToDelete.status,
+      const payload: {
+        santriId: number;
+        surahId?: number;
+        juzId?: number;
+        tanggal: string;
+        status: HafalanStatus;
+      } = {
+        santriId: parseInt(idSantri),
+        tanggal: riwayatToDelete.tanggal,
+        status: riwayatToDelete.status,
+      };
+
+      if (modeFilter === 'halaman' && riwayatToDelete.juz) {
+        payload.juzId = riwayatToDelete.juz;
+      } else {
+        payload.surahId = riwayatToDelete.surahId;
+      }
+
+      deleteMutation.mutate(payload, {
+        onSuccess: () => {
+          setIsAlertOpen(false);
         },
-        {
-          onSuccess: () => {
-            setIsAlertOpen(false);
-          },
-        }
-      );
+      });
     }
   };
 
-  function getBadgeStatus(status: string) {
-    switch (status) {
-      case "TambahHafalan":
-        return "bg-green-500 text-white";
-      case "Murajaah":
-        return "bg-yellow-500 text-white";
-      default:
-        return "default";
-    }
-  }
 
-  const isPreviousButtonDisabled = currentPage === 1 || isFetching || deleteMutation.isPending;
-  const isNextButtonDisabled = currentPage === totalPages || isFetching || deleteMutation.isPending;
+  const isPreviousButtonDisabled =
+    currentPage === 1 || isFetching || deleteMutation.isPending;
+  const isNextButtonDisabled =
+    currentPage === totalPages || isFetching || deleteMutation.isPending;
 
   return (
     <>
@@ -86,11 +117,25 @@ export default function RiwayatTable({
           <TableHeader>
             <TableRow>
               <TableHead className="w-[100px] text-center">Tanggal</TableHead>
-              <TableHead className="text-center">Surah</TableHead>
-              <TableHead className="text-center hidden md:table-cell">Status</TableHead>
-              <TableHead className="text-center">Jumlah Ayat</TableHead>
-              {statusFilter === "TambahHafalan" && (
-                <TableHead className="text-center hidden md:table-cell">Poin</TableHead>
+              {modeFilter === 'halaman' && (
+                <TableHead className="text-center md:w-[150px]">Juz</TableHead>
+              )}
+              {modeFilter === 'ayat' && (
+                <TableHead className="text-center">Surah</TableHead>
+              )}
+              <TableHead className="text-center hidden md:table-cell">
+                Status
+              </TableHead>
+              <TableHead className="text-center">
+                {modeFilter === 'halaman' ? 'Halaman' : 'Ayat'}
+              </TableHead>
+              {modeFilter === 'halaman' && (
+                <TableHead className="text-center w-[200px] hidden md:table-cell">Jml.Ayat</TableHead>
+              )}
+              {statusFilter === 'TambahHafalan' && (
+                <TableHead className="text-center hidden md:table-cell">
+                  Poin
+                </TableHead>
               )}
               <TableHead className="text-center">Aksi</TableHead>
             </TableRow>
@@ -99,19 +144,54 @@ export default function RiwayatTable({
             {riwayatList.length > 0 ? (
               riwayatList.map((riwayat, index) => (
                 <TableRow key={index}>
-                  <TableCell className="text-center">{formatTanggalIndo(riwayat.tanggal)}</TableCell>
-                  <TableCell className="text-center font-medium">{riwayat.namaSurahLatin}</TableCell>
-                  <TableCell className="text-center hidden md:table-cell">
-                    <Badge className={getBadgeStatus(riwayat.status)}>
-                      {riwayat.status}
-                    </Badge>
+                  <TableCell className="text-center">
+                    {formatTanggalIndo(riwayat.tanggal)}
                   </TableCell>
-                  <TableCell className="text-center">{riwayat.jumlahAyat}</TableCell>
-                  { statusFilter === "TambahHafalan" && (
-                    <TableCell className="text-center hidden md:table-cell">{riwayat.totalPoin}</TableCell>
+                  {modeFilter === 'halaman' && (
+                    <TableCell className="text-center font-medium">
+                      {riwayat.juz ?? '-'}
+                    </TableCell>
+                  )}
+                  {modeFilter === 'ayat' && (
+                    <TableCell className="text-center font-medium">
+                      {riwayat.namaSurahLatin}
+                    </TableCell>
+                  )}
+                  <TableCell className="text-center hidden md:table-cell">
+                    <StatusBadge status={riwayat.status} />
+                  </TableCell>
+                  <TableCell className="text-center">
+                    {modeFilter === 'halaman' ? (
+                      riwayat.rangeHalaman?.awal && riwayat.rangeHalaman?.akhir ? (
+                        <span className="font-semibold">
+                          Hal. {riwayat.rangeHalaman.awal} - {riwayat.rangeHalaman.akhir}
+                        </span>
+                      ) : (
+                        `Hal. ${riwayat.totalHalaman ?? '-'}`
+                      )
+                    ) : (
+                      riwayat.rangeAyat?.awal && riwayat.rangeAyat?.akhir
+                        ? `Ayat ${riwayat.rangeAyat.awal} - ${riwayat.rangeAyat.akhir}`
+                        : '-'
+                    )}
+                  </TableCell>
+                  {modeFilter === 'halaman' && (
+                    <TableCell className="text-center hidden md:table-cell">
+                      {riwayat.jumlahAyat}
+                    </TableCell>
+                  )}
+                  {statusFilter === 'TambahHafalan' && (
+                    <TableCell className="text-center hidden md:table-cell">
+                      {riwayat.totalPoin}
+                    </TableCell>
                   )}
                   <TableCell className="text-center flex items-center justify-center gap-2">
-                    <Link to={`/${role}/riwayat/detail/${idSantri}/surah/${riwayat.surahId}?tanggal=${riwayat.tanggal}&status=${riwayat.status}`}>
+                    <Link
+                      to={modeFilter === 'halaman' 
+                        ? `/${role}/riwayat/detail/${idSantri}/juz/${riwayat.juz}?tanggal=${riwayat.tanggal}&status=${riwayat.status}`
+                        : `/${role}/riwayat/detail/${idSantri}/surah/${riwayat.surahId}?tanggal=${riwayat.tanggal}&status=${riwayat.status}`
+                      }
+                    >
                       <Button
                         variant="outline"
                         size="sm"
@@ -142,8 +222,13 @@ export default function RiwayatTable({
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={5} className="text-center text-muted-foreground">
-                  <p className="text-wrap">Tidak ada riwayat hafalan dengan status {statusFilter}.</p>
+                <TableCell
+                  colSpan={5}
+                  className="text-center text-muted-foreground"
+                >
+                  <p className="text-wrap">
+                    Tidak ada riwayat hafalan dengan status {statusFilter}.
+                  </p>
                 </TableCell>
               </TableRow>
             )}
@@ -162,7 +247,7 @@ export default function RiwayatTable({
                     e.preventDefault();
                     onPageChange(currentPage - 1);
                   }}
-                  className={`${isPreviousButtonDisabled ? "pointer-events-none opacity-50" : ""}`}
+                  className={`${isPreviousButtonDisabled ? 'pointer-events-none opacity-50' : ''}`}
                 />
               </PaginationItem>
               <PaginationItem>
@@ -178,39 +263,36 @@ export default function RiwayatTable({
                 </PaginationLink>
               </PaginationItem>
               {totalPages > 2 && currentPage > 2 && (
-                  <PaginationItem>
-                    <span className="px-2">...</span>
-                  </PaginationItem>
-                )}
-                {currentPage > 1 && currentPage < totalPages && (
-                  <PaginationItem>
-                    <PaginationLink
-                      href="#"
-                      isActive={true}
-                    >
-                      {currentPage}
-                    </PaginationLink>
-                  </PaginationItem>
-                )}
-                {totalPages > 2 && currentPage < totalPages - 1 && (
-                  <PaginationItem>
-                    <span className="px-2">...</span>
-                  </PaginationItem>
-                )}
-                {totalPages > 1 && (
-                  <PaginationItem>
-                    <PaginationLink
-                      href="#"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        onPageChange(totalPages);
-                      }}
-                      isActive={currentPage === totalPages}
-                    >
-                      {totalPages}
-                    </PaginationLink>
-                  </PaginationItem>
-                )}
+                <PaginationItem>
+                  <span className="px-2">...</span>
+                </PaginationItem>
+              )}
+              {currentPage > 1 && currentPage < totalPages && (
+                <PaginationItem>
+                  <PaginationLink href="#" isActive={true}>
+                    {currentPage}
+                  </PaginationLink>
+                </PaginationItem>
+              )}
+              {totalPages > 2 && currentPage < totalPages - 1 && (
+                <PaginationItem>
+                  <span className="px-2">...</span>
+                </PaginationItem>
+              )}
+              {totalPages > 1 && (
+                <PaginationItem>
+                  <PaginationLink
+                    href="#"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      onPageChange(totalPages);
+                    }}
+                    isActive={currentPage === totalPages}
+                  >
+                    {totalPages}
+                  </PaginationLink>
+                </PaginationItem>
+              )}
               <PaginationItem>
                 <PaginationNext
                   href="#"
@@ -218,7 +300,7 @@ export default function RiwayatTable({
                     e.preventDefault();
                     onPageChange(currentPage + 1);
                   }}
-                  className={`${isNextButtonDisabled ? "pointer-events-none opacity-50" : ""}`}
+                  className={`${isNextButtonDisabled ? 'pointer-events-none opacity-50' : ''}`}
                 />
               </PaginationItem>
             </PaginationContent>
@@ -232,14 +314,29 @@ export default function RiwayatTable({
             <AlertDialogHeader>
               <AlertDialogTitle>Konfirmasi Hapus Riwayat</AlertDialogTitle>
               <AlertDialogDescription>
-                <span className="font-bold text-black">{tanggal} - {namaSurah}</span>
+                <span className="font-bold text-black">
+                  {tanggal} - {modeFilter === 'halaman' ? `Juz ${juzNumber}` : namaSurah}
+                </span>
                 <br />
-                <span>Apakah Anda yakin ingin menghapus riwayat {statusFilter === "Murajaah" ? "Murajaah" : "Hafalan"} ini? Tindakan ini tidak dapat dibatalkan.</span>
+                <span>
+                  Apakah Anda yakin ingin menghapus riwayat{' '}
+                  {statusFilter === 'Murajaah' ? 'Murajaah' : statusFilter === 'Tahsin' ? 'Tahsin' : 'Hafalan'} ini?
+                  Tindakan ini tidak dapat dibatalkan.
+                </span>
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-              <AlertDialogCancel disabled={deleteMutation.isPending} className="bg-primary hover:bg-primary/80 text-white hover:text-white">Batal</AlertDialogCancel>
-              <AlertDialogAction onClick={handleConfirmDelete} disabled={deleteMutation.isPending} className="bg-destructive hover:bg-destructive/80 text-white">
+              <AlertDialogCancel
+                disabled={deleteMutation.isPending}
+                className="bg-primary hover:bg-primary/80 text-white hover:text-white"
+              >
+                Batal
+              </AlertDialogCancel>
+              <AlertDialogAction
+                onClick={handleConfirmDelete}
+                disabled={deleteMutation.isPending}
+                className="bg-destructive hover:bg-destructive/80 text-white"
+              >
                 {deleteMutation.isPending ? (
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 ) : null}

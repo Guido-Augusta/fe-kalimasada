@@ -1,35 +1,44 @@
-import { useState, useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
 import useUser from "@/store/useUser";
-import { fetchSurahList } from "../service/santri.service";
-import type { Surah } from "../types/santri.type";
+import { fetchProgressSurah, fetchProgressJuz } from "../service/santri.service";
+import type { Surah, Juz } from "../types/santri.type";
 
-export const useFetchSurahList = () => {
+export type ModeType = "surah" | "juz";
+
+interface UseFetchProgressResult {
+  surahData: Surah[];
+  juzData: Juz[];
+  loading: boolean;
+  error: string | null;
+}
+
+export const useFetchProgress = (mode: ModeType): UseFetchProgressResult => {
   const { user } = useUser();
-  const [surahData, setSurahData] = useState<Surah[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
+  const santriId = user?.roleId;
 
-  useEffect(() => {
-    const getData = async () => {
-      if (!user?.roleId) {
-        setError("Santri ID is not available.");
-        setLoading(false);
-        return;
-      }
+  const surahQuery = useQuery({
+    queryKey: ["progress-surah", santriId],
+    queryFn: () => fetchProgressSurah(santriId!),
+    enabled: !!santriId && mode === "surah",
+    staleTime: 5 * 60 * 1000,
+  });
 
-      try {
-        setLoading(true);
-        const result = await fetchSurahList(user.roleId);
-        setSurahData(result.data);
-      } catch (_err) {
-        setError("An error occurred while fetching data.");
-        // console.error(err.message);
-      } finally {
-        setLoading(false);
-      }
-    };
-    getData();
-  }, [user?.roleId]);
+  const juzQuery = useQuery({
+    queryKey: ["progress-juz", santriId],
+    queryFn: () => fetchProgressJuz(santriId!),
+    enabled: !!santriId && mode === "juz",
+    staleTime: 5 * 60 * 1000,
+  });
 
-  return { surahData, loading, error };
+  const loading = mode === "surah" ? surahQuery.isLoading : juzQuery.isLoading;
+  const error = mode === "surah" 
+    ? surahQuery.error?.message || null 
+    : juzQuery.error?.message || null;
+
+  return {
+    surahData: surahQuery.data?.data || [],
+    juzData: juzQuery.data?.data || [],
+    loading,
+    error,
+  };
 };

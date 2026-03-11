@@ -2,6 +2,7 @@ import { Pagination, PaginationContent, PaginationItem, PaginationLink, Paginati
 import UstadzLayout from "../components/UstadzLayout";
 import { useRiwayatTerakhir } from "../hooks/useHafalanData";
 import { useRiwayatTerakhirStore } from "@/store/useRiwayatTerakhirStore";
+import type { HafalanStatus } from "../types/hafalan.type";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -9,26 +10,35 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useState } from "react";
 import RiwayatTerakhirTable from "../components/RiwayatTerakhirTable";
 import { Search } from "lucide-react";
-import { sortAyatOptions } from "../constant/sortOptions";
+import { sortAyatOptions, sortHalamanOptions } from "../constant/sortOptions";
 
 export default function UstadRiwayatTerakhir() {
-  const { currentPage, setCurrentPage, searchName, selectedTahap, statusFilter, sortByAyat, setState } = useRiwayatTerakhirStore();
+  const { currentPage, setCurrentPage, searchName, selectedTahap, statusFilter, sortByAyat, sortByHalaman, mode, setState } = useRiwayatTerakhirStore();
   const initialSortValue = sortByAyat || "none"; 
   const [open, setOpen] = useState(false)
+  const [openHalaman, setOpenHalaman] = useState(false)
   const [value, setValue] = useState(initialSortValue)
+  const [valueHalaman, setValueHalaman] = useState(sortByHalaman || "none")
   const [localSearchName, setLocalSearchName] = useState(searchName);
 
   const filters: {
     tahapHafalan: string;
     name: string;
     sortByAyat?: "asc" | "desc";
+    sortByHalaman?: "asc" | "desc";
+    mode?: "surah" | "juz";
   } = {
     tahapHafalan: selectedTahap,
     name: searchName,
+    mode: mode,
   };
 
   if (sortByAyat && (sortByAyat === "asc" || sortByAyat === "desc")) {
     filters.sortByAyat = sortByAyat;
+  }
+
+  if (sortByHalaman && (sortByHalaman === "asc" || sortByHalaman === "desc")) {
+    filters.sortByHalaman = sortByHalaman;
   }
 
   const { data, isLoading, isError, error: _error, isFetching } = useRiwayatTerakhir(currentPage, 10, statusFilter, filters);
@@ -81,6 +91,18 @@ export default function UstadRiwayatTerakhir() {
     setOpen(false);
   }
 
+  const handleSortHalamanChange = (currentValue: string) => {
+    setValueHalaman(currentValue);
+
+    let newSortByHalaman: "asc" | "desc" | null = null;
+    if (currentValue === "asc" || currentValue === "desc") {
+      newSortByHalaman = currentValue;
+    }
+
+    setState({ sortByHalaman: newSortByHalaman, currentPage: 1 });
+    setOpenHalaman(false);
+  }
+
   return (
     <UstadzLayout>
     <div className="space-y-6">
@@ -109,8 +131,16 @@ export default function UstadRiwayatTerakhir() {
             </div>
 
             <div className="flex gap-2">
-              <Select onValueChange={(value: "TambahHafalan" | "Murajaah") => {
-                  setState({ statusFilter: value, currentPage: 1 });
+              <Select onValueChange={(value: string) => {
+                  if ((value === "Murajaah" || value === "Tahsin") && mode === "juz") {
+                    setValueHalaman("desc");
+                    setState({ statusFilter: value as HafalanStatus, currentPage: 1, sortByHalaman: "desc" });
+                  } else if (value === "TambahHafalan") {
+                    setValueHalaman("none");
+                    setState({ statusFilter: value as HafalanStatus, currentPage: 1, sortByHalaman: null });
+                  } else {
+                    setState({ statusFilter: value as HafalanStatus, currentPage: 1 });
+                  }
               }} value={statusFilter}>
                 <SelectTrigger className="w-[120px]">
                   <SelectValue placeholder="Pilih Status" />
@@ -118,6 +148,28 @@ export default function UstadRiwayatTerakhir() {
                 <SelectContent>
                   <SelectItem value="TambahHafalan">Hafalan</SelectItem>
                   <SelectItem value="Murajaah">Murajaah</SelectItem>
+                  <SelectItem value="Tahsin">Tahsin</SelectItem>
+                </SelectContent>
+              </Select>
+
+              <Select onValueChange={(value: "surah" | "juz") => {
+                  if (value === "juz" && (statusFilter === "Murajaah" || statusFilter === "Tahsin")) {
+                    setValueHalaman("desc");
+                    setState({ mode: value, currentPage: 1, sortByHalaman: "desc" });
+                  } else if (value === "surah") {
+                    setValueHalaman("none");
+                    setState({ mode: value, currentPage: 1, sortByHalaman: null });
+                  } else {
+                    setValueHalaman("none");
+                    setState({ mode: value, currentPage: 1, sortByHalaman: null });
+                  }
+              }} value={mode}>
+                <SelectTrigger className="w-[100px]">
+                  <SelectValue placeholder="Mode" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="surah">Ayat</SelectItem>
+                  <SelectItem value="juz">Halaman</SelectItem>
                 </SelectContent>
               </Select>
 
@@ -139,11 +191,17 @@ export default function UstadRiwayatTerakhir() {
           <RiwayatTerakhirTable
             dataList={dataList}
             statusFilter={statusFilter}
+            mode={mode}
             open={open}
             setOpen={setOpen}
             value={value}
             sortAyat={sortAyatOptions}
             handleSortAyatChange={handleSortAyatChange}
+            openHalaman={openHalaman}
+            setOpenHalaman={setOpenHalaman}
+            valueHalaman={valueHalaman}
+            sortHalaman={sortHalamanOptions}
+            handleSortHalamanChange={handleSortHalamanChange}
             searchName={searchName}
             isFetching={isFetching}
             isLoading={isLoading}

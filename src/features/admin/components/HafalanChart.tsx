@@ -2,16 +2,20 @@ import { Bar, BarChart, CartesianGrid, XAxis, Tooltip, Legend } from "recharts"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { ChartContainer } from "@/components/ui/chart"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
 interface HafalanChartProps {
   data: {
     tanggal: string;
     tambahHafalan: number;
     murajaah: number;
+    tahsin: number;
   }[];
   namaSantri: string;
   range: string;
   onRangeChange: (range: string) => void;
+  mode: string;
+  onModeChange: (mode: string) => void;
 }
 
 interface CustomTooltipProps {
@@ -29,19 +33,24 @@ const chartConfig = {
     label: "Murajaah",
     color: "#FF8C42", // oranye
   },
+  tahsin: {
+    label: "Tahsin",
+    color: "#3B82F6", // biru
+  },
 };
 
-export function HafalanChart({ data, namaSantri, range, onRangeChange }: HafalanChartProps) {
+export function HafalanChart({ data, namaSantri, range, onRangeChange, mode, onModeChange }: HafalanChartProps) {
   const chartData = data;
 
   const CustomTooltip = ({ active, payload, label }: CustomTooltipProps) => {
     if (active && payload && payload.length) {
+      const unitLabel = mode === "ayat" ? "Ayat" : "Halaman";
       return (
         <div className="bg-popover text-popover-foreground border rounded-md p-2 shadow-md">
           <p className="font-semibold">{label}</p>
           {payload.map((item: {name: string; value: number}, index: number) => (
             <p key={index} className="text-sm">
-              {`${item.name}: ${item.value}`}
+              {`${item.name}: ${item.value} ${unitLabel}`}
             </p>
           ))}
         </div>
@@ -55,10 +64,19 @@ export function HafalanChart({ data, namaSantri, range, onRangeChange }: Hafalan
       <CardHeader>
         <CardTitle>Grafik Hafalan {namaSantri}</CardTitle>
         <CardDescription className="my-2">
-          <p>Jumlah tambah hafalan dan murajaah per hari.</p>
+          <p>Jumlah tambah hafalan, murajaah, dan tahsin per hari.</p>
           <p className="text-base text-red-500">Tampilan grafik lebih optimal pada perangkat desktop (Laptop / PC).</p>
         </CardDescription>
-        <div className="flex justify-end">
+        <div className="flex flex-col sm:flex-row justify-end gap-4">
+          <Select value={mode} onValueChange={onModeChange}>
+            <SelectTrigger className="w-[140px]">
+              <SelectValue placeholder="Pilih mode" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="ayat">Ayat</SelectItem>
+              <SelectItem value="halaman">Halaman</SelectItem>
+            </SelectContent>
+          </Select>
           <Tabs value={range} onValueChange={onRangeChange} className="w-[200px] sm:w-[250px]">
             <TabsList>
               <TabsTrigger value="1w">1 Minggu</TabsTrigger>
@@ -86,6 +104,7 @@ export function HafalanChart({ data, namaSantri, range, onRangeChange }: Hafalan
             <Legend />
             <Bar dataKey="tambahHafalan" name="Tambah Hafalan" fill="#8957CC" radius={8} />
             <Bar dataKey="murajaah" name="Murajaah" fill="#FF8C42" radius={8} />
+            <Bar dataKey="tahsin" name="Tahsin" fill="#3B82F6" radius={8} />
           </BarChart>
         </ChartContainer>
       </CardContent>

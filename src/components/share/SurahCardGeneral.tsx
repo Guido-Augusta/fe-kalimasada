@@ -10,7 +10,7 @@ interface SurahCardGeneralProps {
 
 export function SurahCardGeneral({ surah, role }: SurahCardGeneralProps) {
   return (
-    <Link to={`/${role}/alquran/${surah.id}`}>
+    <Link to={`/${role}/alquran/surah/${surah.id}`}>
       <Card className="group cursor-pointer rounded-2xl bg-violet-600/90 text-white">
         <CardHeader className="flex flex-row items-center justify-between">
           {/* Nomor Surah */}
