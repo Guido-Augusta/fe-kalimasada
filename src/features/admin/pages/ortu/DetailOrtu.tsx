@@ -26,7 +26,7 @@ export default function OrtuDetail() {
 
   return (
     <AdminLayout>
-      <div className="container mx-auto p-4 max-w-4xl">
+      <div className="container mx-auto max-w-4xl">
         <div className="flex items-center gap-4 mb-6">
             <Button variant="outline" size="sm" className="flex items-center gap-2 bg-yellow-500 hover:bg-yellow-600 hover:text-white text-white" onClick={() => navigate(-1)}>
               <ArrowLeft className="h-4 w-4" />

@@ -13,7 +13,7 @@ export default function AdminDetailSantri() {
 
   return (
     <AdminLayout>
-      <div className="container mx-auto md:p-4 p-0 max-w-4xl">
+      <div className="container mx-auto max-w-4xl">
         <div className="flex items-center gap-4 mb-6">
           <Button variant="outline" size="sm" className="flex items-center gap-2 bg-yellow-500 hover:bg-yellow-600 hover:text-white text-white" onClick={() => navigate(-1)}>
             <ArrowLeft className="h-4 w-4" />

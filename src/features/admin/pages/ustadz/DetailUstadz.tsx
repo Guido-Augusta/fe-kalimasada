@@ -12,7 +12,7 @@ export default function UstadzDetail() {
 
   return (
     <AdminLayout>
-      <div className="container mx-auto p-4 max-w-4xl">
+      <div className="container mx-auto max-w-4xl">
         <div className="flex items-center gap-4 mb-6">
           {/* <Link to={"/admin/ustadz"}> */}
             <Button variant="outline" size="sm" className="text-white flex items-center gap-2 bg-yellow-500 hover:bg-yellow-600 hover:text-white" onClick={() => navigate(-1)}>
