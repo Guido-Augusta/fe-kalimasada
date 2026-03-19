@@ -58,10 +58,14 @@ export default function ReadSurahAlquran() {
             const headerOffset = 200;
             const elementPosition = element.getBoundingClientRect().top + window.scrollY;
             const offsetPosition = elementPosition - headerOffset;
-            window.scrollTo({
-              top: offsetPosition,
-              behavior: "smooth",
-            });
+            
+            // Beri jeda 300ms agar dialog selesai ditutup sebelum scroll
+            setTimeout(() => {
+              window.scrollTo({
+                top: offsetPosition,
+                behavior: "smooth",
+              });
+            }, 300);
           }
           setIsSearchDialogOpen(false);
           setSearchAyat("");

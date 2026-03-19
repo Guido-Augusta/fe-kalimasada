@@ -54,10 +54,12 @@ export default function ReadJuzAlquran() {
           const elementPosition = element.getBoundingClientRect().top + window.scrollY;
           const offsetPosition = elementPosition - headerOffset;
 
-          window.scrollTo({
-            top: offsetPosition,
-            behavior: "smooth",
-          });
+          setTimeout(() => {
+            window.scrollTo({
+              top: offsetPosition,
+              behavior: "smooth",
+            });
+          }, 300);
 
           setIsSearchDialogOpen(false);
           setSearchHalaman("");
