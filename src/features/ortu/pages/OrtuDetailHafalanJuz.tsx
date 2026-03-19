@@ -11,7 +11,7 @@ export default function OrtuDetailHafalanJuz() {
   if (!santriId || !juzId || !tanggal || !status) {
     return (
       <OrtuLayout>
-        <div className="container mx-auto p-4 md:p-6 lg:p-8">
+        <div className="container mx-auto">
           <p className="text-center text-red-500">Error: Tidak dapat menemukan data riwayat hafalan.</p>
         </div>
       </OrtuLayout>

@@ -56,14 +56,12 @@ export default function OrtuProgressHafalan() {
 
   return (
     <OrtuLayout>
-      <div className="container mx-auto p-4 md:p-6 lg:p-8">
+      <div className="container mx-auto">
         <div className="flex items-center gap-4 mb-6">
-          {/* <Link to="/ortu"> */}
             <Button variant="outline" size="sm" className="flex items-center gap-2 bg-yellow-500 hover:bg-yellow-600 hover:text-white text-white" onClick={() => navigate(-1)}>
               <ArrowLeft className="h-4 w-4" />
               <span className="hidden sm:inline">Kembali</span>
             </Button>
-          {/* </Link> */}
           <h1 className="text-2xl sm:text-3xl font-bold text-foreground">Detail Hafalan</h1>
         </div>
 
@@ -97,7 +95,6 @@ export default function OrtuProgressHafalan() {
           </div>
         ) : isError ? (
           <div className="flex justify-center items-center text-red-500">
-            {/* <p>Error: {error?.message}</p> */}
             <p>Gagal memuat data progres hafalan.</p>
           </div>
         ) : !data ? (
