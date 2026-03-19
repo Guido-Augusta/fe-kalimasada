@@ -36,7 +36,7 @@ export default function DaftarSurahProgres() {
   if (loading) {
     return (
       <SantriLayout>
-        <div className="container mx-auto p-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+        <div className="container mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
           {[...Array(9)].map((_, index) => (
             <Card key={index}>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -92,7 +92,7 @@ export default function DaftarSurahProgres() {
 
   return (
     <SantriLayout>
-      <div className="container mx-auto p-4">
+      <div className="container mx-auto">
         <h1 className="text-2xl font-bold mb-4">
           {mode === "surah" ? "Daftar Surah" : "Daftar Juz"}
         </h1>

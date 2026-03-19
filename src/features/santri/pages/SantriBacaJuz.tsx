@@ -119,7 +119,7 @@ export default function SantriBacaJuz() {
   if (loading) {
     return (
       <SantriLayout>
-        <div className="container mx-auto p-4">
+        <div className="container mx-auto">
           <Skeleton className="h-10 w-full mb-4" />
           <Skeleton className="h-6 w-1/2 mb-8" />
           <div className="space-y-6">
@@ -145,7 +145,7 @@ export default function SantriBacaJuz() {
   if (error) {
     return (
       <SantriLayout>
-        <div className="container mx-auto p-4">
+        <div className="container mx-auto">
           <div className="mb-4">
             <Button
               onClick={() => navigate(-1)}
@@ -166,7 +166,7 @@ export default function SantriBacaJuz() {
   if (!juzData) {
     return (
       <SantriLayout>
-        <div className="container mx-auto p-4">
+        <div className="container mx-auto">
           <div className="mb-4">
             <Button
               onClick={() => navigate(-1)}
@@ -192,7 +192,7 @@ export default function SantriBacaJuz() {
 
   return (
     <SantriLayout>
-      <div className="container mx-auto p-2">
+      <div className="container mx-auto">
         <div className="mb-4">
           <Button
             onClick={() => navigate(-1)}

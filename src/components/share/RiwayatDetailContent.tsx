@@ -20,7 +20,6 @@ interface RiwayatDetailContentProps {
   backLink?: string;
 }
 
-
 export default function RiwayatDetailContent({
   santriId,
   surahId,
@@ -37,7 +36,7 @@ export default function RiwayatDetailContent({
 
   if (isLoading) {
     return (
-      <div className="container mx-auto p-4 md:p-6 lg:p-8">
+      <div className="container mx-auto">
         <div className="flex items-center gap-4 mb-6">
           {/* <Link to={backLink}> */}
           <Button
@@ -64,7 +63,7 @@ export default function RiwayatDetailContent({
 
   if (isError) {
     return (
-      <div className="container mx-auto p-4 md:p-6 lg:p-8">
+      <div className="container mx-auto">
         <div className="flex items-center gap-4 mb-6">
           {/* <Link to={backLink}> */}
           <Button
@@ -98,7 +97,7 @@ export default function RiwayatDetailContent({
 
   if (!riwayatDetail) {
     return (
-      <div className="container mx-auto p-4 md:p-6 lg:p-8">
+      <div className="container mx-auto">
         <div className="flex items-center gap-4 mb-6">
           {/* <Link to={backLink}> */}
           <Button
@@ -128,7 +127,7 @@ export default function RiwayatDetailContent({
   }
 
   return (
-    <div className="container mx-auto p-2 md:p-6 lg:p-8">
+    <div className="container mx-auto">
       <div className="flex items-center gap-4 mb-6">
         {/* <Link to={backLink}> */}
         <Button

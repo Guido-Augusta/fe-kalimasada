@@ -176,8 +176,7 @@ export default function ReadSurahAlquran() {
           onEnded={() => setIsPlaying(false)}
         />
       </div>
-
-      <div className="space-y-8">
+      <div className="space-y-2">
         {data.ayat.map((ayat: Ayat) => (
           <div
             key={ayat.id}
