@@ -1,5 +1,10 @@
 import { Navigate } from "react-router-dom";
 import useUser from "@/store/useUser";
+import { jwtDecode } from "jwt-decode";
+
+interface JwtPayload {
+  role: string;
+}
 
 const RoleRedirect = () => {
   const { user } = useUser();
@@ -9,7 +14,9 @@ const RoleRedirect = () => {
     return <Navigate to="/login" replace />;
   }
 
-  switch (user.role) {
+  const payload = jwtDecode<JwtPayload>(token);
+
+  switch (payload.role) {
     case "admin":
       return <Navigate to="/admin" replace />;
     case "ustadz":
