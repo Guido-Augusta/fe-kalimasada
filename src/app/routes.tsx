@@ -71,6 +71,8 @@ import UstadzDetailHafalanJuz from '@/features/ustadz/pages/UstadzDetailHafalanJ
 import OrtuDetailHafalanJuz from '@/features/ortu/pages/OrtuDetailHafalanJuz';
 import SantriDetailHafalanJuz from '@/features/santri/pages/SantriDetailHafalanJuz';
 import SantriBacaJuz from '@/features/santri/pages/SantriBacaJuz';
+import OrtuBacaSurat from '@/features/ortu/pages/OrtuBacaSurat';
+import OrtuBacaJuz from '@/features/ortu/pages/OrtuBacaJuz';
 
 export const AppRouter = () => {
   return (
@@ -196,6 +198,14 @@ export const AppRouter = () => {
           <Route
             path="/ortu/progress/hafalan/:idSantri"
             element={<OrtuProgressHafalan />}
+          />
+          <Route
+            path="/ortu/hafalan/:idSantri/:idSurah"
+            element={<OrtuBacaSurat />}
+          />
+          <Route
+            path="/ortu/hafalan/:idSantri/juz/:idJuz"
+            element={<OrtuBacaJuz />}
           />
           <Route
             path="/ortu/riwayat/hafalan/:idSantri"
