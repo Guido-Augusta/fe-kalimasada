@@ -42,7 +42,6 @@ export default function PeringkatTable({ limit = 10, baseUrl = "/santri" }: Peri
   if (isError) {
     return (
       <div className="flex flex-col items-center justify-center p-8 text-red-500">
-        {/* <p>Error: {(error as Error)?.message || "Gagal memuat data peringkat."}</p> */}
         <p>Gagal memuat data peringkat.</p>
       </div>
     );
@@ -88,7 +87,7 @@ export default function PeringkatTable({ limit = 10, baseUrl = "/santri" }: Peri
 
     <Card className="shadow-lg">
       <CardHeader className="p-2">
-        <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
+        <div className="flex flex-col md:flex-row justify-between space-y-4 md:space-y-0">
           <div className="space-y-2">
             <CardTitle className="text-2xl font-bold">
               Peringkat Santri | <span className="text-primary">{formatTahapHafalan(selectedTahap)}</span>
@@ -98,7 +97,7 @@ export default function PeringkatTable({ limit = 10, baseUrl = "/santri" }: Peri
             </CardDescription>
           </div>
 
-          <div className="flex flex-col md:flex-row md:items-center gap-2">
+          <div className="flex flex-col md:flex-row md:items-start gap-2">
             <Select 
                 value={selectedTahap} 
                 onValueChange={(value) => {
@@ -116,7 +115,7 @@ export default function PeringkatTable({ limit = 10, baseUrl = "/santri" }: Peri
               </SelectContent>
             </Select>
 
-            <div className="flex items-center gap-2">
+            <div className="flex items-start gap-2">
                 <div className="relative flex-grow max-w-sm">
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                     <Input 

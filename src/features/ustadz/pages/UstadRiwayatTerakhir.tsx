@@ -130,7 +130,7 @@ export default function UstadRiwayatTerakhir() {
               </Button>
             </div>
 
-            <div className="flex gap-2">
+            <div className="flex flex-wrap gap-2">
               <Select onValueChange={(value: string) => {
                   if ((value === "Murajaah" || value === "Tahsin") && mode === "juz") {
                     setValueHalaman("desc");

@@ -11,8 +11,7 @@ export default function UstadzDetailHafalan() {
   if (!santriId || !surahId || !tanggal || !status) {
     return (
       <UstadzLayout>
-        <div className="container mx-auto p-4 md:p-6 lg:p-8">
-          {/* <p className="text-center text-red-500">Parameter tidak lengkap.</p> */}
+        <div className="container mx-auto">
           <p className="text-center text-red-500">Error: Tidak dapat menemukan data riwayat hafalan.</p>
         </div>
       </UstadzLayout>

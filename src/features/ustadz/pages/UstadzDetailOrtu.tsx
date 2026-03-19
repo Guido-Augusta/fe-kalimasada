@@ -12,7 +12,7 @@ export default function UstadzDetailOrtu() {
 
   return (
     <UstadzLayout>
-      <div className="container mx-auto p-4 max-w-4xl">
+      <div className="container mx-auto max-w-4xl">
         <div className="flex items-center gap-4 mb-6">
           {/* <Link to="/ustadz"> */}
             <Button variant="outline" size="sm" className="flex items-center gap-2 bg-yellow-500 hover:bg-yellow-600 text-white hover:text-white" onClick={() => navigate(-1)}>

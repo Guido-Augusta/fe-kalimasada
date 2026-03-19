@@ -37,7 +37,7 @@ export default function RiwayatJuzDetailContent({
 
   if (isLoading) {
     return (
-      <div className="container mx-auto p-4 md:p-6 lg:p-8">
+      <div className="container mx-auto">
         <div className="flex items-center gap-4 mb-6">
           <Button
             variant="outline"
@@ -62,7 +62,7 @@ export default function RiwayatJuzDetailContent({
 
   if (isError) {
     return (
-      <div className="container mx-auto p-4 md:p-6 lg:p-8">
+      <div className="container mx-auto">
         <div className="flex items-center gap-4 mb-6">
           <Button
             variant="outline"
@@ -91,7 +91,7 @@ export default function RiwayatJuzDetailContent({
 
   if (!riwayatJuzDetail) {
     return (
-      <div className="container mx-auto p-4 md:p-6 lg:p-8">
+      <div className="container mx-auto">
         <div className="flex items-center gap-4 mb-6">
           <Button
             variant="outline"

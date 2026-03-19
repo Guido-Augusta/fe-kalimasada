@@ -69,7 +69,7 @@ export default function UstadEditProfile() {
   
   return (
     <UstadzLayout>
-      <div className="container mx-auto p-4 max-w-4xl">
+      <div className="container mx-auto max-w-4xl">
         <div className="flex items-center gap-4 mb-6">
           <Button 
             variant="outline" 
