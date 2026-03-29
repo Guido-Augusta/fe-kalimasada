@@ -29,7 +29,7 @@ export function AppSidebar({ items, label = 'Menu' }: AppSidebarProps) {
 
   return (
     <Sidebar collapsible="icon">
-      <SidebarContent className="bg-violet-600">
+      <SidebarContent className="bg-violet-600 contain-[paint] backface-hidden">
         <SidebarGroup>
           <SidebarGroupLabel className="text-yellow-500 font-bold text-lg group-data-[collapsible=icon]:hidden">
             {label}
@@ -44,7 +44,7 @@ export function AppSidebar({ items, label = 'Menu' }: AppSidebarProps) {
                       end
                       className={({ isActive }) =>
                         getNavClassName(isActive) +
-                        ' flex items-center gap-2 rounded-md px-2 py-1 overflow-hidden group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0'
+                        'flex items-center gap-2 rounded-md px-2 py-1 overflow-hidden group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0'
                       }
                     >
                       <div className="flex items-center gap-2">
