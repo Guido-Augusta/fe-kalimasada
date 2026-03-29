@@ -21,15 +21,14 @@ interface AppSidebarProps {
 }
 
 export function AppSidebar({ items, label = 'Menu' }: AppSidebarProps) {
-
   const getNavClassName = (active: boolean) =>
     active
       ? 'bg-yellow-500 font-medium text-white hover:bg-yellow-600'
       : 'text-foreground hover:bg-yellow-600 hover:text-white';
 
   return (
-    <Sidebar collapsible="icon">
-      <SidebarContent className="bg-violet-600 contain-[paint] backface-hidden">
+    <Sidebar collapsible="icon" className="will-change-transform transform-gpu">
+      <SidebarContent className="bg-violet-600">
         <SidebarGroup>
           <SidebarGroupLabel className="text-yellow-500 font-bold text-lg group-data-[collapsible=icon]:hidden">
             {label}
