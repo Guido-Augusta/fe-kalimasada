@@ -1,5 +1,13 @@
-import { NavLink } from "react-router-dom";
-import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuItem, useSidebar } from "@/components/ui/sidebar";
+import { NavLink } from 'react-router-dom';
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarGroupLabel,
+  SidebarMenu,
+  SidebarMenuItem,
+} from '@/components/ui/sidebar';
 
 interface SidebarItem {
   title: string;
@@ -12,19 +20,18 @@ interface AppSidebarProps {
   label?: string;
 }
 
-export function AppSidebar({ items, label = "Menu" }: AppSidebarProps) {
-  const { state } = useSidebar();
+export function AppSidebar({ items, label = 'Menu' }: AppSidebarProps) {
 
   const getNavClassName = (active: boolean) =>
     active
-      ? "bg-yellow-500 font-medium text-white hover:bg-yellow-600"
-      : "text-foreground hover:bg-yellow-600 hover:text-white";
+      ? 'bg-yellow-500 font-medium text-white hover:bg-yellow-600'
+      : 'text-foreground hover:bg-yellow-600 hover:text-white';
 
   return (
-    <Sidebar className={state === "collapsed" ? "w-16" : "w-64"}>
+    <Sidebar collapsible="icon">
       <SidebarContent className="bg-violet-600">
         <SidebarGroup>
-          <SidebarGroupLabel className="text-yellow-500 font-bold text-lg">
+          <SidebarGroupLabel className="text-yellow-500 font-bold text-lg group-data-[collapsible=icon]:hidden">
             {label}
           </SidebarGroupLabel>
           <SidebarGroupContent>
@@ -36,17 +43,16 @@ export function AppSidebar({ items, label = "Menu" }: AppSidebarProps) {
                       to={item.url}
                       end
                       className={({ isActive }) =>
-                        getNavClassName(isActive) + " flex items-center gap-2 rounded-md px-2 py-1"
+                        getNavClassName(isActive) +
+                        ' flex items-center gap-2 rounded-md px-2 py-1 overflow-hidden group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0'
                       }
                     >
-                      {/* <SidebarMenuButton asChild> */}
-                        <div className="flex items-center gap-2">
-                          <item.icon className="h-4 w-4 text-white" />
-                          {state !== "collapsed" && (
-                            <span className="text-white">{item.title}</span>
-                          )}
-                        </div>
-                      {/* </SidebarMenuButton> */}
+                      <div className="flex items-center gap-2">
+                        <item.icon className="h-4 w-4 text-white shrink-0" />
+                        <span className="text-white truncate group-data-[collapsible=icon]:hidden">
+                          {item.title}
+                        </span>
+                      </div>
                     </NavLink>
                   </SidebarMenuItem>
                 );
