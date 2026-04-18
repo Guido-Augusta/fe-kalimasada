@@ -12,10 +12,6 @@ interface UpdateHafalanDialogProps {
     id: number;
     nama: string;
     tahapHafalan: string;
-    nomorHp?: string;
-    alamat: string;
-    jenisKelamin: string;
-    tanggalLahir: string;
     orangTua: { id: number; tipe: string }[];
   };
   isOpen: boolean;
@@ -42,10 +38,6 @@ export default function UpdateHafalanDialog({
     e.preventDefault();
     const formData = new FormData();
     formData.append("nama", santriData.nama);
-    formData.append("nomorHp", santriData.nomorHp ?? "");
-    formData.append("alamat", santriData.alamat);
-    formData.append("jenisKelamin", santriData.jenisKelamin);
-    formData.append("tanggalLahir", santriData.tanggalLahir);
     formData.append("tahapHafalan", selectedHafalan);
     formData.append(
       "ortuId",

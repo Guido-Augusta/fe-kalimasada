@@ -3,15 +3,9 @@ export interface SantriData {
   userId: number;
   ortuId: number;
   nama: string;
-  nomorHp?: string;
-  noInduk?: string;
-  alamat: string;
-  jenisKelamin: string;
-  tanggalLahir: string;
   tahapHafalan: "Level1" | "Level2" | "Level3";
   totalPoin: number;
   peringkat: number;
-  fotoProfil: string;
   user: {
     id: number;
     email: string;
@@ -20,7 +14,7 @@ export interface SantriData {
   orangTua: {
     id: number;
     nama: string;
-  }
+  }[] | null;
 }
 
 export interface SantriApiPaginationData {
@@ -38,15 +32,9 @@ export interface SantriDetailData {
   id: number;
   userId: number;
   nama: string;
-  nomorHp?: string;
-  noInduk?: string;
-  alamat: string;
-  jenisKelamin: "L" | "P";
-  tanggalLahir: string;
   tahapHafalan: "Level1" | "Level2" | "Level3";
   totalPoin: number;
   peringkat: number;
-  fotoProfil: string;
   user: {
     id: number;
     email: string;

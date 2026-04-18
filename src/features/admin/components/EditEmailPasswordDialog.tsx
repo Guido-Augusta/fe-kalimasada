@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { useUpdateUstadzMutation } from "../hooks/useUstadzData";
-import { Loader2 } from "lucide-react";
+import { Loader2, Eye, EyeOff } from "lucide-react";
 import { updateEmailPasswordSchema } from "../validation/ustad.validation";
 import { useUpdateOrtuMutation } from "../hooks/useOrtuData";
 import { useUpdateSantriMutation } from "../hooks/useSantriData";
@@ -23,7 +23,7 @@ interface EditEmailPasswordDialogProps {
 
 export function EditEmailPasswordDialog({ id, initialEmail, role }: EditEmailPasswordDialogProps) {
   const [isOpen, setIsOpen] = useState(false);
-  // const updateMutation = useUpdateUstadzMutation();
+  const [showPassword, setShowPassword] = useState(false);
 
   const ustadzMutation = useUpdateUstadzMutation();
   const ortuMutation = useUpdateOrtuMutation();
@@ -51,7 +51,7 @@ export function EditEmailPasswordDialog({ id, initialEmail, role }: EditEmailPas
 
   const onSubmit = (data: FormData) => {
     const putFormData = new FormData();
-    if (data.email) {
+    if (data.email && role !== "santri") {
         putFormData.append("email", data.email);
     }
     if (data.password) {
@@ -73,47 +73,73 @@ export function EditEmailPasswordDialog({ id, initialEmail, role }: EditEmailPas
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button className="mt-3">Edit Email / Password</Button>
+        <Button className="mt-3">
+          {role === "santri" ? "Edit Password" : "Edit Email / Password"}
+        </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Edit Email & Password</DialogTitle>
+          <DialogTitle>Edit {role === "santri" ? "Password" : "Email & Password"}</DialogTitle>
           <DialogDescription>
-            Anda bisa mengubah email atau password {role}.
+            Anda bisa mengubah {role === "santri" ? "password" : "email atau password"} {role}.
           </DialogDescription>
         </DialogHeader>
         <form className="space-y-4 py-4">
-          <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
-            <Input
-              id="email"
-              type="email"
-              placeholder="Masukkan email baru"
-              {...form.register("email")}
-            />
-            <p className="text-sm font-medium text-destructive">
-              {form.formState.errors.email?.message}
-            </p>
-          </div>
+          {role !== "santri" && (
+            <div className="space-y-2">
+              <Label htmlFor="email">Email</Label>
+              <Input
+                id="email"
+                type="email"
+                placeholder="Masukkan email baru"
+                {...form.register("email")}
+              />
+              <p className="text-sm font-medium text-destructive">
+                {form.formState.errors.email?.message}
+              </p>
+            </div>
+          )}
           <div className="space-y-2">
             <Label htmlFor="password">Password</Label>
             <div className="flex items-center gap-2">
-              <Input
-                id="password"
-                type="password"
-                disabled={true}
-                placeholder="Masukkan password baru"
-                {...form.register("password")}
-              />
-            <Button type="button" onClick={handleGeneratePassword} className="ml-2" size="sm">
-              Generate
-            </Button>
+              <div className="relative flex-1">
+                <Input
+                  id="password"
+                  type={showPassword ? "text" : "password"}
+                  placeholder="Masukkan password baru"
+                  {...form.register("password")}
+                />
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  {showPassword ? (
+                    <EyeOff className="h-4 w-4 text-muted-foreground" />
+                  ) : (
+                    <Eye className="h-4 w-4 text-muted-foreground" />
+                  )}
+                </Button>
+              </div>
+              <Button type="button" onClick={handleGeneratePassword} className="shrink-0" size="sm">
+                Generate
+              </Button>
             </div>
             <p className="text-sm font-medium text-destructive">
               {form.formState.errors.password?.message}
             </p>
           </div>
-          <DialogFooter>
+          <DialogFooter className="gap-2 sm:gap-0">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setIsOpen(false)}
+              disabled={updateMutation.isPending}
+            >
+              Batal
+            </Button>
             <Button 
                 type="button" 
                 onClick={form.handleSubmit(onSubmit)}

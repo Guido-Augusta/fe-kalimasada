@@ -122,11 +122,10 @@ const ManageSantri = () => {
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead className="w-16">No Induk</TableHead>
+                      <TableHead className="w-16">No</TableHead>
                       <TableHead>Nama</TableHead>
-                      <TableHead className="hidden md:table-cell">Email</TableHead>
+                      <TableHead className="hidden md:table-cell">Nama Ortu</TableHead>
                       <TableHead className="hidden md:table-cell">Tahapan</TableHead>
-                      <TableHead className="hidden md:table-cell">Jenis Kelamin</TableHead>
                       <TableHead className="text-center">Aksi</TableHead>
                     </TableRow>
                   </TableHeader>
@@ -154,18 +153,14 @@ const ManageSantri = () => {
                       santriList.map((santri, _index) => (
                         <TableRow key={santri.id}>
                           <TableCell className="font-medium">
-                            {/* {(currentPage - 1) * itemsPerPage + index + 1} */}
-                            <p className="text-center">{santri.noInduk || "-"}</p>
+                            {(currentPage - 1) * itemsPerPage + _index + 1}
                           </TableCell>
                           <TableCell className="font-medium text-left">
                             {santri.nama.length > 15 ? santri.nama.substring(0, 10) + "..." : santri.nama}
                           </TableCell>
-                          <TableCell className="hidden md:table-cell">{santri.user.email}</TableCell>
+                          <TableCell className="hidden md:table-cell">{santri.orangTua?.[0]?.nama || "-"}</TableCell>
                           <TableCell className="hidden md:table-cell">
                             {formatTahapHafalan(santri.tahapHafalan)}
-                          </TableCell>
-                          <TableCell className="hidden md:table-cell">
-                            {santri.jenisKelamin === "L" ? "Laki-laki" : "Perempuan" }
                           </TableCell>
                           <TableCell className="text-right">
                             <div className="flex gap-2 justify-center">

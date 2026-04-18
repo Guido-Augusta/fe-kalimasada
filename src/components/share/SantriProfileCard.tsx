@@ -1,16 +1,16 @@
-import { Phone, MapPin, User, Mail, Shield, Loader2, Calendar, Eye } from "lucide-react";
+import { User, Mail, Shield, Loader2, Eye } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Link } from "react-router-dom";
-import { formatTanggalIndo } from "@/utils/formatDate";
+
 import { useState } from "react";
 import { useChartData } from "@/features/admin/hooks/useChartData";
 import type { SantriDetailData } from "@/features/admin/types/santri.type";
 import { HafalanChart } from "@/features/admin/components/HafalanChart";
 import { formatTahapHafalan } from "@/utils/tahapHafalan";
-import { WhatsAppButton } from "./WhatsAppButton";
+
 
 interface SantriProfileCardProps {
   santriData: SantriDetailData;
@@ -46,7 +46,7 @@ export default function SantriProfileCard({ santriData, baseUrl, role, onUpdateH
               <div className="flex justify-center mb-4">
                 <Avatar className="h-24 w-24 sm:h-32 sm:w-32">
                   <AvatarImage 
-                    src={santriData.fotoProfil || "https://res.cloudinary.com/dqrppoiza/image/upload/v1754292060/placeholder_profile_ff5xwy.jpg"} 
+                    src={""} 
                     alt={santriData.nama}
                     className="object-cover"
                   />
@@ -108,7 +108,6 @@ export default function SantriProfileCard({ santriData, baseUrl, role, onUpdateH
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="grid gap-4 sm:grid-cols-2">
                 <div className="space-y-2">
                   <div className="flex items-center gap-2 text-sm text-muted-foreground">
                     <Mail className="h-4 w-4" />
@@ -116,56 +115,6 @@ export default function SantriProfileCard({ santriData, baseUrl, role, onUpdateH
                   </div>
                   <p className="font-medium break-all">{santriData.user.email}</p>
                 </div>
-                
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    No Induk
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <p className="font-medium">{santriData.noInduk || "-"}</p>
-                  </div>
-                </div>
-              </div>
-
-              <div className="grid gap-4 sm:grid-cols-2">
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <MapPin className="h-4 w-4" />
-                    Alamat
-                  </div>
-                  <p className="font-medium">{santriData.alamat}</p>
-                </div>
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <Calendar className="h-4 w-4" />
-                    Tanggal Lahir
-                  </div>
-                  <p className="font-medium">{formatTanggalIndo(santriData.tanggalLahir)}</p>
-                </div>
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <User className="h-4 w-4" />
-                    Jenis Kelamin
-                  </div>
-                  <p className="font-medium">
-                    {santriData.jenisKelamin === 'L' ? 'Laki-laki' : 'Perempuan'}
-                  </p>
-                </div>
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <Phone className="h-4 w-4" />
-                    Nomor Telepon
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <p className="font-medium">{santriData.nomorHp || "-"}</p>
-                    {santriData.nomorHp && (
-                      <WhatsAppButton
-                        phoneNumber={santriData.nomorHp}
-                      />
-                    )}
-                  </div>
-                </div>
-              </div>
 
               <div className="grid gap-4 sm:grid-cols-2 pt-4 border-t">
                 <div className="space-y-2">
