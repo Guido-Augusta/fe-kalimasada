@@ -1,31 +1,57 @@
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
-import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
-import { Search, Loader2, Eye, Book, Notebook } from "lucide-react";
-import { Link } from "react-router-dom";
-import { useSantriList } from "../admin/hooks/useSantriData";
-import UstadzLayout from "./components/UstadzLayout";
-import { formatTahapHafalan } from "@/utils/tahapHafalan";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useSantriStore } from "@/store/useSantriStore";
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import { Badge } from '@/components/ui/badge';
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from '@/components/ui/pagination';
+import { Search, Loader2, Eye, Book, Notebook } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { useSantriList } from '../admin/hooks/useSantriData';
+import UstadzLayout from './components/UstadzLayout';
+import { formatTahapHafalan } from '@/utils/tahapHafalan';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { useSantriStore } from '@/store/useSantriStore';
 
 const UstadzDashboard = () => {
-  const { currentPage, searchQuery, searchFilter, selectedTahap, setState } = useSantriStore();
+  const { currentPage, searchQuery, searchFilter, selectedTahap, setState } =
+    useSantriStore();
   const itemsPerPage = 10;
 
-  const { data, isLoading, isError, isFetching } = useSantriList( currentPage, itemsPerPage, searchFilter, { tahapHafalan: selectedTahap });
+  const { data, isLoading, isError, isFetching } = useSantriList(
+    currentPage,
+    itemsPerPage,
+    searchFilter,
+    { tahapHafalan: selectedTahap }
+  );
 
   const santriList = data?.data || [];
   const totalPages = data?.pagination?.totalPages || 1;
 
   const handleSearchChange = (value: string) => {
     setState({ searchQuery: value });
-  
-    if (value.trim() === "") {
-      setState({ searchFilter: "", currentPage: 1 });
+
+    if (value.trim() === '') {
+      setState({ searchFilter: '', currentPage: 1 });
     }
   };
 
@@ -34,11 +60,11 @@ const UstadzDashboard = () => {
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter") {
+    if (e.key === 'Enter') {
       handleSearchSubmit();
     }
   };
-  
+
   const isPreviousButtonDisabled = currentPage === 1 || isFetching;
   const isNextButtonDisabled = currentPage === totalPages || isFetching;
 
@@ -46,7 +72,9 @@ const UstadzDashboard = () => {
     <UstadzLayout>
       <div className="space-y-6">
         <div>
-          <h2 className="text-3xl font-bold text-violet-600/90">Daftar Santri</h2>
+          <h2 className="text-3xl font-bold text-violet-600/90">
+            Daftar Santri
+          </h2>
         </div>
         <Card>
           <CardHeader>
@@ -60,13 +88,16 @@ const UstadzDashboard = () => {
                   onKeyDown={handleKeyDown}
                   className="pr-10"
                 />
-                <Button onClick={handleSearchSubmit} className="flex-shrink-0 bg-yellow-500 hover:bg-yellow-600 text-white hover:text-white">
+                <Button
+                  onClick={handleSearchSubmit}
+                  className="flex-shrink-0 bg-yellow-500 hover:bg-yellow-600 text-white hover:text-white"
+                >
                   <Search className="h-4 w-4" />
                 </Button>
               </div>
 
-              <Select 
-                value={selectedTahap} 
+              <Select
+                value={selectedTahap}
                 onValueChange={(value) => {
                   setState({ selectedTahap: value });
                   setState({ currentPage: 1 });
@@ -81,25 +112,30 @@ const UstadzDashboard = () => {
                   <SelectItem value="Level3">Level 3 - Juz 1-29</SelectItem>
                 </SelectContent>
               </Select>
-            </div>            
+            </div>
           </CardHeader>
-          
+
           <CardContent>
             <div className="w-full overflow-x-auto">
               <div className="md:min-w-[640px]">
                 <Table>
                   <TableHeader>
                     <TableRow>
+                      <TableHead className="w-16">No</TableHead>
                       <TableHead>Nama</TableHead>
-                      <TableHead className="hidden md:table-cell">Nama Ortu</TableHead>
-                      <TableHead className="hidden md:table-cell">Tahapan</TableHead>
+                      <TableHead className="hidden md:table-cell">
+                        Nama Ortu
+                      </TableHead>
+                      <TableHead className="hidden md:table-cell">
+                        Tahapan
+                      </TableHead>
                       <TableHead className="text-center">Aksi</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {isLoading ? (
                       <TableRow>
-                        <TableCell colSpan={6} className="text-center">
+                        <TableCell colSpan={7} className="text-center">
                           <p className="flex items-center gap-2 md:justify-center">
                             <Loader2 className="h-5 w-5 animate-spin" />
                             Memuat...
@@ -109,7 +145,7 @@ const UstadzDashboard = () => {
                     ) : isError ? (
                       <TableRow>
                         <TableCell
-                          colSpan={6}
+                          colSpan={7}
                           className="text-center text-red-500"
                         >
                           {/* Error: {error?.message} */}
@@ -120,9 +156,16 @@ const UstadzDashboard = () => {
                       santriList.map((santri, _index) => (
                         <TableRow key={santri.id}>
                           <TableCell className="font-medium">
-                            {santri.nama.length > 15 ? santri.nama.substring(0, 10) + "..." : santri.nama}
+                            {(currentPage - 1) * itemsPerPage + _index + 1}
                           </TableCell>
-                          <TableCell className="hidden md:table-cell">{santri.orangTua?.[0]?.nama || "-"}</TableCell>
+                          <TableCell className="font-medium">
+                            {santri.nama.length > 15
+                              ? santri.nama.substring(0, 10) + '...'
+                              : santri.nama}
+                          </TableCell>
+                          <TableCell className="hidden md:table-cell">
+                            {santri.orangTua?.[0]?.nama || '-'}
+                          </TableCell>
                           <TableCell className="hidden md:table-cell">
                             <Badge variant="outline">
                               {formatTahapHafalan(santri.tahapHafalan)}
@@ -131,23 +174,43 @@ const UstadzDashboard = () => {
                           <TableCell className="text-center">
                             <div className="flex gap-2 justify-center">
                               <Link to={`/ustadz/santri-detail/${santri.id}`}>
-                                <Button size="sm" variant="outline" className="bg-blue-500 text-white hover:bg-blue-600 hover:text-white">
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  className="bg-blue-500 text-white hover:bg-blue-600 hover:text-white"
+                                >
                                   <Eye className="h-4 w-4" />
-                                  <span className="hidden sm:inline">Detail</span>
+                                  <span className="hidden sm:inline">
+                                    Detail
+                                  </span>
                                 </Button>
                               </Link>
                               {/* hafalan */}
-                              <Link to={`/ustadz/progress/hafalan/${santri.id}`}>
-                                <Button size="sm" variant="outline" className="bg-green-500 text-white hover:bg-green-600 hover:text-white">
+                              <Link
+                                to={`/ustadz/progress/hafalan/${santri.id}`}
+                              >
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  className="bg-green-500 text-white hover:bg-green-600 hover:text-white"
+                                >
                                   <Notebook className="h-4 w-4" />
-                                  <span className="hidden sm:inline">Hafalan</span>
+                                  <span className="hidden sm:inline">
+                                    Hafalan
+                                  </span>
                                 </Button>
                               </Link>
                               {/* Riwayat */}
                               <Link to={`/ustadz/riwayat/hafalan/${santri.id}`}>
-                                <Button size="sm" variant="outline" className="bg-yellow-500 text-white hover:bg-yellow-600 hover:text-white">
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  className="bg-yellow-500 text-white hover:bg-yellow-600 hover:text-white"
+                                >
                                   <Book className="h-4 w-4" />
-                                  <span className="hidden sm:inline">Riwayat</span>
+                                  <span className="hidden sm:inline">
+                                    Riwayat
+                                  </span>
                                 </Button>
                               </Link>
                             </div>
@@ -156,8 +219,13 @@ const UstadzDashboard = () => {
                       ))
                     ) : (
                       <TableRow>
-                        <TableCell colSpan={6} className="text-center">
-                          <p>Tidak ada data santri {searchQuery ? `dengan nama "${searchQuery}"` : ""} </p>
+                        <TableCell colSpan={7} className="text-center">
+                          <p>
+                            Tidak ada data santri{' '}
+                            {searchQuery
+                              ? `dengan name "${searchQuery}"`
+                              : ''}{' '}
+                          </p>
                           <p>di kelas {formatTahapHafalan(selectedTahap)}.</p>
                         </TableCell>
                       </TableRow>
@@ -180,7 +248,7 @@ const UstadzDashboard = () => {
                             setState({ currentPage: currentPage - 1 });
                           }
                         }}
-                        className={`${isPreviousButtonDisabled ? "pointer-events-none opacity-50" : ""}`}
+                        className={`${isPreviousButtonDisabled ? 'pointer-events-none opacity-50' : ''}`}
                       />
                     </PaginationItem>
                     <PaginationItem>
@@ -218,7 +286,7 @@ const UstadzDashboard = () => {
                             setState({ currentPage: currentPage + 1 });
                           }
                         }}
-                        className={`${isNextButtonDisabled ? "pointer-events-none opacity-50" : ""}`}
+                        className={`${isNextButtonDisabled ? 'pointer-events-none opacity-50' : ''}`}
                       />
                     </PaginationItem>
                   </PaginationContent>

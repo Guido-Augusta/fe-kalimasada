@@ -93,6 +93,7 @@ const UstadKelasTahapan = () => {
                 <Table>
                   <TableHeader>
                     <TableRow>
+                      <TableHead className="w-16">No</TableHead>
                       <TableHead>Nama</TableHead>
                       <TableHead className="hidden md:table-cell">Nama Ortu</TableHead>
                       <TableHead className="hidden md:table-cell">Tahapan</TableHead>
@@ -102,7 +103,7 @@ const UstadKelasTahapan = () => {
                   <TableBody>
                     {isLoading ? (
                       <TableRow>
-                        <TableCell colSpan={6} className="text-center">
+                        <TableCell colSpan={7} className="text-center">
                           <p className="flex items-center gap-2 md:justify-center">
                             <Loader2 className="h-5 w-5 animate-spin" />
                             Memuat...
@@ -112,7 +113,7 @@ const UstadKelasTahapan = () => {
                     ) : isError ? (
                       <TableRow>
                         <TableCell
-                          colSpan={6}
+                          colSpan={7}
                           className="text-center text-red-500"
                         >
                           {/* Error: {error?.message} */}
@@ -122,6 +123,9 @@ const UstadKelasTahapan = () => {
                     ) : santriList.length > 0 ? (
                       santriList.map((santri, _index) => (
                         <TableRow key={santri.id}>
+                          <TableCell className="font-medium">
+                            {(currentPage - 1) * itemsPerPage + _index + 1}
+                          </TableCell>
                           <TableCell className="font-medium">
                             {santri.nama.length > 15 ? santri.nama.substring(0, 10) + "..." : santri.nama}
                           </TableCell>
@@ -159,7 +163,7 @@ const UstadKelasTahapan = () => {
                       ))
                     ) : (
                       <TableRow>
-                        <TableCell colSpan={6} className="text-center">
+                        <TableCell colSpan={7} className="text-center">
                           <p>Tidak ada data santri {searchQuery ? `dengan nama "${searchQuery}"` : ""} </p>
                         </TableCell>
                       </TableRow>

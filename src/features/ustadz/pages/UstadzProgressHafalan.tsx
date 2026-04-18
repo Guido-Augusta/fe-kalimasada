@@ -141,6 +141,7 @@ export default function UstadzProgressHafalan() {
               <Table>
                 <TableHeader>
                   <TableRow>
+                    <TableHead className="w-16 text-center">No</TableHead>
                     {mode === "surah" ? (
                       <>
                         <TableHead className="w-[100px] text-center">Nama Surah</TableHead>
@@ -158,13 +159,14 @@ export default function UstadzProgressHafalan() {
                 </TableHeader>
                 <TableBody>
                   {filteredProgress?.length > 0 ? (
-                    filteredProgress.map((item) => {
+                    filteredProgress.map((item, index) => {
                       if (mode === "surah") {
                         const surah = item as { id: number; namaLatin: string; totalAyat: number; progress: string };
                         const [current, total] = surah.progress.split("/").map(Number);
                         const progressValue = total > 0 ? (current / total) * 100 : 0;
                         return (
                           <TableRow key={`surah-${santri?.id}-${surah.id}`}>
+                            <TableCell className="text-center font-medium">{index + 1}</TableCell>
                             <TableCell className="font-medium text-center">{surah.namaLatin}</TableCell>
                             <TableCell className="text-center hidden md:table-cell">{surah.totalAyat}</TableCell>
                             <TableCell className="text-center">
@@ -197,6 +199,7 @@ export default function UstadzProgressHafalan() {
                         const progressValue = total > 0 ? (current / total) * 100 : 0;
                         return (
                           <TableRow key={`juz-${santri?.id}-${juz.juz}`}>
+                            <TableCell className="text-center font-medium">{index + 1}</TableCell>
                             <TableCell className="font-medium text-center">Juz {juz.juz}</TableCell>
                             <TableCell className="text-center hidden md:table-cell">{juz.totalAyat}</TableCell>
                             <TableCell className="text-center">
@@ -227,7 +230,7 @@ export default function UstadzProgressHafalan() {
                     })
                   ) : (
                     <TableRow>
-                      <TableCell colSpan={4} className="text-center py-6 text-muted-foreground">
+                      <TableCell colSpan={5} className="text-center py-6 text-muted-foreground">
                         {mode === "surah" ? "Tidak ada surah yang cocok dengan pencarian." : "Tidak ada juz yang cocok dengan pencarian."}
                       </TableCell>
                     </TableRow>

@@ -206,6 +206,8 @@ export default function UstadRiwayatTerakhir() {
             isFetching={isFetching}
             isLoading={isLoading}
             isError={isError}
+            currentPage={currentPage}
+            itemsPerPage={10}
           />
 
           {totalPages > 1 && (

@@ -26,6 +26,8 @@ interface RiwayatTerakhirTableProps {
   isFetching?: boolean;
   isLoading?: boolean;
   isError?: boolean;
+  currentPage?: number;
+  itemsPerPage?: number;
 }
 
 export default function RiwayatTerakhirTable({
@@ -46,6 +48,8 @@ export default function RiwayatTerakhirTable({
   isFetching,
   isLoading,
   isError,
+  currentPage,
+  itemsPerPage,
 }: RiwayatTerakhirTableProps) {
 
 
@@ -142,7 +146,7 @@ export default function RiwayatTerakhirTable({
           <TableBody>
             {isLoading ? (
               <TableRow>
-                <TableCell colSpan={mode === 'surah' ? 6 : 7} className="text-center">
+                <TableCell colSpan={mode === 'surah' ? 7 : 8} className="text-center">
                   <div className="flex items-center gap-2">
                     <Loader2 className="h-4 w-4 animate-spin" />
                     <p>Memuat data...</p>
@@ -151,7 +155,7 @@ export default function RiwayatTerakhirTable({
               </TableRow>
             ) : isError ? (
               <TableRow>
-                <TableCell colSpan={mode === 'surah' ? 6 : 7} className="text-center">
+                <TableCell colSpan={mode === 'surah' ? 7 : 8} className="text-center">
                   <p className="text-red-500">Gagal memuat data riwayat terakhir.</p>
                 </TableCell>
               </TableRow>
@@ -159,7 +163,9 @@ export default function RiwayatTerakhirTable({
             dataList.length > 0 ? (
               dataList.map((riwayat, index) => (
                 <TableRow key={index} >
-                  <TableCell className="text-center">{index + 1}</TableCell>
+                  <TableCell className="text-center">
+                    {((currentPage || 1) - 1) * (itemsPerPage || 10) + index + 1}
+                  </TableCell>
                   <TableCell className="text-left font-medium text-wrap">
                     {riwayat.nama.length > 15 ? riwayat.nama.substring(0, 10) + "..." : riwayat.nama}
                   </TableCell>
@@ -225,7 +231,7 @@ export default function RiwayatTerakhirTable({
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={mode === 'surah' ? 6 : 7} className="text-center text-muted-foreground">
+                <TableCell colSpan={mode === 'surah' ? 7 : 8} className="text-center text-muted-foreground">
                 {searchName ? (
                   <p className="text-wrap">
                     Tidak ada riwayat hafalan atas nama {searchName} yang ditemukan.

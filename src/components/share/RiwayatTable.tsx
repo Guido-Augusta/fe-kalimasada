@@ -116,6 +116,7 @@ export default function RiwayatTable({
         <Table>
           <TableHeader>
             <TableRow>
+              <TableHead className="w-16 text-center">No</TableHead>
               <TableHead className="w-[100px] text-center">Tanggal</TableHead>
               {modeFilter === 'halaman' && (
                 <TableHead className="text-center md:w-[150px]">Juz</TableHead>
@@ -144,6 +145,9 @@ export default function RiwayatTable({
             {riwayatList.length > 0 ? (
               riwayatList.map((riwayat, index) => (
                 <TableRow key={index}>
+                  <TableCell className="text-center">
+                    {(currentPage - 1) * 10 + index + 1}
+                  </TableCell>
                   <TableCell className="text-center">
                     {formatTanggalIndo(riwayat.tanggal)}
                   </TableCell>
@@ -223,7 +227,7 @@ export default function RiwayatTable({
             ) : (
               <TableRow>
                 <TableCell
-                  colSpan={5}
+                  colSpan={8}
                   className="text-center text-muted-foreground"
                 >
                   <p className="text-wrap">
