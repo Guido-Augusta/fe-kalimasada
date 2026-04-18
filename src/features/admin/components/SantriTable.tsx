@@ -12,7 +12,10 @@ interface SantriListInterface {
   tahapHafalan: string;
   user: {
     email: string
-  }
+  },
+  orangTua: {
+    nama: string
+  } | null;
 }
 
 interface SantriTableProps {
@@ -34,7 +37,8 @@ const SantriTable: React.FC<SantriTableProps> = ({
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Nama</TableHead>
+               <TableHead>Nama</TableHead>
+              <TableHead className="hidden md:table-cell">Nama Ortu</TableHead>
               <TableHead className="hidden md:table-cell">Email</TableHead>
               <TableHead className="hidden md:table-cell">Tahapan</TableHead>
               <TableHead className="text-center">Aksi</TableHead>
@@ -59,10 +63,11 @@ const SantriTable: React.FC<SantriTableProps> = ({
             ) : santriList.length > 0 ? (
               santriList.map((santri, _index) => (
                 <TableRow key={santri.id}>
-                   <TableCell className="font-medium">
-                    {santri.nama.length > 15 ? santri.nama.substring(0, 10) + "..." : santri.nama}
-                  </TableCell>
-                  <TableCell className="hidden md:table-cell">{santri.user.email}</TableCell>
+                    <TableCell className="font-medium">
+                     {santri.nama.length > 15 ? santri.nama.substring(0, 10) + "..." : santri.nama}
+                   </TableCell>
+                   <TableCell className="hidden md:table-cell">{santri.orangTua?.nama || "-"}</TableCell>
+                   <TableCell className="hidden md:table-cell">{santri.user.email}</TableCell>
                   <TableCell className="hidden md:table-cell">
                     <Badge variant="outline">
                       {formatTahapHafalan(santri.tahapHafalan as string)}

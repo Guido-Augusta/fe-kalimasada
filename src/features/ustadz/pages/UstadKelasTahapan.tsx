@@ -94,6 +94,7 @@ const UstadKelasTahapan = () => {
                   <TableHeader>
                     <TableRow>
                       <TableHead>Nama</TableHead>
+                      <TableHead className="hidden md:table-cell">Nama Ortu</TableHead>
                       <TableHead className="hidden md:table-cell">Tahapan</TableHead>
                       <TableHead className="text-center">Aksi</TableHead>
                     </TableRow>
@@ -124,6 +125,7 @@ const UstadKelasTahapan = () => {
                           <TableCell className="font-medium">
                             {santri.nama.length > 15 ? santri.nama.substring(0, 10) + "..." : santri.nama}
                           </TableCell>
+                          <TableCell className="hidden md:table-cell">{santri.orangTua?.nama || "-"}</TableCell>
                           <TableCell className="hidden md:table-cell">
                             <Badge variant="outline">
                               {formatTahapHafalan(santri.tahapHafalan)}
