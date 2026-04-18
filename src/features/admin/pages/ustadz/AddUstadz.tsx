@@ -9,7 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Upload, UserPlus, Trash2, ArrowLeft } from "lucide-react";
+import { Upload, UserPlus, Trash2, ArrowLeft, Eye, EyeOff } from "lucide-react";
 import AdminLayout from "../../components/AdminLayout";
 import { ustadRegisterSchema } from "../../validation/ustad.validation";
 import { useAddUstadzMutation } from "../../hooks/useUstadzData";
@@ -24,6 +24,7 @@ const AddUstadz = () => {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const addMutation = useAddUstadzMutation();
   const navigate = useNavigate();
+  const [showPassword, setShowPassword] = useState(false);
 
   const form = useForm<FormData>({
     resolver: zodResolver(ustadRegisterSchema),
@@ -127,7 +128,7 @@ const AddUstadz = () => {
                           </FormItem>
                         )}
                       />
-                      <FormField
+                       <FormField
                         control={form.control}
                         name="password"
                         render={({ field }) => (
@@ -135,14 +136,28 @@ const AddUstadz = () => {
                             <FormLabel>Password</FormLabel>
                             <div className="flex items-center gap-2">
                               <FormControl>
-                                <Input
-                                  type="password"
-                                  placeholder="Generate password"
-                                  readOnly
-                                  {...field}
-                                />
+                                <div className="relative flex-1">
+                                  <Input
+                                    type={showPassword ? "text" : "password"}
+                                    placeholder="Masukkan password"
+                                    {...field}
+                                  />
+                                  <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="sm"
+                                    className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                                    onClick={() => setShowPassword(!showPassword)}
+                                  >
+                                    {showPassword ? (
+                                      <EyeOff className="h-4 w-4 text-muted-foreground" />
+                                    ) : (
+                                      <Eye className="h-4 w-4 text-muted-foreground" />
+                                    )}
+                                  </Button>
+                                </div>
                               </FormControl>
-                              <Button type="button" onClick={handleGeneratePassword} className="ml-2" size="sm">
+                              <Button type="button" onClick={handleGeneratePassword} className="shrink-0" size="sm">
                                 Generate
                               </Button>
                             </div>

@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, } from "@/components/ui/form";
-import { UserPlus, ArrowLeft } from "lucide-react";
+import { UserPlus, ArrowLeft, Eye, EyeOff } from "lucide-react";
 import AdminLayout from "../../components/AdminLayout";
 import { santriRegisterSchema } from "../../validation/santri.validation";
 import { useAddSantriMutation } from "../../hooks/useSantriData";
@@ -23,6 +23,7 @@ type Option = { label: string; value: string };
 const AddSantri = () => {
   const navigate = useNavigate();
   const [selectedOrtu, setSelectedOrtu] = useState<{ ayah?: number; ibu?: number; wali?: number }>({});
+  const [showPassword, setShowPassword] = useState(false);
 
 
   const [searchAyah, setSearchAyah] = useState("");
@@ -143,14 +144,28 @@ const AddSantri = () => {
                             <FormLabel>Password</FormLabel>
                             <div className="flex items-center gap-2">
                             <FormControl>
-                              <Input
-                                type="password"
-                                placeholder="Generate password"
-                                readOnly
-                                {...field}
-                              />
+                              <div className="relative flex-1">
+                                <Input
+                                  type={showPassword ? "text" : "password"}
+                                  placeholder="Masukkan password"
+                                  {...field}
+                                />
+                                <Button
+                                  type="button"
+                                  variant="ghost"
+                                  size="sm"
+                                  className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                                  onClick={() => setShowPassword(!showPassword)}
+                                >
+                                  {showPassword ? (
+                                    <EyeOff className="h-4 w-4 text-muted-foreground" />
+                                  ) : (
+                                    <Eye className="h-4 w-4 text-muted-foreground" />
+                                  )}
+                                </Button>
+                              </div>
                             </FormControl>
-                            <Button type="button" onClick={handleGeneratePassword} className="ml-2">
+                            <Button type="button" onClick={handleGeneratePassword} className="shrink-0">
                               Generate
                             </Button>
                             </div>

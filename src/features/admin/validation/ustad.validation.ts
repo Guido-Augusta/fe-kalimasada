@@ -33,6 +33,6 @@ export const ustadRegisterSchema = z.object({
 export const ustadUpdateSchemaAdmin = ustadRegisterSchema.omit({ email: true, password: true, });
 
 export const updateEmailPasswordSchema = z.object({
-    email: z.string().email({message: "Email tidak valid" }).optional(),
-    password: z.string().min(8, {message: "Kata sandi minimal 8 karakter" }).optional(),
+    email: z.string().email({message: "Email tidak valid" }).optional().or(z.literal("")),
+    password: z.string().min(8, {message: "Kata sandi minimal 8 karakter" }).optional().or(z.literal("")),
 });
