@@ -11,22 +11,12 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Eye, Loader2 } from 'lucide-react';
 import { formatTahapHafalan } from '@/utils/tahapHafalan';
+import type { SantriData } from '../types/santri.type';
 
-interface SantriListInterface {
-  id: number;
-  userId: number;
-  nama: string;
-  tahapHafalan: string;
-  user: {
-    role: string;
-  };
-  orangTua: {
-    nama: string;
-  }[] | null;
-}
+// SantriListInterface removed, using SantriData from shared types
 
 interface SantriTableProps {
-  santriList: SantriListInterface[];
+  santriList: SantriData[];
   isLoading: boolean;
   isError: boolean;
   currentPage?: number;
@@ -37,6 +27,8 @@ const SantriTable: React.FC<SantriTableProps> = ({
   santriList,
   isLoading,
   isError,
+  currentPage,
+  itemsPerPage,
 }) => {
   return (
     <div className="w-full overflow-x-auto bg-white rounded-md mt-3 shadow-md">
@@ -44,6 +36,7 @@ const SantriTable: React.FC<SantriTableProps> = ({
         <Table>
           <TableHeader>
             <TableRow>
+              <TableHead className="w-16">No</TableHead>
               <TableHead>Nama</TableHead>
               <TableHead className="hidden md:table-cell">Nama Ortu</TableHead>
               <TableHead className="hidden md:table-cell">Tahapan</TableHead>
@@ -70,6 +63,9 @@ const SantriTable: React.FC<SantriTableProps> = ({
               santriList.map((santri, _index) => (
                 <TableRow key={santri.id}>
                   <TableCell className="font-medium">
+                    {((currentPage || 1) - 1) * (itemsPerPage || 10) + _index + 1}
+                  </TableCell>
+                  <TableCell className="font-medium">
                     {santri.nama.length > 15
                       ? santri.nama.substring(0, 10) + '...'
                       : santri.nama}
@@ -79,7 +75,7 @@ const SantriTable: React.FC<SantriTableProps> = ({
                   </TableCell>
                   <TableCell className="hidden md:table-cell">
                     <Badge variant="outline">
-                      {formatTahapHafalan(santri.tahapHafalan as string)}
+                      {formatTahapHafalan(santri.tahapHafalan)}
                     </Badge>
                   </TableCell>
                   <TableCell className="text-right">

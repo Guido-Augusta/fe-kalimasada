@@ -55,7 +55,7 @@ export default function RiwayatTerakhirTable({
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="w-[100px] text-center">No Induk</TableHead>
+              <TableHead className="w-16 text-center">No</TableHead>
               <TableHead className="text-center">Nama Santri</TableHead>
               <TableHead className="text-center">Tanggal</TableHead>
               {mode === 'surah' ? (
@@ -159,7 +159,7 @@ export default function RiwayatTerakhirTable({
             dataList.length > 0 ? (
               dataList.map((riwayat, index) => (
                 <TableRow key={index} >
-                  <TableCell className="text-center">{riwayat.noInduk ?? '-'}</TableCell>
+                  <TableCell className="text-center">{index + 1}</TableCell>
                   <TableCell className="text-left font-medium text-wrap">
                     {riwayat.nama.length > 15 ? riwayat.nama.substring(0, 10) + "..." : riwayat.nama}
                   </TableCell>

@@ -159,7 +159,6 @@ export interface RiwayatHafalanTerakhirPagination {
 export interface RiwayatHafalanTerakhirSantri {
   id: number;
   nama: string;
-  noInduk: string | null;
   tahapHafalan: string;
   terakhirHafalan: RiwayatHafalanTerakhir | null;
 }

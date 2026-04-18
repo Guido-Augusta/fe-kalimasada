@@ -122,6 +122,7 @@ const ManageSantri = () => {
                 <Table>
                   <TableHeader>
                     <TableRow>
+                      <TableHead className="w-16">No</TableHead>
                       <TableHead>Nama</TableHead>
                       <TableHead className="hidden md:table-cell">Nama Ortu</TableHead>
                       <TableHead className="hidden md:table-cell">Tahapan</TableHead>
@@ -151,6 +152,9 @@ const ManageSantri = () => {
                     ) : santriList.length > 0 ? (
                       santriList.map((santri, _index) => (
                         <TableRow key={santri.id}>
+                          <TableCell className="font-medium">
+                            {(currentPage - 1) * itemsPerPage + _index + 1}
+                          </TableCell>
                           <TableCell className="font-medium text-left">
                             {santri.nama.length > 15 ? santri.nama.substring(0, 10) + "..." : santri.nama}
                           </TableCell>
