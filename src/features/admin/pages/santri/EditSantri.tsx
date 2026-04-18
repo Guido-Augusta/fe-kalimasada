@@ -23,11 +23,6 @@ type Option = { label: string; value: string };
 type OptionFormated = { id: string; nama: string };
 
 export default function EditSantri() {
-  const [selectedOrtu, setSelectedOrtu] = useState<{
-    ayah?: number;
-    ibu?: number;
-    wali?: number;
-  }>({});
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   const {
@@ -37,17 +32,11 @@ export default function EditSantri() {
     error: _error,
   } = useSantriDetail(id as string);
 
-  const [searchAyah, setSearchAyah] = useState('');
-  const [searchIbu, setSearchIbu] = useState('');
-  const [searchWali, setSearchWali] = useState('');
+  const [searchOrtu, setSearchOrtu] = useState('');
   const updateMutation = useUpdateSantriMutation();
 
-  const { data: orangTuaAyahOptions, isLoading: isLoadingOrtuAyah } =
-    useOrangTuaList(searchAyah, 'Ayah');
-  const { data: orangTuaIbuOptions, isLoading: isLoadingOrtuIbu } =
-    useOrangTuaList(searchIbu, 'Ibu');
-  const { data: orangTuaWaliOptions, isLoading: isLoadingOrtuWali } =
-    useOrangTuaList(searchWali, 'Wali');
+  const { data: orangTuaOptions, isLoading: isLoadingOrtu } =
+    useOrangTuaList(searchOrtu, '');
 
   const form = useForm<FormData>({
     resolver: zodResolver(santriUpdateSchemaAdmin),
@@ -60,41 +49,9 @@ export default function EditSantri() {
       : undefined,
   });
 
-  useEffect(() => {
-    if (data) {
-      const initialOrtu = data.orangTua.reduce(
-        (acc, ortu) => {
-          if (ortu.tipe === 'Ayah') acc.ayah = ortu.id;
-          if (ortu.tipe === 'Ibu') acc.ibu = ortu.id;
-          if (ortu.tipe === 'Wali') acc.wali = ortu.id;
-          return acc;
-        },
-        {} as { ayah?: number; ibu?: number; wali?: number }
-      );
-      setSelectedOrtu(initialOrtu);
-    }
-  }, [data]);
+  // No useEffect needed for selectedOrtu anymore
 
-  const handleSelectChange = (
-    type: 'ayah' | 'ibu' | 'wali',
-    option: { value: string; label: string } | null
-  ) => {
-    setSelectedOrtu((prev) => {
-      const newState = { ...prev };
-      if (option) {
-        newState[type] = Number(option.value);
-      } else {
-        delete newState[type];
-      }
-
-      const allOrtuIds = Object.values(newState)
-        .filter(Boolean)
-        .map((id) => Number(id));
-      form.setValue('ortuId', allOrtuIds, { shouldValidate: true });
-
-      return newState;
-    });
-  };
+  // handleSelectChange removed as it's handled by Controller directly
 
   const onSubmit = (formData: FormData) => {
     if (id) {
@@ -116,32 +73,14 @@ export default function EditSantri() {
     { value: 'Level3', label: 'Level 3 - Juz 1-29' },
   ];
 
-  const formattedOrangTuaAyahOptions =
-    orangTuaAyahOptions?.map((ortu: OptionFormated) => ({
+  const formattedOrangTuaOptions =
+    orangTuaOptions?.map((ortu: {id: number, nama: string, tipe: string}) => ({
       value: ortu.id.toString(),
-      label: ortu.nama,
-    })) || [];
-  const formattedOrangTuaIbuOptions =
-    orangTuaIbuOptions?.map((ortu: OptionFormated) => ({
-      value: ortu.id.toString(),
-      label: ortu.nama,
-    })) || [];
-  const formattedOrangTuaWaliOptions =
-    orangTuaWaliOptions?.map((ortu: OptionFormated) => ({
-      value: ortu.id.toString(),
-      label: ortu.nama,
+      label: `${ortu.nama} (${ortu.tipe})`,
     })) || [];
 
-  const handleInputChangeAyah = useCallback((value: string) => {
-    setSearchAyah(value);
-  }, []);
-
-  const handleInputChangeIbu = useCallback((value: string) => {
-    setSearchIbu(value);
-  }, []);
-
-  const handleInputChangeWali = useCallback((value: string) => {
-    setSearchWali(value);
+  const handleInputChangeOrtu = useCallback((value: string) => {
+    setSearchOrtu(value);
   }, []);
 
   return (
@@ -201,83 +140,24 @@ export default function EditSantri() {
                       </p>
                     </div>
 
-                    {/* Select untuk Ayah */}
+                    {/* Select untuk Orang Tua */}
                     <div className="space-y-2">
-                      <Label htmlFor="ayah">Ayah</Label>
+                      <Label htmlFor="ortuId">Orang Tua / Wali</Label>
                       <Controller
                         name="ortuId"
                         control={form.control}
-                        render={() => (
+                        render={({ field }) => (
                           <Select
-                            options={formattedOrangTuaAyahOptions}
-                            onChange={(option) =>
-                              handleSelectChange('ayah', option)
-                            }
-                            // onInputChange={(value) => setSearchAyah(value)}
-                            onInputChange={handleInputChangeAyah}
+                            isMulti
+                            options={formattedOrangTuaOptions}
+                            onChange={(options) => {
+                              field.onChange(options.map(opt => Number(opt.value)));
+                            }}
+                            onInputChange={handleInputChangeOrtu}
                             isClearable
-                            isLoading={isLoadingOrtuAyah}
-                            placeholder="Pilih Ayah..."
-                            value={
-                              formattedOrangTuaAyahOptions.find(
-                                (opt: Option) =>
-                                  Number(opt.value) === selectedOrtu.ayah
-                              ) || null
-                            }
-                          />
-                        )}
-                      />
-                    </div>
-
-                    {/* Select untuk Ibu */}
-                    <div className="space-y-2">
-                      <Label htmlFor="ibu">Ibu</Label>
-                      <Controller
-                        name="ortuId"
-                        control={form.control}
-                        render={() => (
-                          <Select
-                            options={formattedOrangTuaIbuOptions}
-                            onChange={(option) =>
-                              handleSelectChange('ibu', option)
-                            }
-                            onInputChange={handleInputChangeIbu}
-                            isClearable
-                            isLoading={isLoadingOrtuIbu}
-                            placeholder="Pilih Ibu..."
-                            value={
-                              formattedOrangTuaIbuOptions.find(
-                                (opt: Option) =>
-                                  Number(opt.value) === selectedOrtu.ibu
-                              ) || null
-                            }
-                          />
-                        )}
-                      />
-                    </div>
-
-                    {/* Select untuk Wali */}
-                    <div className="space-y-2">
-                      <Label htmlFor="wali">Wali</Label>
-                      <Controller
-                        name="ortuId"
-                        control={form.control}
-                        render={() => (
-                          <Select
-                            options={formattedOrangTuaWaliOptions}
-                            onChange={(option) =>
-                              handleSelectChange('wali', option)
-                            }
-                            onInputChange={handleInputChangeWali}
-                            isClearable
-                            isLoading={isLoadingOrtuWali}
-                            placeholder="Pilih Wali..."
-                            value={
-                              formattedOrangTuaWaliOptions.find(
-                                (opt: Option) =>
-                                  Number(opt.value) === selectedOrtu.wali
-                              ) || null
-                            }
+                            isLoading={isLoadingOrtu}
+                            placeholder="Pilih Orang Tua..."
+                            value={formattedOrangTuaOptions.filter((opt: Option) => field.value?.includes(Number(opt.value)))}
                           />
                         )}
                       />
