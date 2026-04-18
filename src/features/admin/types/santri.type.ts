@@ -14,7 +14,7 @@ export interface SantriData {
   orangTua: {
     id: number;
     nama: string;
-  }
+  }[] | null;
 }
 
 export interface SantriApiPaginationData {

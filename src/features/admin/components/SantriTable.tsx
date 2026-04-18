@@ -18,7 +18,7 @@ interface SantriListInterface {
   nama: string;
   tahapHafalan: string;
   user: {
-    email: string;
+    role: string;
   };
   orangTua: {
     nama: string;
@@ -46,7 +46,6 @@ const SantriTable: React.FC<SantriTableProps> = ({
             <TableRow>
               <TableHead>Nama</TableHead>
               <TableHead className="hidden md:table-cell">Nama Ortu</TableHead>
-              <TableHead className="hidden md:table-cell">Email</TableHead>
               <TableHead className="hidden md:table-cell">Tahapan</TableHead>
               <TableHead className="text-center">Aksi</TableHead>
             </TableRow>
@@ -77,9 +76,6 @@ const SantriTable: React.FC<SantriTableProps> = ({
                   </TableCell>
                   <TableCell className="hidden md:table-cell">
                     {santri.orangTua?.[0]?.nama || '-'}
-                  </TableCell>
-                  <TableCell className="hidden md:table-cell">
-                    {santri.user.email}
                   </TableCell>
                   <TableCell className="hidden md:table-cell">
                     <Badge variant="outline">

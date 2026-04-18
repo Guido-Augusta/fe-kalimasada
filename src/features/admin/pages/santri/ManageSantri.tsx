@@ -124,7 +124,6 @@ const ManageSantri = () => {
                     <TableRow>
                       <TableHead>Nama</TableHead>
                       <TableHead className="hidden md:table-cell">Nama Ortu</TableHead>
-                      <TableHead className="hidden md:table-cell">Email</TableHead>
                       <TableHead className="hidden md:table-cell">Tahapan</TableHead>
                       <TableHead className="text-center">Aksi</TableHead>
                     </TableRow>
@@ -156,7 +155,6 @@ const ManageSantri = () => {
                             {santri.nama.length > 15 ? santri.nama.substring(0, 10) + "..." : santri.nama}
                           </TableCell>
                           <TableCell className="hidden md:table-cell">{santri.orangTua?.[0]?.nama || "-"}</TableCell>
-                          <TableCell className="hidden md:table-cell">{santri.user.email}</TableCell>
                           <TableCell className="hidden md:table-cell">
                             {formatTahapHafalan(santri.tahapHafalan)}
                           </TableCell>
