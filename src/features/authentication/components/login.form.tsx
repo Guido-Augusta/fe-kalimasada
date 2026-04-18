@@ -35,7 +35,7 @@ export default function LoginForm() {
       <CardHeader className="space-y-1">
         <CardTitle className="text-2xl text-violet-600">Masuk</CardTitle>
         <CardDescription>
-          Masukkan email dan kata sandi Anda untuk masuk ke akun Anda.
+          Masukkan email atau nama santri dan kata sandi Anda untuk masuk ke akun Anda.
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -46,9 +46,9 @@ export default function LoginForm() {
               name="email"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Email</FormLabel>
+                  <FormLabel>Email / Nama Santri</FormLabel>
                   <FormControl>
-                    <Input placeholder="email@example.com" {...field} />
+                    <Input placeholder="Email atau Nama Santri" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

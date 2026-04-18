@@ -9,12 +9,7 @@ interface SantriListInterface {
   id: number;
   userId: number;
   nama: string;
-  alamat: string;
-  fotoProfil: string;
-  jenisKelamin: string;
   tahapHafalan: string;
-  nomorHp?: string;
-  noInduk?: string;
   user: {
     email: string
   }
@@ -39,11 +34,9 @@ const SantriTable: React.FC<SantriTableProps> = ({
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="w-16">No Induk</TableHead>
               <TableHead>Nama</TableHead>
               <TableHead className="hidden md:table-cell">Email</TableHead>
               <TableHead className="hidden md:table-cell">Tahapan</TableHead>
-              <TableHead className="hidden md:table-cell">Jenis Kelamin</TableHead>
               <TableHead className="text-center">Aksi</TableHead>
             </TableRow>
           </TableHeader>
@@ -66,11 +59,7 @@ const SantriTable: React.FC<SantriTableProps> = ({
             ) : santriList.length > 0 ? (
               santriList.map((santri, _index) => (
                 <TableRow key={santri.id}>
-                  <TableCell className="font-medium">
-                    {/* {(currentPage - 1) * itemsPerPage + index + 1} */}
-                    <p className="text-center">{santri.noInduk || "-"}</p>
-                  </TableCell>
-                  <TableCell className="font-medium">
+                   <TableCell className="font-medium">
                     {santri.nama.length > 15 ? santri.nama.substring(0, 10) + "..." : santri.nama}
                   </TableCell>
                   <TableCell className="hidden md:table-cell">{santri.user.email}</TableCell>
@@ -78,9 +67,6 @@ const SantriTable: React.FC<SantriTableProps> = ({
                     <Badge variant="outline">
                       {formatTahapHafalan(santri.tahapHafalan as string)}
                     </Badge>
-                  </TableCell>
-                  <TableCell className="hidden md:table-cell">
-                    {santri.jenisKelamin === 'L' ? 'Laki-laki' : 'Perempuan'}
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex gap-2 justify-end">

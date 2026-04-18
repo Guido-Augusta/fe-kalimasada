@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -6,11 +6,9 @@ import Select from "react-select";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Label } from "@/components/ui/label";
+
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, } from "@/components/ui/form";
-import { Upload, UserPlus, Trash2, ArrowLeft } from "lucide-react";
+import { UserPlus, ArrowLeft } from "lucide-react";
 import AdminLayout from "../../components/AdminLayout";
 import { santriRegisterSchema } from "../../validation/santri.validation";
 import { useAddSantriMutation } from "../../hooks/useSantriData";
@@ -24,9 +22,8 @@ type Option = { label: string; value: string };
 
 const AddSantri = () => {
   const navigate = useNavigate();
-  const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [selectedOrtu, setSelectedOrtu] = useState<{ ayah?: number; ibu?: number; wali?: number }>({});
-  const fileInputRef = useRef<HTMLInputElement | null>(null);
+
 
   const [searchAyah, setSearchAyah] = useState("");
   const [searchIbu, setSearchIbu] = useState("");
@@ -40,63 +37,27 @@ const AddSantri = () => {
   const form = useForm<FormData>({
     resolver: zodResolver(santriRegisterSchema),
     defaultValues: {
-      email: "",
       password: "",
       nama: "",
-      noInduk: "",
-      nomorTelepon: "",
-      alamat: "",
-      jenisKelamin: "L",
-      tanggalLahir: "",
       tahapHafalan: "Level1",
       ortuId: [],
     },
   });
 
-  const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      form.setValue("foto", file);
-      const imageUrl = URL.createObjectURL(file);
-      setSelectedImage(imageUrl);
-    }
-  };
 
-  const handleRemoveImage = () => {
-    form.setValue("foto", undefined);
-    setSelectedImage(null);
-    if (fileInputRef.current) {
-      fileInputRef.current.value = "";
-    }
-  };
 
   const onSubmit = (data: FormData) => {
     const formData = new FormData();
-    formData.append("email", data.email);
     formData.append("password", data.password);
     formData.append("nama", data.nama);
-    formData.append("nomorHp", data.nomorTelepon || "");
-    formData.append("noInduk", data.noInduk);
-    formData.append("alamat", data.alamat);
-    formData.append("jenisKelamin", data.jenisKelamin);
-    formData.append("tanggalLahir", data.tanggalLahir);
     formData.append("tahapHafalan", data.tahapHafalan);
 
     const allOrtuIds = Object.values(selectedOrtu).filter(Boolean);
     formData.append("ortuId", JSON.stringify(allOrtuIds));
 
-    if (data.foto) {
-      formData.append("fotoProfil", data.foto);
-    }
-
-    // console.log(formData);
     addMutation.mutate(formData, {
       onSuccess: () => {
         form.reset();
-        setSelectedImage(null);
-        if (fileInputRef.current) {
-          fileInputRef.current.value = "";
-        }
       },
     });
   };
@@ -173,24 +134,7 @@ const AddSantri = () => {
                 <form onSubmit={form.handleSubmit(onSubmit)}>
                   <div className="flex flex-col md:flex-row md:space-x-8">
                     <div className="md:w-1/2 space-y-6">
-                      <FormField
-                        control={form.control}
-                        name="email"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Email</FormLabel>
-                            <FormControl>
-                              <Input
-                                type="email"
-                                placeholder="contoh@email.com"
-                                // autoComplete="email-santri"
-                                {...field}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
+
                       <FormField
                         control={form.control}
                         name="password"
@@ -230,102 +174,11 @@ const AddSantri = () => {
                           </FormItem>
                         )}
                       />
-                      <FormField
-                        control={form.control}
-                        name="noInduk"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Nomor Induk</FormLabel>
-                            <FormControl>
-                              <Input
-                                type="text"
-                                placeholder="Masukkan no induk"
-                                {...field}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={form.control}
-                        name="nomorTelepon"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Nomor Telepon (Opsional)</FormLabel>
-                            <FormControl>
-                              <Input
-                                type="tel"
-                                placeholder="08xxxxxxxxxx"
-                                {...field}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={form.control}
-                        name="tanggalLahir"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Tanggal Lahir</FormLabel>
-                            <FormControl>
-                              <Input
-                                type="date"
-                                {...field}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={form.control}
-                        name="jenisKelamin"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Jenis Kelamin</FormLabel>
-                            <FormControl>
-                              <RadioGroup
-                                onValueChange={field.onChange}
-                                value={field.value}
-                                className="flex gap-6"
-                              >
-                                <div className="flex items-center space-x-2">
-                                  <RadioGroupItem value="L" id="laki-laki" />
-                                  <Label htmlFor="laki-laki">Laki-laki</Label>
-                                </div>
-                                <div className="flex items-center space-x-2">
-                                  <RadioGroupItem value="P" id="perempuan" />
-                                  <Label htmlFor="perempuan">Perempuan</Label>
-                                </div>
-                              </RadioGroup>
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
+
                     </div>
 
                     <div className="md:w-1/2 space-y-6 mt-6 md:mt-0">
-                      <FormField
-                        control={form.control}
-                        name="alamat"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Alamat</FormLabel>
-                            <FormControl>
-                              <Textarea
-                                placeholder="Masukkan alamat lengkap"
-                                className="min-h-[80px]"
-                                {...field}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
+
 
                       {/* Select for Ayah */}
                       <FormItem>
@@ -421,55 +274,7 @@ const AddSantri = () => {
                           </FormItem>
                         )}
                       />
-                      <FormField
-                        control={form.control}
-                        name="foto"
-                        render={({ field: { onChange, value, ...field } }) => (
-                          <FormItem>
-                            <FormLabel>Foto (Opsional)</FormLabel>
-                            <FormControl>
-                              <div className="space-y-4">
-                                <div className="flex items-center gap-4">
-                                  <Input
-                                    type="file"
-                                    accept="image/*"
-                                    {...field}
-                                    ref={(el) => {
-                                      fileInputRef.current = el;
-                                      field.ref(el);
-                                    }}
-                                    onChange={handleImageChange}
-                                    value={undefined}
-                                    className="file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-primary file:text-primary-foreground hover:file:bg-primary/90"
-                                  />
-                                  <Upload className="h-4 w-4 text-muted-foreground" />
-                                </div>
-                                {selectedImage && (
-                                  <div className="flex flex-col items-start space-y-2">
-                                    <div className="w-32 h-32 rounded-lg overflow-hidden border">
-                                      <img
-                                        src={selectedImage}
-                                        alt="Preview"
-                                        className="w-full h-full object-cover"
-                                      />
-                                    </div>
-                                    <Button
-                                      type="button"
-                                      variant="ghost"
-                                      onClick={handleRemoveImage}
-                                      className="text-sm text-destructive hover:bg-destructive/10"
-                                    >
-                                      <Trash2 className="w-4 h-4 mr-2" />
-                                      Hapus Foto
-                                    </Button>
-                                  </div>
-                                )}
-                              </div>
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
+
                     </div>
                   </div>
 
@@ -480,7 +285,6 @@ const AddSantri = () => {
                     <Button type="button" variant="destructive"
                       onClick={() => {
                         form.reset();
-                        setSelectedImage(null);
                       }}
                       className="flex-1"
                       disabled={addMutation.isPending}

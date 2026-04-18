@@ -26,6 +26,7 @@ export interface ApiData {
 
 export interface UstadzDetailData {
   id: number;
+  userId: number;
   nama: string;
   nomorHp: string;
   alamat: string;

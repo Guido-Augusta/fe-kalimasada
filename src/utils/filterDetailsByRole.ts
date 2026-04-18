@@ -1,4 +1,6 @@
 import type { RoleDetails, User } from "@/store/useUser";
+import type { OrtuDetailData } from "@/features/admin/types/ortu.type";
+import type { SantriDetailData } from "@/features/admin/types/santri.type";
 
 export function filterDetailsByRole(user: User): User {
   let details: RoleDetails | null;
@@ -8,26 +10,29 @@ export function filterDetailsByRole(user: User): User {
       details = null;
       break;
 
-    case "ortu":
+    case "ortu": {
+      const ortuDetails = user.details as OrtuDetailData;
       details = {
-        id: user.details?.id,
-        nama: user.details?.nama,
-        alamat: user.details?.alamat,
-        fotoProfil: user.details?.fotoProfil,
-        nomorHp: user.details?.nomorHp,
-        jenisKelamin: user.details?.jenisKelamin,
-      }as RoleDetails;
-      break;
-
-    case "santri":
-      details = {
-        id: user.details?.id,
-        nama: user.details?.nama,
-        fotoProfil: user.details?.fotoProfil,
-        nomorHp: user.details?.nomorHp,
-        jenisKelamin: user.details?.jenisKelamin,
+        id: ortuDetails?.id,
+        userId: ortuDetails?.userId,
+        nama: ortuDetails?.nama,
+        alamat: ortuDetails?.alamat,
+        fotoProfil: ortuDetails?.fotoProfil,
+        nomorHp: ortuDetails?.nomorHp,
+        jenisKelamin: ortuDetails?.jenisKelamin,
       } as RoleDetails;
       break;
+    }
+
+    case "santri": {
+      const santriDetails = user.details as SantriDetailData;
+      details = {
+        id: santriDetails?.id,
+        userId: santriDetails?.userId,
+        nama: santriDetails?.nama,
+      } as RoleDetails;
+      break;
+    }
 
     default:
       details = user.details ?? null;
