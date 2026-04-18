@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import { ArrowLeft, User, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -20,7 +20,6 @@ import { EditEmailPasswordDialog } from '../../components/EditEmailPasswordDialo
 
 type FormData = z.infer<typeof santriUpdateSchemaAdmin>;
 type Option = { label: string; value: string };
-type OptionFormated = { id: string; nama: string };
 
 export default function EditSantri() {
   const navigate = useNavigate();
@@ -35,8 +34,10 @@ export default function EditSantri() {
   const [searchOrtu, setSearchOrtu] = useState('');
   const updateMutation = useUpdateSantriMutation();
 
-  const { data: orangTuaOptions, isLoading: isLoadingOrtu } =
-    useOrangTuaList(searchOrtu, '');
+  const { data: orangTuaOptions, isLoading: isLoadingOrtu } = useOrangTuaList(
+    searchOrtu,
+    ''
+  );
 
   const form = useForm<FormData>({
     resolver: zodResolver(santriUpdateSchemaAdmin),
@@ -74,10 +75,12 @@ export default function EditSantri() {
   ];
 
   const formattedOrangTuaOptions =
-    orangTuaOptions?.map((ortu: {id: number, nama: string, tipe: string}) => ({
-      value: ortu.id.toString(),
-      label: `${ortu.nama} (${ortu.tipe})`,
-    })) || [];
+    orangTuaOptions?.map(
+      (ortu: { id: number; nama: string; tipe: string }) => ({
+        value: ortu.id.toString(),
+        label: `${ortu.nama} (${ortu.tipe})`,
+      })
+    ) || [];
 
   const handleInputChangeOrtu = useCallback((value: string) => {
     setSearchOrtu(value);
@@ -151,13 +154,18 @@ export default function EditSantri() {
                             isMulti
                             options={formattedOrangTuaOptions}
                             onChange={(options) => {
-                              field.onChange(options.map(opt => Number(opt.value)));
+                              field.onChange(
+                                options.map((opt) => Number(opt.value))
+                              );
                             }}
                             onInputChange={handleInputChangeOrtu}
                             isClearable
                             isLoading={isLoadingOrtu}
                             placeholder="Pilih Orang Tua..."
-                            value={formattedOrangTuaOptions.filter((opt: Option) => field.value?.includes(Number(opt.value)))}
+                            value={formattedOrangTuaOptions.filter(
+                              (opt: Option) =>
+                                field.value?.includes(Number(opt.value))
+                            )}
                           />
                         )}
                       />
