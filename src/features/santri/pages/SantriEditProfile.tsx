@@ -89,7 +89,7 @@ export default function SantriEditProfile() {
                       Informasi Personal
                     </CardTitle>
                   </CardHeader>
-                  <CardContent className="space-y-6">
+                  {/* <CardContent className="space-y-6">
                     <div className="space-y-2">
                       <Label htmlFor="nama">
                         Nama Lengkap (digunakan untuk login)
@@ -104,7 +104,7 @@ export default function SantriEditProfile() {
                         {form.formState.errors.nama?.message}
                       </p>
                     </div>
-                  </CardContent>
+                  </CardContent> */}
                 </Card>
               </div>
             </div>

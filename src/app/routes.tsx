@@ -43,7 +43,6 @@ import SantriProfile from '@/features/santri/pages/SantriProfile';
 import OrtuProfile from '@/features/ortu/pages/OrtuProfile';
 import UstadProfile from '@/features/ustadz/pages/UstadProfile';
 import UstadEditProfile from '@/features/ustadz/pages/UstadEditProfile';
-import SantriEditProfile from '@/features/santri/pages/SantriEditProfile';
 import OrtuEditProfile from '@/features/ortu/pages/OrtuEditProfile';
 import AlquranAdmin from '@/features/admin/pages/AlquranAdmin';
 import AlquranUstadz from '@/features/ustadz/pages/AlquranUstadz';
@@ -59,7 +58,6 @@ import ForgotEmail from '@/features/authentication/pages/forgot.email';
 import VerifyToken from '@/features/authentication/pages/verify.token';
 import SetNewPassword from '@/features/authentication/pages/set-new.password';
 import UstadChangePassword from '@/features/ustadz/pages/UstadChangePassword';
-import SantriChangePassword from '@/features/santri/pages/SantriChangePassword';
 import OrtuChangePassword from '@/features/ortu/pages/OrtuChangePassword';
 import UstadLainDetail from '@/features/ustadz/pages/UstadLainDetail';
 import UstadKelasTahapan from '@/features/ustadz/pages/UstadKelasTahapan';
@@ -241,10 +239,7 @@ export const AppRouter = () => {
             path="/santri/baca/surah/:idSurah"
             element={<SantriBacaSurat />}
           />
-          <Route
-            path="/santri/baca/juz/:idJuz"
-            element={<SantriBacaJuz />}
-          />
+          <Route path="/santri/baca/juz/:idJuz" element={<SantriBacaJuz />} />
           <Route
             path="/santri/riwayat/hafalan"
             element={<SantriRiwayatHafalan />}
@@ -266,11 +261,11 @@ export const AppRouter = () => {
             element={<SantriDetailOrtu />}
           />
           <Route path="/santri/profile" element={<SantriProfile />} />
-          <Route path="/santri/edit/profile" element={<SantriEditProfile />} />
-          <Route
+          {/* <Route path="/santri/edit/profile" element={<SantriEditProfile />} /> */}
+          {/* <Route
             path="/santri/change-password"
             element={<SantriChangePassword />}
-          />
+          /> */}
           <Route
             path="/santri/ustadz/detail/:id"
             element={<SantriDetailUstad />}
