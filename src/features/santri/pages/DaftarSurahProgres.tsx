@@ -16,6 +16,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
+import alQuranImg from "@/assets/al-quran.png";
+
 export default function DaftarSurahProgres() {
   const [mode, setMode] = useState<ModeType>("surah");
   const { surahData, juzData, loading, error } = useFetchProgress(mode);
@@ -135,7 +137,7 @@ export default function DaftarSurahProgres() {
                       Doa Khatam Al-Qur'an
                     </h3>
                     <img
-                      src="src/assets/al-quran.png"
+                      src={alQuranImg}
                       alt=""
                       className="w-28 h-28 mx-auto"
                     />
