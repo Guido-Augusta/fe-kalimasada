@@ -1,8 +1,4 @@
-import {
-  ArrowLeft,
-  User,
-  Loader2,
-} from 'lucide-react';
+import { ArrowLeft, User, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -85,8 +81,6 @@ export default function SantriEditProfile() {
         ) : (
           <form onSubmit={form.handleSubmit(onSubmit)}>
             <div className="grid gap-6 lg:grid-cols-3">
-
-
               <div className="lg:col-span-2">
                 <Card>
                   <CardHeader>
@@ -97,7 +91,9 @@ export default function SantriEditProfile() {
                   </CardHeader>
                   <CardContent className="space-y-6">
                     <div className="space-y-2">
-                      <Label htmlFor="nama">Nama Lengkap</Label>
+                      <Label htmlFor="nama">
+                        Nama Lengkap (digunakan untuk login)
+                      </Label>
                       <Input
                         id="nama"
                         type="text"
@@ -108,8 +104,6 @@ export default function SantriEditProfile() {
                         {form.formState.errors.nama?.message}
                       </p>
                     </div>
-
-
                   </CardContent>
                 </Card>
               </div>
