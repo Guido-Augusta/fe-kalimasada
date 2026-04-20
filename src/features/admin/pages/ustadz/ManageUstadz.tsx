@@ -9,11 +9,10 @@ import { Plus, Search, Eye, Edit, Trash2, Loader2 } from "lucide-react";
 import AdminLayout from "../../components/AdminLayout";
 import { Link } from "react-router-dom";
 import { useUstadzList, useDeleteUstadzMutation, } from "../../hooks/useUstadzData";
+import { useUstadzStore } from "@/store/useUstadzStore";
 
 const ManageUstadz = () => {
-  const [searchQuery, setSearchQuery] = useState("");
-  const [searchFilter, setSearchFilter] = useState("");
-  const [currentPage, setCurrentPage] = useState(1);
+  const { currentPage, searchQuery, searchFilter, setState } = useUstadzStore();
   const itemsPerPage = 10;
 
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
@@ -27,17 +26,15 @@ const ManageUstadz = () => {
   const totalPages = data?.pagination?.totalPages || 1;
 
   const handleSearchChange = (value: string) => {
-    setSearchQuery(value);
+    setState({ searchQuery: value });
 
     if (value.trim() === "") {
-      setSearchFilter("");
-      setCurrentPage(1);
+      setState({ searchFilter: "", currentPage: 1 });
     }
   };
 
   const handleSearchSubmit = () => {
-    setSearchFilter(searchQuery);
-    setCurrentPage(1);
+    setState({ searchFilter: searchQuery, currentPage: 1 });
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -189,7 +186,7 @@ const ManageUstadz = () => {
                         onClick={(e) => {
                           e.preventDefault();
                           if (!isPreviousButtonDisabled) {
-                            setCurrentPage(currentPage - 1);
+                            setState({ currentPage: currentPage - 1 });
                           }
                         }}
                         className={`${isPreviousButtonDisabled ? "pointer-events-none opacity-50" : ""}`}
@@ -201,7 +198,7 @@ const ManageUstadz = () => {
                         href="#"
                         onClick={(e) => {
                           e.preventDefault();
-                          setCurrentPage(1);
+                          setState({ currentPage: 1 });
                         }}
                         isActive={currentPage === 1}
                       >
@@ -235,7 +232,7 @@ const ManageUstadz = () => {
                           href="#"
                           onClick={(e) => {
                             e.preventDefault();
-                            setCurrentPage(totalPages);
+                            setState({ currentPage: totalPages });
                           }}
                           isActive={currentPage === totalPages}
                         >
@@ -250,7 +247,7 @@ const ManageUstadz = () => {
                         onClick={(e) => {
                           e.preventDefault();
                           if (!isNextButtonDisabled) {
-                            setCurrentPage(currentPage + 1);
+                            setState({ currentPage: currentPage + 1 });
                           }
                         }}
                         className={`${isNextButtonDisabled ? "pointer-events-none opacity-50" : ""}`}
@@ -298,3 +295,4 @@ const ManageUstadz = () => {
 };
 
 export default ManageUstadz;
+

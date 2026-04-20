@@ -9,14 +9,13 @@ import { Plus, Search, Eye, Edit, Trash2, Loader2 } from "lucide-react";
 import AdminLayout from "../../components/AdminLayout";
 import { Link } from "react-router-dom";
 import { useOrtuList, useDeleteOrtuMutation, } from "../../hooks/useOrtuData";
+import { useOrtuStore } from "@/store/useOrtuStore";
 
 const ManageOrtu = () => {
-  const [searchQuery, setSearchQuery] = useState("");
-  const [searchFilter, setSearchFilter] = useState("");
-  const [currentPage, setCurrentPage] = useState(1);
-  const [selectedOrtu, setSelectedOrtu] = useState<string>("");
+  const { currentPage, searchQuery, searchFilter, setState } = useOrtuStore();
   const itemsPerPage = 10;
 
+  const [selectedOrtu, setSelectedOrtu] = useState<string>("");
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [ortuToDelete, setOrtuToDelete] = useState<number | null>(null);
 
@@ -27,17 +26,15 @@ const ManageOrtu = () => {
   const totalPages = data?.pagination?.totalPages || 1;
 
   const handleSearchChange = (value: string) => {
-    setSearchQuery(value);
+    setState({ searchQuery: value });
 
     if (value.trim() === "") {
-      setSearchFilter("");
-      setCurrentPage(1);
+      setState({ searchFilter: "", currentPage: 1 });
     }
   };
 
   const handleSearchSubmit = () => {
-    setSearchFilter(searchQuery);
-    setCurrentPage(1);
+    setState({ searchFilter: searchQuery, currentPage: 1 });
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -190,7 +187,7 @@ const ManageOrtu = () => {
                         onClick={(e) => {
                           e.preventDefault();
                           if (!isPreviousButtonDisabled) {
-                            setCurrentPage(currentPage - 1);
+                            setState({ currentPage: currentPage - 1 });
                           }
                         }}
                         className={`${isPreviousButtonDisabled ? "pointer-events-none opacity-50" : ""}`}
@@ -202,7 +199,7 @@ const ManageOrtu = () => {
                         href="#"
                         onClick={(e) => {
                           e.preventDefault();
-                          setCurrentPage(1);
+                          setState({ currentPage: 1 });
                         }}
                         isActive={currentPage === 1}
                       >
@@ -236,7 +233,7 @@ const ManageOrtu = () => {
                           href="#"
                           onClick={(e) => {
                             e.preventDefault();
-                            setCurrentPage(totalPages);
+                            setState({ currentPage: totalPages });
                           }}
                           isActive={currentPage === totalPages}
                         >
@@ -251,7 +248,7 @@ const ManageOrtu = () => {
                         onClick={(e) => {
                           e.preventDefault();
                           if (!isNextButtonDisabled) {
-                            setCurrentPage(currentPage + 1);
+                            setState({ currentPage: currentPage + 1 });
                           }
                         }}
                         className={`${isNextButtonDisabled ? "pointer-events-none opacity-50" : ""}`}
@@ -301,3 +298,4 @@ const ManageOrtu = () => {
 };
 
 export default ManageOrtu;
+
